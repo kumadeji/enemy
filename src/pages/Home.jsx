@@ -1,10 +1,10 @@
 export default function Home() {
   return (
     <main className="container">
-      <h1>Мультиигровое сообщество ENEMY</h1>
+      <h1>Игровое сообщество ENEMY</h1>
 
       <section className="card">
-        <h2>О клане</h2>
+        <h2>О сообществе</h2>
         <p>
           В настоящий момент сайт обслуживает закрытое направление сообщества ENEMY —
           отряд по игре <b>Arma Reforger</b>. Вступление в отряд происходит по заявке
@@ -14,7 +14,7 @@ export default function Home() {
       </section>
 
       <section className="card">
-        <h2>Новости клана</h2>
+        <h2>Новости сообщества</h2>
         <p className="hint">Виджет ВКонтакте будет подключён позже.</p>
       </section>
     </main>

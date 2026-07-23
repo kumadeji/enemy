@@ -28,6 +28,10 @@ export default function Apply() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
+  // Запоминаем один раз, был ли пользователь уже залогинен ДО начала заполнения формы.
+  // Это не будет реагировать на currentUser, который меняется в процессе самой регистрации.
+  const [wasLoggedInOnLoad] = useState(() => !!currentUser);
+
   const [form, setForm] = useState({
     email: "", password: "", fullName: "", age: "",
     steamUrl: "", discordTag: "", extraContacts: "",
@@ -40,7 +44,7 @@ export default function Apply() {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  if (currentUser) {
+  if (wasLoggedInOnLoad) {
     return (
       <main className="container">
         <p className="hint">Вы уже зарегистрированы. <Link to="/profile">Перейти в профиль</Link>.</p>
@@ -133,7 +137,7 @@ export default function Apply() {
     <main className="container">
       <h1>Заявка на вступление</h1>
       <p className="page-lead">
-        Мультиигровое сообщество <b>ENEMY</b>. Приём заявок в настоящий момент открыт
+        Игровое сообщество <b>ENEMY</b>. Приём заявок в настоящий момент открыт
         для закрытого направления по игре <b>Arma Reforger</b>. После заполнения анкеты
         она поступит на рассмотрение администрации.
       </p>

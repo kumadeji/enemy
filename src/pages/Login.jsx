@@ -27,7 +27,7 @@ export default function Login() {
     <main className="container">
       <div className="auth-page">
         <h1>Вход в личный кабинет</h1>
-        <p className="page-lead">Мультиигровое сообщество <b>ENEMY</b>, направление Arma Reforger.</p>
+        <p className="page-lead">Игровое сообщество <b>ENEMY</b>, направление Arma Reforger.</p>
 
         <form className="apply-form" onSubmit={handleSubmit}>
           <fieldset className="form-section">
@@ -38,7 +38,7 @@ export default function Login() {
             <input type="password" required value={password} onChange={e => setPassword(e.target.value)} />
             <div className="field-hint">
               Восстановление пароля на сайте не предусмотрено. Если вы забыли пароль —
-              обратитесь к администрации клана для сброса аккаунта.
+              обратитесь к администрации сообщества для сброса аккаунта.
             </div>
           </fieldset>
 

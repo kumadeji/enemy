@@ -21,18 +21,24 @@ export function AuthProvider({ children }) {
       setIsAdmin(false);
       return;
     }
-    const profileSnap = await getDoc(doc(db, "profiles", user.uid));
-    setProfile(profileSnap.exists() ? { id: user.uid, ...profileSnap.data() } : null);
+    try {
+      const profileSnap = await getDoc(doc(db, "profiles", user.uid));
+      setProfile(profileSnap.exists() ? { id: user.uid, ...profileSnap.data() } : null);
 
-    const adminSnap = await getDoc(doc(db, "admins", user.uid));
-    setIsAdmin(adminSnap.exists());
+      const adminSnap = await getDoc(doc(db, "admins", user.uid));
+      setIsAdmin(adminSnap.exists());
+    } catch (err) {
+      console.error("Ошибка загрузки профиля:", err);
+      setProfile(null);
+      setIsAdmin(false);
+    }
   }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       await loadProfileData(user);
-      setLoading(false);
+      setLoading(false); // теперь ВСЕГДА выполнится, даже если чтение упало с ошибкой
     });
     return unsubscribe;
   }, []);
