@@ -6,7 +6,6 @@ export default function LoadingScreen() {
       <div className="loading-content">
         <div className="loading-ring"></div>
         <img src={logo} alt="ENEMY" className="loading-logo" />
-        <p className="loading-text">ENEMY</p>
       </div>
     </div>
   );
