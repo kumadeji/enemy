@@ -1,0 +1,14 @@
+{
+  "name": "ENEMY — Игровое сообщество",
+  "short_name": "ENEMY",
+  "icons": [
+    {
+      "src": "/favicon-120x120.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#d69e2e",
+  "background_color": "#0f1113",
+  "display": "standalone"
+}
