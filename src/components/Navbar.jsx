@@ -15,7 +15,9 @@ export default function Navbar() {
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <Link to="/" className="logo">[Название клана]</Link>
+        <Link to="/" className="logo">
+          ENEMY <span className="logo-sub">Arma Reforger</span>
+        </Link>
         <nav>
           <Link to="/">Главная</Link>
           <Link to="/roster">Состав</Link>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
+import InfoBanner from "./components/InfoBanner";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
@@ -20,6 +21,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Navbar />
+        <InfoBanner />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/apply" element={<Apply />} />
@@ -34,7 +36,9 @@ export default function App() {
           <Route path="/queue" element={<ProtectedRoute require="auth"><Queue /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
         </Routes>
-        <footer className="site-footer"><div className="container">© [Название клана]</div></footer>
+        <footer className="site-footer">
+          <div className="container">© Мультиигровое сообщество ENEMY</div>
+        </footer>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -1,52 +1,44 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { useAuth } from "../context/AuthContext";
+import { collection, getDocs } from "firebase/firestore";
 
-export default function Profile() {
-  const { uid } = useParams();
-  const { currentUser, profile: myProfile } = useAuth();
-  const [profileData, setProfileData] = useState(null);
-  const [notFound, setNotFound] = useState(false);
-
-  const targetUid = uid || currentUser?.uid;
-  const isOwn = targetUid === currentUser?.uid;
+export default function Roster() {
+  const [profiles, setProfiles] = useState([]);
+  const [filter, setFilter] = useState("");
 
   useEffect(() => {
     async function load() {
-      if (isOwn && myProfile) {
-        setProfileData(myProfile);
-        return;
-      }
-      const snap = await getDoc(doc(db, "profiles", targetUid));
-      if (snap.exists()) setProfileData(snap.data());
-      else setNotFound(true);
+      const snap = await getDocs(collection(db, "profiles"));
+      const list = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+      list.sort((a, b) => a.callsign.localeCompare(b.callsign, "ru"));
+      setProfiles(list);
     }
     load();
-  }, [targetUid, isOwn, myProfile]);
+  }, []);
 
-  if (notFound) return <main className="container"><p>Профиль не найден.</p></main>;
-  if (!profileData) return <main className="container"><p>Загрузка...</p></main>;
-
-  const p = profileData;
+  const filtered = profiles.filter(p => !filter || p.gamesInterested.includes(filter));
 
   return (
     <main className="container">
-      <h1>Профиль бойца</h1>
-      <div className="card">
-        <h2>{p.callsign}</h2>
-        <span className="badge" data-status={p.status}>{p.status}</span>
-        <p><b>Игры:</b> {p.gamesInterested.join(", ")}</p>
-        <p><b>Discord:</b> {p.discordTag}</p>
-        <p><b>Steam:</b> <a href={p.steamUrl} target="_blank" rel="noreferrer">{p.steamUrl}</a></p>
-        {p.extraContacts && <p><b>Доп. контакты:</b> {p.extraContacts}</p>}
-        <p><b>Награды:</b> {
-          (p.awards || []).length
-            ? p.awards.map((a, i) => <span key={i} className="award-icon" title={a.desc}>{a.icon}</span>)
-            : "пока нет"
-        }</p>
-      </div>
+      <h1>Состав клана</h1>
+      <label>Фильтр по игре</label>
+      <select value={filter} onChange={e => setFilter(e.target.value)}>
+        <option value="">Все</option>
+        <option value="Arma Reforger">Arma Reforger</option>
+        <option value="Squad">Squad</option>
+      </select>
+      <table>
+        <thead><tr><th>Позывной</th><th>Статус</th></tr></thead>
+        <tbody>
+          {filtered.map(p => (
+            <tr key={p.uid}>
+              <td><Link to={`/profile/${p.uid}`}>{p.callsign}</Link></td>
+              <td><span className="badge" data-status={p.status}>{p.status}</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </main>
   );
 }

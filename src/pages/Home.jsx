@@ -1,16 +1,21 @@
-import VkWidget from "../components/VkWidget";
-
 export default function Home() {
   return (
     <main className="container">
-      <h1>[Название клана]</h1>
+      <h1>Мультиигровое сообщество ENEMY</h1>
+
       <section className="card">
         <h2>О клане</h2>
-        <p>Мы — сообщество игроков в Arma Reforger, DayZ и Squad. Играем по пятницам, субботам и воскресеньям.</p>
+        <p>
+          В настоящий момент сайт обслуживает закрытое направление сообщества ENEMY —
+          отряд по игре <b>Arma Reforger</b>. Вступление в отряд происходит по заявке
+          с последующим рассмотрением администрацией. Играем по средам, пятницам, субботам
+          и воскресеньям. Ценим дисциплину, тактику и командную работу.
+        </p>
       </section>
+
       <section className="card">
         <h2>Новости клана</h2>
-        <VkWidget groupId={1} />
+        <p className="hint">Виджет ВКонтакте будет подключён позже.</p>
       </section>
     </main>
   );
