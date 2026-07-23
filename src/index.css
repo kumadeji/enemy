@@ -134,8 +134,17 @@ body {
     padding: 5px 58px;
   }
 }
-
 /* ---------- Загрузочный экран ---------- */
+
+/* Регистрируем анимируемое CSS-свойство — угол вращения градиента.
+   Это позволяет вращать именно "свет" внутри рамки,
+   а не саму рамку/маску целиком (иначе углы квадрата будут искажаться при повороте). */
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 .loading-screen {
   position: fixed;
   inset: 0;
@@ -145,39 +154,51 @@ body {
   justify-content: center;
   z-index: 2000;
 }
+
 .loading-content {
   position: relative;
-  width: 124px;
-  height: 124px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 108px;
+  height: 108px;
 }
+
 .loading-logo {
-  width: 96px;
-  height: 96px;
-  border-radius: 26px; /* сглаженный квадрат вместо круга */
+  width: 100%;
+  height: 100%;
+  border-radius: 26px;
   object-fit: cover;
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
+  display: block;
   position: relative;
-  z-index: 2;
-  animation: pulseLogo 1.8s ease-in-out infinite;
+  z-index: 1;
 }
-.loading-ring {
+
+/* Сама "бегущая" рамка: повторяет форму и скругление логотипа,
+   но видна только по контуру (толщиной 3px) благодаря маске. */
+.loading-border {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 124px;
-  height: 124px;
-  border-radius: 34px; /* чуть больше радиус, т.к. блок крупнее логотипа */
-  border: 3px solid transparent;
-  border-top-color: var(--accent);
-  border-right-color: var(--accent);
-  animation: spin 1s linear infinite;
+  inset: -3px;
+  border-radius: 30px;
+  padding: 3px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0%,
+    var(--accent-bright) 8%,
+    var(--accent) 16%,
+    transparent 32%,
+    transparent 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderRotate 1.6s linear infinite;
+  z-index: 2;
 }
-@keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-@keyframes pulseLogo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+@keyframes borderRotate {
+  to { --border-angle: 360deg; }
+}
 
 /* Плавное появление сайта после окончания загрузки */
 .app-fade-in {
