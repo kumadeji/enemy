@@ -39,7 +39,7 @@ export default function App() {
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
-          <div className="container">© Игровое сообщество ENEMY</div>
+          <div className="container">© Игровое сообщество ENEMY - 2026. Версия 0.1</div>
         </footer>
       </AuthProvider>
     </BrowserRouter>
