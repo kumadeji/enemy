@@ -17,7 +17,7 @@ export default function Navbar() {
 
   return (
     <header className="site-header">
-      <div className="container header-inner">
+      <div className="container-header header-inner">
         <NavLink to="/" className="logo">
           <img src={logo} alt="ENEMY" className="logo-img" />
         </NavLink>

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import LoadingScreen from "../components/LoadingScreen";
 
 const AuthContext = createContext();
 
@@ -38,7 +39,7 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       await loadProfileData(user);
-      setLoading(false); // теперь ВСЕГДА выполнится, даже если чтение упало с ошибкой
+      setLoading(false);
     });
     return unsubscribe;
   }, []);
@@ -51,9 +52,13 @@ export function AuthProvider({ children }) {
     refreshProfile: () => loadProfileData(currentUser),
   };
 
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      <div className="app-fade-in">{children}</div>
     </AuthContext.Provider>
   );
 }
