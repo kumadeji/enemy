@@ -371,5 +371,5 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .queue-item.next { color: var(--accent); font-weight: 600; }
 .queue-pos { font-weight: 700; width: 24px; text-align: center; font-family: var(--font-heading); }
 
-.access-denied { text-align: center; }
+.access-denied { text-align: center; margin-top: 16px; }
 .access-actions { display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
