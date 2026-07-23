@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import logo from "./Logo.jpg";
 
 export default function Navbar() {
   const { currentUser, profile } = useAuth();
@@ -16,7 +17,7 @@ export default function Navbar() {
     <header className="site-header">
       <div className="container header-inner">
         <Link to="/" className="logo">
-          ENEMY <span className="logo-sub">Arma Reforger</span>
+          <img src={logo} alt="ENEMY" className="logo-img" />
         </Link>
         <nav>
           <Link to="/">Главная</Link>

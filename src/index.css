@@ -7,14 +7,36 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple
 .container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
 
 /* Шапка */
-.site-header { border-bottom: 1px solid var(--border); padding: 14px 0; }
-.header-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-.logo { font-weight: 700; color: var(--text); text-decoration: none; display: flex; align-items: baseline; gap: 8px; }
-.logo-sub { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+.site-header {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+}
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.logo-img {
+  width: clamp(44px, 6vw, 64px);
+  height: clamp(44px, 6vw, 64px);
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  display: block;
+}
 .site-header nav { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; font-size: 14px; }
 .site-header nav a { color: var(--text-muted); text-decoration: none; }
 .site-header nav a:hover { color: var(--accent); }
 .nav-cta { color: var(--accent) !important; font-weight: 600; }
+
 
 /* Информационный баннер ENEMY */
 .info-banner {
