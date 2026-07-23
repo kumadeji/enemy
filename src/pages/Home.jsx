@@ -10,7 +10,7 @@ export default function Home() {
       </section>
       <section className="card">
         <h2>Новости клана</h2>
-        <VkWidget groupId={ВАШ_GROUP_ID} />
+        <VkWidget groupId={1} />
       </section>
     </main>
   );
