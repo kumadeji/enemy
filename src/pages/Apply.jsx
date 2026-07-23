@@ -5,7 +5,6 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, runTransaction, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 
-const BANNED_WORDS = ["qwe", "abracadabra", "xxx"];
 const ALL_GAMES = ["Arma Reforger", "Squad"];
 
 function validateCallsign(value) {
@@ -19,17 +18,14 @@ function validateCallsign(value) {
     if (/\B[A-ZА-ЯЁ]/.test(word)) return "Избегайте заглавных букв в середине слова.";
   }
   const lower = trimmed.toLowerCase();
-  if (BANNED_WORDS.some(w => lower.includes(w))) return "Позывной похож на бессмысленный набор символов — выберите другой.";
   if (/\(|\)|"|'/.test(trimmed)) return "Не используйте скобки, кавычки или реальные имена через разделители.";
   return null;
 }
 
 export default function Apply() {
-  const { currentUser } = useAuth();
+  const { currentUser, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
-  // Запоминаем один раз, был ли пользователь уже залогинен ДО начала заполнения формы.
-  // Это не будет реагировать на currentUser, который меняется в процессе самой регистрации.
   const [wasLoggedInOnLoad] = useState(() => !!currentUser);
 
   const [form, setForm] = useState({
@@ -114,6 +110,10 @@ export default function Apply() {
         });
       });
 
+      // Критически важная строка: перечитываем профиль в контексте авторизации,
+      // чтобы избежать бага с "неизвестным" статусом сразу после регистрации.
+      await refreshProfile();
+
       if (GOOGLE_SHEETS_URL) {
         fetch(GOOGLE_SHEETS_URL, {
           method: "POST",
@@ -126,7 +126,7 @@ export default function Apply() {
         }).catch(() => {});
       }
 
-      navigate("/profile");
+      navigate("/"); // теперь редирект на главную, как просили
     } catch (err) {
       setFormError(err.message || "Ошибка при регистрации.");
       setSubmitting(false);
@@ -137,7 +137,7 @@ export default function Apply() {
     <main className="container">
       <h1>Заявка на вступление</h1>
       <p className="page-lead">
-        Игровое сообщество <b>ENEMY</b>. Приём заявок в настоящий момент открыт
+        Мультиигровое сообщество <b>ENEMY</b>. Приём заявок в настоящий момент открыт
         для закрытого направления по игре <b>Arma Reforger</b>. После заполнения анкеты
         она поступит на рассмотрение администрации.
       </p>
@@ -204,8 +204,7 @@ export default function Apply() {
           <div className="callsign-rules">
             <p><b>Обратите внимание: позывной указывается один раз и навсегда</b>, смена позывного
             происходит только в исключительных случаях при согласовании с администрацией.</p>
-            <p>✅ <b>Правила:</b></p>
-			<ul>
+            <ul>
               <li>Может состоят из латиницы, кириллицы, цифр и общепринятых символов (-, _, .).</li>
               <li>Должен легко считываться визуально и на слух. Избегайте сложных сочетаний, повторов и заглавных букв в середине слов.</li>
               <li>Не должен содержать оскорблений, дискриминации, провокаций или нарушать законодательство России и других государств.</li>
@@ -254,7 +253,7 @@ export default function Apply() {
 
           <label>Укажите свой часовой пояс</label>
           <input type="text" required placeholder="Например, UTC+3 для Москвы" value={form.timezone} onChange={e => updateField("timezone", e.target.value)} />
-          <div className="field-hint">Желательно написать в формате UTC.</div>
+          <div className="field-hint">Формат: UTC.</div>
 
           <label>В какое время вы обычно свободны для игр?</label>
           <textarea required value={form.availability} onChange={e => updateField("availability", e.target.value)} />

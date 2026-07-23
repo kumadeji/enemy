@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
@@ -13,29 +13,31 @@ export default function Navbar() {
     navigate("/");
   }
 
+  const linkClass = ({ isActive }) => "nav-link" + (isActive ? " active" : "");
+
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <Link to="/" className="logo">
+        <NavLink to="/" className="logo">
           <img src={logo} alt="ENEMY" className="logo-img" />
-        </Link>
+        </NavLink>
         <nav>
-          <Link to="/">Главная</Link>
-          <Link to="/roster">Состав</Link>
-          <Link to="/media">Медиа</Link>
-          <Link to="/charter">Устав</Link>
-          <Link to="/history">История</Link>
-          <Link to="/contact">Контакты</Link>
-          <Link to="/queue">Очередь на КО</Link>
+          <NavLink to="/" end className={linkClass}>Главная</NavLink>
+          <NavLink to="/roster" className={linkClass}>Состав</NavLink>
+          <NavLink to="/media" className={linkClass}>Медиаресурсы</NavLink>
+          <NavLink to="/charter" className={linkClass}>Устав и манифест</NavLink>
+          <NavLink to="/history" className={linkClass}>История</NavLink>
+          <NavLink to="/contact" className={linkClass}>Контакты</NavLink>
+          <NavLink to="/queue" className={linkClass}>Очередь на КО</NavLink>
           {currentUser ? (
             <>
-              <Link to="/profile">{profile?.callsign || "Профиль"}</Link>
-              <a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>Выйти</a>
+              <NavLink to="/profile" className={linkClass}>{profile?.callsign || "Профиль"}</NavLink>
+              <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); handleLogout(); }}>Выйти</a>
             </>
           ) : (
             <>
-              <Link to="/login">Войти</Link>
-              <Link to="/apply" className="nav-cta">Вступить в клан</Link>
+              <NavLink to="/login" className={linkClass}>Войти</NavLink>
+              <NavLink to="/apply" className="nav-link nav-cta">Вступить в клан</NavLink>
             </>
           )}
         </nav>
