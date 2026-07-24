@@ -373,3 +373,14 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 .access-denied { text-align: center; margin-top: 16px; }
 .access-actions { display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+
+/* ---------- Новости ВК ---------- */
+
+#vk_groups {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+}
+#vk_groups iframe {
+  width: 100% !important;
+}

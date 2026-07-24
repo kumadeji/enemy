@@ -15,7 +15,8 @@ export default function Home() {
 
       <section className="card">
         <h2>Новости клана</h2>
-        <p className="hint">Виджет ВКонтакте будет подключён позже.</p>
+        <p className="hint">Подписывайтесь на наше сообщество ВКонтакте!</p>
+        <VkWidget groupId={92251650} />
       </section>
     </main>
   );
