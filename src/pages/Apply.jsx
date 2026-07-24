@@ -10,17 +10,29 @@ const ALL_GAMES = ["Arma Reforger", "Squad"];
 function validateCallsign(value) {
   const trimmed = value.trim();
   const words = trimmed.split(/\s+/);
+
   if (words.length > 2) return "Позывной не должен состоять больше чем из 2 слов.";
   if (trimmed.length < 3 || trimmed.length > 24) return "Длина позывного должна быть от 3 до 24 символов.";
+
   const allowedPattern = /^[A-Za-zА-Яа-яЁё0-9\-_. ]+$/;
   if (!allowedPattern.test(trimmed)) return "Допустимы только латиница, кириллица, цифры и символы - _ .";
+
+  // Запрещаем чередование регистра внутри слова (например, StOrM),
+  // но разрешаем слово ПОЛНОСТЬЮ заглавными буквами (например, STORM),
+  // а также обычный формат "Первая заглавная, остальные строчные" (Stormbreaker).
   for (const word of words) {
-    if (/\B[A-ZА-ЯЁ]/.test(word)) return "Избегайте заглавных букв в середине слова.";
+    if (/[a-zа-яё][A-ZА-ЯЁ]/.test(word)) {
+      return "Нельзя чередовать регистр букв внутри слова (например, sToRm). Допускается обычный регистр (Stormbreaker) или слово целиком заглавными буквами (STORM).";
+    }
   }
-  const lower = trimmed.toLowerCase();
-  if (/\(|\)|"|'/.test(trimmed)) return "Не используйте скобки, кавычки или реальные имена через разделители.";
+
+  if (/\(|\)|"|'/.test(trimmed)) {
+    return "Не используйте скобки, кавычки и другие недопустимые символы.";
+  }
+
   return null;
 }
+
 
 export default function Apply() {
   const { currentUser, refreshProfile } = useAuth();
@@ -214,6 +226,7 @@ export default function Apply() {
               <li>Реальные имена, фамилии и их производные (в т. ч. в транслите): <i>Александр, Серёга, Dmitry</i>.</li>
               <li>Указание имён в скобках, кавычках или через разделители: <i>BURBON (Серёга), Wolf_Ivan</i>.</li>
               <li>Бессмысленные наборы символов («абракадабра»): <i>qwe123, кщгшз, xXx_Dark_xXx</i>.</li>
+			  <li>Чередование регистра букв: <i>sToRm, АнДрюХа228</i>.</li>
               <li>Позывные из трёх и более слов (максимум 2 слова).</li>
             </ul>
             <p>📌 <b>Примеры корректных позывных:</b> <i>Stormbreaker, Волчара, Фантом</i>.</p>
