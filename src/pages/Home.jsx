@@ -15,7 +15,7 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="card vk-widget-card">
+      <section className="card">
         <h2>Новости клана</h2>
         <p className="hint">Подписывайтесь на наше сообщество ВКонтакте!</p>
         <VkWidget groupId={92251650} />

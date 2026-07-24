@@ -1,46 +1,64 @@
 import { useEffect, useRef } from "react";
 
 export default function VkWidget({ groupId }) {
-  const containerRef = useRef(null);
-  const initialized = useRef(false);
+  const wrapperRef = useRef(null);
 
   useEffect(() => {
-    function initWidget() {
-      if (initialized.current) return;
+    let resizeTimer;
+
+    function renderWidget() {
+      if (!window.VK || !window.VK.Widgets || !wrapperRef.current) return;
+      const width = Math.floor(wrapperRef.current.getBoundingClientRect().width);
+      if (!width) return;
+
+      window.VK.Widgets.Group("vk_groups", {
+        mode: 4,
+        no_cover: 1,
+        wide: 1,
+        width: width,
+        height: 800,
+        color1: "2a2d31",
+        color2: "ffffff",
+        color3: "d69e2e"
+      }, groupId);
+    }
+
+    function loadScriptThenRender() {
       if (window.VK && window.VK.Widgets) {
-        window.VK.Widgets.Group("vk_groups", {
-          mode: 4,
-          no_cover: 1,
-          wide: 1,
-          height: 800,
-          color1: "2a2d31",
-          color2: "ffffff",
-          color3: "d69e2e"
-        }, groupId);
-        initialized.current = true;
+        renderWidget();
+        return;
       }
+      const existing = document.getElementById("vk-openapi-script");
+      if (existing) {
+        existing.addEventListener("load", renderWidget);
+        return;
+      }
+      const script = document.createElement("script");
+      script.id = "vk-openapi-script";
+      script.src = "https://vk.ru/js/api/openapi.js?168";
+      script.async = true;
+      script.onload = renderWidget;
+      document.head.appendChild(script);
     }
 
-    // Если скрипт уже когда-то был загружен (например, при возврате на страницу) —
-    // просто инициализируем виджет повторно, не подгружая script заново.
-    if (window.VK && window.VK.Widgets) {
-      initWidget();
-      return;
-    }
+    loadScriptThenRender();
 
-    const existingScript = document.getElementById("vk-openapi-script");
-    if (existingScript) {
-      existingScript.addEventListener("load", initWidget);
-      return () => existingScript.removeEventListener("load", initWidget);
+    // Пересчитываем ширину при изменении размера окна (например, поворот экрана на телефоне)
+    function handleResize() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(renderWidget, 300);
     }
+    window.addEventListener("resize", handleResize);
 
-    const script = document.createElement("script");
-    script.id = "vk-openapi-script";
-    script.src = "https://vk.ru/js/api/openapi.js?168";
-    script.async = true;
-    script.onload = initWidget;
-    document.head.appendChild(script);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(resizeTimer);
+    };
   }, [groupId]);
 
-  return <div id="vk_groups" ref={containerRef}></div>;
+  return (
+    <div ref={wrapperRef}>
+      <div id="vk_groups"></div>
+    </div>
+  );
 }

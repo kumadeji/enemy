@@ -376,23 +376,6 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 /* ---------- Новости ВК ---------- */
 
-.card:has(#vk_groups) {
-  overflow: hidden;
-}
 #vk_groups {
-  width: 100%;
-}
-#vk_groups iframe {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 100% !important;
-  display: block;
-}
-.vk-widget-card {
-  padding-left: 0;
-  padding-right: 0;
-}
-.vk-widget-card h2 {
-  padding-left: 22px;
-  padding-right: 22px;
+  margin-top: 4px;
 }
