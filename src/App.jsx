@@ -18,7 +18,6 @@ import Contact from "./pages/Contact";
 import Queue from "./pages/Queue";
 import Admin from "./pages/Admin";
 import AdminPlayerDetail from "./pages/AdminPlayerDetail";
-import AdminMigrate from "./pages/AdminMigrate";
 
 export default function App() {
   return (
