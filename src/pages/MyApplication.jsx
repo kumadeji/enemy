@@ -1,8 +1,38 @@
 import { useEffect, useState } from "react";
 import { db, GOOGLE_SHEETS_URL } from "../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import ApplicationForm, { buildSteamProfileUrl } from "../components/ApplicationForm";
+
+const FIELD_LABELS = {
+  fullName: "Имя и фамилия",
+  age: "Возраст",
+  birthDate: "Дата рождения",
+  steamId: "Steam ID",
+  discordId: "Discord ID",
+  armaId: "Arma ID",
+  extraPhone: "Телефон",
+  extraTelegram: "ID Telegram",
+  extraVk: "ID ВКонтакте",
+  extraOther: "Другой контакт",
+  timezone: "Часовой пояс",
+  availability: "Доступность для игр",
+  whyJoin: "Почему хочет вступить",
+  howFound: "Откуда узнал о клане",
+  gamesInterested: "Игры"
+};
+
+function buildChangesList(before, after) {
+  const changes = [];
+  for (const field of Object.keys(FIELD_LABELS)) {
+    const oldVal = Array.isArray(before[field]) ? before[field].join(", ") : (before[field] ?? "");
+    const newVal = Array.isArray(after[field]) ? after[field].join(", ") : (after[field] ?? "");
+    if (String(oldVal) !== String(newVal)) {
+      changes.push({ field: FIELD_LABELS[field], oldValue: String(oldVal) || "—", newValue: String(newVal) || "—" });
+    }
+  }
+  return changes;
+}
 
 export default function MyApplication() {
   const { currentUser, profile, refreshProfile } = useAuth();
@@ -61,6 +91,27 @@ export default function MyApplication() {
       };
       const steamProfileUrl = buildSteamProfileUrl(values.steamId);
 
+      // Собираем список изменений ДО записи новых данных, сравнивая со старыми значениями
+      const beforeFlat = {
+        fullName: application.fullName, age: application.age, birthDate: application.birthDate,
+        steamId: application.steamId, discordId: application.discordId, armaId: application.armaId,
+        extraPhone: application.extraContacts?.phone, extraTelegram: application.extraContacts?.telegram,
+        extraVk: application.extraContacts?.vk, extraOther: application.extraContacts?.other,
+        timezone: application.timezone, availability: application.availability,
+        whyJoin: application.whyJoin, howFound: application.howFound,
+        gamesInterested: profile.gamesInterested
+      };
+      const afterFlat = {
+        fullName: values.fullName, age: values.age, birthDate: values.birthDate,
+        steamId: values.steamId, discordId: values.discordId, armaId: values.armaId,
+        extraPhone: values.extraPhone, extraTelegram: values.extraTelegram,
+        extraVk: values.extraVk, extraOther: values.extraOther,
+        timezone: values.timezone, availability: values.availability,
+        whyJoin: values.whyJoin, howFound: values.howFound,
+        gamesInterested: values.games
+      };
+      const changes = buildChangesList(beforeFlat, afterFlat);
+
       await updateDoc(doc(db, "applications", currentUser.uid), {
         fullName: values.fullName, age: Number(values.age), birthDate: values.birthDate || "",
         steamId: values.steamId, steamProfileUrl,
@@ -76,6 +127,16 @@ export default function MyApplication() {
         extraContacts, gamesInterested: values.games,
         timezone: values.timezone, birthDate: values.birthDate || ""
       });
+
+      if (changes.length > 0) {
+        await addDoc(collection(db, "changeLog"), {
+          uid: currentUser.uid,
+          callsign: profile.callsign,
+          changedBy: "player", // изменил сам игрок, а не администратор
+          changes,
+          createdAt: serverTimestamp()
+        });
+      }
 
       await refreshProfile();
       setApplication(prev => ({ ...prev, ...values, extraContacts, hoursByGame, experienceByGame, steamProfileUrl }));
@@ -108,9 +169,9 @@ export default function MyApplication() {
 
       <div className="card">
         {profile.status === "Новобранец" ? (
-          <p>Ваша заявка на вступление получена и находится на рассмотрении администрации. Ожидайте — обычно это занимает некоторое время.</p>
+          <p>Ваша заявка на вступление получена и находится на рассмотрении комбата и его заместителей. Ожидайте — обычно это занимает некоторое время.</p>
         ) : (
-          <p>Ваша заявка была рассмотрена. Текущий статус: <b>{profile.status}</b>.</p>
+          <p>Ваша заявка была рассмотрена. Текущая должность: <b>{profile.status}</b>.</p>
         )}
       </div>
 

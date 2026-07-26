@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import StatusBadges from "../components/StatusBadges";
@@ -12,6 +12,7 @@ export default function Profile() {
   const [notFound, setNotFound] = useState(false);
 
   const targetUid = uid || currentUser?.uid;
+  const isOwn = targetUid === currentUser?.uid;
 
   useEffect(() => {
     async function load() {
@@ -23,7 +24,7 @@ export default function Profile() {
     if (targetUid) load();
   }, [targetUid]);
 
-  if (notFound) return <main className="container"><p>Профиль не найден.</p></main>;
+  if (notFound) return <main className="container"><p>Личное дело не найдено.</p></main>;
   if (!profileData) return <main className="container"><p>Загрузка...</p></main>;
 
   const p = profileData;
@@ -31,7 +32,7 @@ export default function Profile() {
 
   return (
     <main className="container">
-      <h1>Профиль бойца</h1>
+      <h1>Личное дело бойца</h1>
       <div className="card">
         <h2>{p.callsign}</h2>
         <StatusBadges status={p.status} isSquadLeader={p.isSquadLeader} />
@@ -41,9 +42,7 @@ export default function Profile() {
         <p><b>Steam:</b> <a href={p.steamProfileUrl} target="_blank" rel="noreferrer">{p.steamProfileUrl}</a></p>
         {p.armaId && <p><b>Arma ID:</b> {p.armaId}</p>}
         {p.timezone && <p><b>Часовой пояс:</b> {p.timezone}</p>}
-        {p.birthDate && (
-          <p className="birthdate-row">🎂 <b>Дата рождения:</b> {p.birthDate}</p>
-        )}
+        {p.birthDate && <p className="birthdate-row">🎂 <b>Дата рождения:</b> {p.birthDate}</p>}
 
         {contacts.phone && <p><b>Телефон:</b> {contacts.phone}</p>}
         {contacts.telegram && <p><b>Telegram:</b> {contacts.telegram}</p>}
@@ -51,8 +50,8 @@ export default function Profile() {
         {contacts.other && <p><b>Другой контакт:</b> {contacts.other}</p>}
 
         <div className="stats-row">
-          <div><span className="stat-value">{p.koCount || 0}</span><span className="stat-label">раз КО</span></div>
-          <div><span className="stat-value">{p.ksCount || 0}</span><span className="stat-label">раз КС</span></div>
+          <div className="stat-block"><span className="stat-value">{p.koCount || 0}</span><span className="stat-label">раз отыграл за КО</span></div>
+          <div className="stat-block"><span className="stat-value">{p.ksCount || 0}</span><span className="stat-label">раз отыграл за КС</span></div>
         </div>
 
         <p><b>Награды:</b> {
@@ -63,8 +62,12 @@ export default function Profile() {
 
         {p.publicNote && (
           <div className="public-note-box">
-            <b>Заметка от администрации:</b> {p.publicNote}
+            <b>Комбат об этом бойце:</b> {p.publicNote}
           </div>
+        )}
+
+        {isOwn && (
+          <Link to="/my-application" className="btn secondary" style={{ marginTop: 16 }}>Редактировать профиль</Link>
         )}
       </div>
     </main>

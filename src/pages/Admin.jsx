@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { db, STATUS_ORDER } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import StatusBadges from "../components/StatusBadges";
+import CommunityStats from "../components/CommunityStats";
 
 export default function Admin() {
   const [players, setPlayers] = useState([]);
@@ -55,21 +56,18 @@ export default function Admin() {
 
   return (
     <main className="container">
-      <h1>Панель администратора</h1>
+      <h1>Панель комбата</h1>
 
-      <div className="admin-stats card">
-        <div><span className="stat-value">{stats.total}</span><span className="stat-label">Всего</span></div>
-        {STATUS_ORDER.map(s => (
-          <div key={s}><span className="stat-value">{stats.byStatus[s] || 0}</span><span className="stat-label">{s}</span></div>
-        ))}
-      </div>
+      <CommunityStats profiles={players} />
 
       <div className="admin-tabs">
         <button className={`tab-btn ${tab === "pending" ? "active" : ""}`} onClick={() => setTab("pending")}>
           Новые заявки {stats.pending > 0 && <span className="tab-badge">{stats.pending}</span>}
         </button>
-        <button className={`tab-btn ${tab === "all" ? "active" : ""}`} onClick={() => setTab("all")}>Все участники</button>
+        <button className={`tab-btn ${tab === "all" ? "active" : ""}`} onClick={() => setTab("all")}>Все бойцы</button>
+        <Link to="/admin/changelog" className="tab-btn tab-btn-link">Журнал изменений</Link>
       </div>
+
 
       <div className="admin-filters card">
         <input type="text" placeholder="Поиск по позывному..." value={search} onChange={e => setSearch(e.target.value)} />
@@ -77,7 +75,7 @@ export default function Admin() {
           <option value="date-desc">Сначала новые</option>
           <option value="date-asc">Сначала старые</option>
           <option value="name">По имени (А-Я)</option>
-          <option value="status">По статусу</option>
+          <option value="status">По должности</option>
         </select>
         <select value={gameFilter} onChange={e => setGameFilter(e.target.value)}>
           <option value="">Все игры</option>
@@ -102,6 +100,7 @@ export default function Admin() {
           ))}
         </tbody>
       </table>
+
       {filtered.length === 0 && <p className="hint">Никого не найдено.</p>}
     </main>
   );

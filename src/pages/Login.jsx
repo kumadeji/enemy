@@ -38,7 +38,7 @@ export default function Login() {
             <input type="password" required value={password} onChange={e => setPassword(e.target.value)} />
             <div className="field-hint">
               Восстановление пароля на сайте не предусмотрено. Если вы забыли пароль —
-              обратитесь к администрации сообщества для сброса аккаунта.
+              обратитесь к комбату или его заместителям для сброса аккаунта.
             </div>
           </fieldset>
 

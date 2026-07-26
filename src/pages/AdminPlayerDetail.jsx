@@ -40,6 +40,9 @@ export default function AdminPlayerDetail() {
     setApplication(prev => ({ ...prev, [field]: value }));
   }
   
+  function adjustKo(delta) {
+    setProfile(prev => ({ ...prev, koCount: Math.max(0, (Number(prev.koCount) || 0) + delta) }));
+  }
   function adjustKs(delta) {
     setProfile(prev => ({ ...prev, ksCount: Math.max(0, (Number(prev.ksCount) || 0) + delta) }));
   }
@@ -60,6 +63,7 @@ export default function AdminPlayerDetail() {
         timezone: profile.timezone,
         birthDate: profile.birthDate || "",
         ksCount: Number(profile.ksCount || 0),
+		koCount: Number(profile.koCount || 0),
         publicNote: profile.publicNote || "",
         extraContacts: profile.extraContacts || {}
       });
@@ -127,8 +131,7 @@ export default function AdminPlayerDetail() {
       <h1>{profile.callsign}</h1>
 
       <div className="card">
-        <h2>Статус и роль</h2>
-        <label>Статус</label>
+        <h2>Должность бойца</h2>
         <select value={profile.status} onChange={e => updateProfileField("status", e.target.value)}>
           {STATUS_ORDER.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
@@ -136,21 +139,24 @@ export default function AdminPlayerDetail() {
         <ToggleSwitch
           checked={!!profile.isSquadLeader}
           onChange={e => updateProfileField("isSquadLeader", e.target.checked)}
-          label="Командир отряда (КО) — дополнительная роль, участвует в очереди на командование отрядом"
+          label="Командир отряда (КО) — дополнительная должность, участвует в очереди на командование отрядом"
         />
       </div>
-
 
       <div className="card">
         <h2>Статистика</h2>
         <div className="stats-row">
           <div className="stat-block">
             <span className="stat-value">{profile.koCount || 0}</span>
-            <span className="stat-label">раз отыграл КО</span>
+            <span className="stat-label">раз отыграл за КО</span>
+            <div className="stat-counter-buttons">
+              <button type="button" className="icon-btn" onClick={() => adjustKo(-1)} disabled={(profile.koCount || 0) <= 0}>−</button>
+              <button type="button" className="icon-btn" onClick={() => adjustKo(1)}>+</button>
+            </div>
           </div>
           <div className="stat-block">
             <span className="stat-value">{profile.ksCount || 0}</span>
-            <span className="stat-label">раз отыграл КС</span>
+            <span className="stat-label">раз отыграл за КС</span>
             <div className="stat-counter-buttons">
               <button type="button" className="icon-btn" onClick={() => adjustKs(-1)} disabled={(profile.ksCount || 0) <= 0}>−</button>
               <button type="button" className="icon-btn" onClick={() => adjustKs(1)}>+</button>
@@ -158,7 +164,6 @@ export default function AdminPlayerDetail() {
           </div>
         </div>
       </div>
-
 
       <div className="card">
         <h2>Личные данные</h2>
@@ -169,7 +174,7 @@ export default function AdminPlayerDetail() {
         <label>Имя и фамилия</label>
         <input type="text" value={application.fullName} onChange={e => updateAppField("fullName", e.target.value)} />
 
-        <label>Email (логин, виден только администрации)</label>
+        <label>Email (логин, виден только комбату и его заместителям)</label>
         <input type="email" value={application.email} disabled />
 
         <label>Возраст</label>
@@ -211,7 +216,7 @@ export default function AdminPlayerDetail() {
           {TIMEZONES.map(tz => <option key={tz.value} value={tz.value}>{tz.label}</option>)}
         </select>
 
-        <label>Доп. контакты — телефон</label>
+        <label>Доп. контакты — Телефон</label>
         <input type="text" value={profile.extraContacts?.phone || ""}
           onChange={e => updateProfileField("extraContacts", { ...profile.extraContacts, phone: e.target.value })} />
         <label>Доп. контакты — Telegram</label>
@@ -220,13 +225,13 @@ export default function AdminPlayerDetail() {
         <label>Доп. контакты — ВКонтакте</label>
         <input type="text" value={profile.extraContacts?.vk || ""}
           onChange={e => updateProfileField("extraContacts", { ...profile.extraContacts, vk: e.target.value })} />
-        <label>Доп. контакты — другое</label>
+        <label>Доп. контакты — Другое</label>
         <input type="text" value={profile.extraContacts?.other || ""}
           onChange={e => updateProfileField("extraContacts", { ...profile.extraContacts, other: e.target.value })} />
       </div>
 
       <div className="card">
-        <h2>Анкета</h2>
+        <h2>Заявка</h2>
         <label>Доступность для игр</label>
         <textarea value={application.availability} onChange={e => updateAppField("availability", e.target.value)} />
         <label>Почему хочет вступить</label>
@@ -249,23 +254,26 @@ export default function AdminPlayerDetail() {
       </div>
 
       <div className="card">
-        <h2>Заметки администрации</h2>
+        <h2>Заметки комбата</h2>
         <label>Публичная заметка <span className="optional-tag">видна всем в профиле</span></label>
         <textarea value={profile.publicNote || ""} onChange={e => updateProfileField("publicNote", e.target.value)} />
 
-        <label>Внутренняя заметка <span className="optional-tag">видна только администраторам</span></label>
+        <label>Внутренняя заметка <span className="optional-tag">видна только комбату и его заместителям</span></label>
         <textarea value={note.privateNote || ""} onChange={e => setNote({ privateNote: e.target.value })} />
       </div>
-
-      <button className="btn btn-large" onClick={saveAll} disabled={saving}>
-        {saving ? "Сохранение..." : "Сохранить все изменения"}
-      </button>
-      {message && <p className="hint">{message}</p>}
-
-      <div className="card danger-zone">
-        <h2>Опасная зона</h2>
-        <button className="btn danger" onClick={handleDelete}>Удалить пользователя</button>
+	  
+      <div className="save-actions">
+        <button className="btn btn-large" onClick={saveAll} disabled={saving}>
+          {saving ? "Сохранение..." : "Сохранить все изменения"}
+        </button>
+        {message && <p className="hint">{message}</p>}
       </div>
+      
+      <div className="card danger-zone">
+        <h2>Технический раздел</h2>
+        <button className="btn danger" onClick={handleDelete}>Удалить бойца из базы данных</button>
+      </div>
+
     </main>
   );
 }

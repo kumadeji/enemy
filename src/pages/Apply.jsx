@@ -16,7 +16,7 @@ export default function Apply() {
   if (wasLoggedInOnLoad) {
     return (
       <main className="container">
-        <p className="hint">Вы уже зарегистрированы. <Link to="/profile">Перейти в профиль</Link>.</p>
+        <p className="hint">Вы уже зарегистрированы. <Link to="/profile">Открыть личное дело бойца</Link>.</p>
       </main>
     );
   }
@@ -111,7 +111,7 @@ export default function Apply() {
       <h1>Заявка на вступление</h1>
       <p className="page-lead">
         Мультиигровое сообщество <b>ENEMY</b>. Приём заявок открыт для закрытого направления
-        по игре <b>Arma Reforger</b>. После заполнения анкета поступит на рассмотрение администрации.
+        по игре <b>Arma Reforger</b>. После заполнения заявка поступит на рассмотрение комбату и его заместителям.
       </p>
       <ApplicationForm
         onSubmit={handleSubmit}

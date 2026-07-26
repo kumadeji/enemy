@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc, setDoc, updateDoc, runTransaction, collection, getDocs } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
+import KoStatsChart from "../components/KoStatsChart";
 
 export default function Queue() {
   const { isAdmin } = useAuth();
@@ -119,7 +120,7 @@ export default function Queue() {
       </details>
 
       <div className="card queue-card">
-        {queue.length === 0 && <p className="hint">Очередь пуста. Добавьте игроков со статусом «Командир отряда».</p>}
+        {queue.length === 0 && <p className="hint">Очередь пуста. Добавьте игроков со должностью «Командир отряда».</p>}
         <ol className="queue-ordered-list">
           {queue.map((item, index) => {
             const p = profilesMap[item.uid];
@@ -172,23 +173,11 @@ export default function Queue() {
       )}
 
       <div className="card">
-        <h2>Статистика отыгрышей КО</h2>
+        <h2>Статистика отыгрышей за КО</h2>
         {statsData.length === 0 && <p className="hint">Пока нет данных статистики.</p>}
-        <div className="ko-chart">
-          {statsData.map((p, index) => (
-            <div key={p.uid} className="ko-chart-row">
-              <span className="ko-chart-rank">
-                {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
-              </span>
-              <span className="ko-chart-label">{p.callsign}</span>
-              <div className="ko-chart-bar-track">
-                <div className="ko-chart-bar" style={{ width: `${((p.koCount || 0) / maxKo) * 100}%` }}></div>
-              </div>
-              <span className="ko-chart-value">{p.koCount || 0}</span>
-            </div>
-          ))}
-        </div>
+        <KoStatsChart data={statsData} />
       </div>
+
     </main>
   );
 }

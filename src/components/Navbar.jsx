@@ -29,10 +29,10 @@ export default function Navbar() {
           <NavLink to="/history" className={linkClass}>История</NavLink>
           <NavLink to="/contact" className={linkClass}>Контакты</NavLink>
           <NavLink to="/queue" className={linkClass}>Очередь на КО</NavLink>
-          {isAdmin && <NavLink to="/admin" className={linkClass}>Панель администратора</NavLink>}
+          {isAdmin && <NavLink to="/admin" className={linkClass}>Панель комбата</NavLink>}
           {currentUser ? (
             <>
-              <NavLink to="/profile" className={linkClass}>{profile?.callsign || "Профиль"}</NavLink>
+              <NavLink to="/profile" className={linkClass}>{profile?.callsign || "Личное дело"}</NavLink>
               <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); handleLogout(); }}>Выйти</a>
             </>
           ) : (

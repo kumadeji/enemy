@@ -158,13 +158,13 @@ export default function ApplicationForm({
           <legend>Аккаунт на сайте</legend>
           <label>Электронная почта</label>
           <input type="email" required value={form.email} onChange={e => updateField("email", e.target.value)} />
-          <div className="field-hint">Используется в качестве логина для входа на сайт, а также для связи администрации с вами.</div>
+          <div className="field-hint">Используется в качестве логина для входа на сайт, а также для связи комбата и его заместителей с вами.</div>
 
           <label>Пароль</label>
           <input type="password" minLength={6} required value={form.password} onChange={e => updateField("password", e.target.value)} />
           <div className="field-hint">
             Хранится в зашифрованном виде. <b>Восстановление пароля на сайте не предусмотрено.</b> Не теряйте его —
-            при утере обратитесь к администрации для сброса аккаунта.
+            при утере обратитесь к комбату или его заместителям для сброса аккаунта.
           </div>
         </fieldset>
       )}
@@ -221,7 +221,7 @@ export default function ApplicationForm({
 
         <label>Дополнительные контакты <span className="optional-tag">необязательно</span></label>
         <div className="field-hint">
-          Нужны для того, чтобы администрация клана могла связаться с вами, если вы пропадёте со связи
+          Нужны для того, чтобы комбат и его заместители могли связаться с вами, если вы пропадёте со связи
           или перестанете заходить в Discord или Steam. Заполнять их желательно, хотя это и не обязательно.
         </div>
         <div className="extra-contacts-grid">
@@ -259,11 +259,11 @@ export default function ApplicationForm({
         <input type="text" required value={form.callsign} disabled={isLocked("callsign")}
           onChange={e => updateField("callsign", e.target.value)}
           onBlur={e => setCallsignError(validateCallsign(e.target.value) || "")} />
-        {isLocked("callsign") && <div className="field-hint">Смена позывного возможна только через администрацию клана.</div>}
+        {isLocked("callsign") && <div className="field-hint">Смена позывного возможна только через комбата.</div>}
 
         <div className="callsign-rules">
           <p><b>Обратите внимание: позывной обычно указывается один раз и навсегда</b>, смена позывного
-          происходит только при согласовании с администрацией.</p>
+          происходит только при согласовании с комбатом или его заместителем.</p>
           <ul>
             <li>Может состоять из латиницы, цифр и общепринятых символов (-, _, .).</li>
             <li>Должен легко считываться визуально и на слух. Избегайте сложных сочетаний, повторов и заглавных букв в середине слов.</li>
