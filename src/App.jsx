@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Apply from "./pages/Apply";
 import Login from "./pages/Login";
+import MyApplication from "./pages/MyApplication";
 import Profile from "./pages/Profile";
 import Roster from "./pages/Roster";
 import Media from "./pages/Media";
@@ -16,6 +17,7 @@ import History from "./pages/History";
 import Contact from "./pages/Contact";
 import Queue from "./pages/Queue";
 import Admin from "./pages/Admin";
+import AdminPlayerDetail from "./pages/AdminPlayerDetail";
 
 export default function App() {
   return (
@@ -28,6 +30,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/apply" element={<Apply />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/my-application" element={<ProtectedRoute require="auth"><MyApplication /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute require="auth"><Profile /></ProtectedRoute>} />
           <Route path="/profile/:uid" element={<ProtectedRoute require="roster"><Profile /></ProtectedRoute>} />
           <Route path="/roster" element={<ProtectedRoute require="roster"><Roster /></ProtectedRoute>} />
@@ -37,9 +40,10 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/queue" element={<ProtectedRoute require="auth"><Queue /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
+          <Route path="/admin/player/:uid" element={<ProtectedRoute require="admin"><AdminPlayerDetail /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
-          <div className="container">© Игровое сообщество ENEMY - 2026. Версия 0.1</div>
+          <div className="container">© Мультиигровое сообщество ENEMY</div>
         </footer>
       </AuthProvider>
     </BrowserRouter>

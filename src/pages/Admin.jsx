@@ -1,84 +1,108 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { db, STATUS_ORDER } from "../firebase";
-import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 export default function Admin() {
-  const [entries, setEntries] = useState([]);
+  const [players, setPlayers] = useState([]);
+  const [tab, setTab] = useState("pending");
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("date-desc");
+  const [gameFilter, setGameFilter] = useState("");
 
-  async function loadAll() {
-    const profilesSnap = await getDocs(collection(db, "profiles"));
-    const list = [];
-    for (const d of profilesSnap.docs) {
-      const uid = d.id;
-      const p = d.data();
-      const appSnap = await getDoc(doc(db, "applications", uid));
-      const a = appSnap.exists() ? appSnap.data() : {};
-      list.push({ uid, profile: p, application: a });
+  useEffect(() => {
+    async function load() {
+      const snap = await getDocs(collection(db, "profiles"));
+      setPlayers(snap.docs.map(d => ({ uid: d.id, ...d.data() })));
     }
-    setEntries(list);
-  }
+    load();
+  }, []);
 
-  useEffect(() => { loadAll(); }, []);
+  const stats = useMemo(() => {
+    const total = players.length;
+    const pending = players.filter(p => p.status === "Новобранец").length;
+    const byStatus = STATUS_ORDER.reduce((acc, s) => {
+      acc[s] = players.filter(p => p.status === s).length;
+      return acc;
+    }, {});
+    return { total, pending, byStatus };
+  }, [players]);
 
-  async function changeStatus(uid, status) {
-    await updateDoc(doc(db, "profiles", uid), { status });
-    setEntries(prev => prev.map(e => e.uid === uid ? { ...e, profile: { ...e.profile, status } } : e));
-  }
+  const filtered = useMemo(() => {
+    let list = [...players];
+    if (tab === "pending") list = list.filter(p => p.status === "Новобранец");
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(p => p.callsign.toLowerCase().includes(q));
+    }
+    if (gameFilter) list = list.filter(p => p.gamesInterested?.includes(gameFilter));
 
-  async function giveAward(uid, icon, desc) {
-    if (!icon || !desc) return;
-    const entry = entries.find(e => e.uid === uid);
-    const awards = [...(entry.profile.awards || []), { icon, desc }];
-    await updateDoc(doc(db, "profiles", uid), { awards });
-    setEntries(prev => prev.map(e => e.uid === uid ? { ...e, profile: { ...e.profile, awards } } : e));
-  }
+    list.sort((a, b) => {
+      if (sortBy === "name") return a.callsign.localeCompare(b.callsign, "ru");
+      if (sortBy === "status") return STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status);
+      const aDate = a.createdAt?.seconds || 0;
+      const bDate = b.createdAt?.seconds || 0;
+      return sortBy === "date-asc" ? aDate - bDate : bDate - aDate;
+    });
+    return list;
+  }, [players, tab, search, sortBy, gameFilter]);
 
-  async function deleteUser(uid) {
-    if (!confirm("Точно удалить пользователя?")) return;
-    await deleteDoc(doc(db, "profiles", uid));
-    await deleteDoc(doc(db, "applications", uid));
-    setEntries(prev => prev.filter(e => e.uid !== uid));
+  function formatDate(ts) {
+    if (!ts?.seconds) return "—";
+    return new Date(ts.seconds * 1000).toLocaleDateString("ru-RU");
   }
 
   return (
     <main className="container">
       <h1>Панель администратора</h1>
-      {entries.map(({ uid, profile: p, application: a }) => (
-        <AdminCard key={uid} uid={uid} p={p} a={a}
-          onStatusChange={changeStatus} onGiveAward={giveAward} onDelete={deleteUser} />
-      ))}
+
+      <div className="admin-stats card">
+        <div><span className="stat-value">{stats.total}</span><span className="stat-label">всего участников</span></div>
+        <div><span className="stat-value">{stats.pending}</span><span className="stat-label">заявок на рассмотрении</span></div>
+        {STATUS_ORDER.map(s => (
+          <div key={s}><span className="stat-value">{stats.byStatus[s] || 0}</span><span className="stat-label">{s}</span></div>
+        ))}
+      </div>
+
+      <div className="admin-tabs">
+        <button className={`tab-btn ${tab === "pending" ? "active" : ""}`} onClick={() => setTab("pending")}>
+          Новые заявки {stats.pending > 0 && <span className="tab-badge">{stats.pending}</span>}
+        </button>
+        <button className={`tab-btn ${tab === "all" ? "active" : ""}`} onClick={() => setTab("all")}>Все участники</button>
+      </div>
+
+      <div className="admin-filters card">
+        <input type="text" placeholder="Поиск по позывному..." value={search} onChange={e => setSearch(e.target.value)} />
+        <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+          <option value="date-desc">Сначала новые</option>
+          <option value="date-asc">Сначала старые</option>
+          <option value="name">По имени (А-Я)</option>
+          <option value="status">По статусу</option>
+        </select>
+        <select value={gameFilter} onChange={e => setGameFilter(e.target.value)}>
+          <option value="">Все игры</option>
+          <option value="Arma Reforger">Arma Reforger</option>
+          <option value="Squad">Squad</option>
+        </select>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Позывной</th><th>Статус</th><th>Игры</th><th>Регистрация</th><th></th></tr>
+        </thead>
+        <tbody>
+          {filtered.map(p => (
+            <tr key={p.uid}>
+              <td>{p.callsign} {p.isSquadLeader && <span className="badge">КО</span>}</td>
+              <td><span className="badge" data-status={p.status}>{p.status}</span></td>
+              <td>{p.gamesInterested?.join(", ")}</td>
+              <td>{formatDate(p.createdAt)}</td>
+              <td><Link to={`/admin/player/${p.uid}`} className="btn secondary">Открыть</Link></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {filtered.length === 0 && <p className="hint">Никого не найдено.</p>}
     </main>
-  );
-}
-
-function AdminCard({ uid, p, a, onStatusChange, onGiveAward, onDelete }) {
-  const [icon, setIcon] = useState("");
-  const [desc, setDesc] = useState("");
-
-  return (
-    <div className="card">
-      <h2>{p.callsign}</h2>
-      <p><b>Email:</b> {a.email || "—"}</p>
-      <p><b>Имя:</b> {a.fullName || "—"}, <b>возраст:</b> {a.age || "—"}</p>
-      <p><b>Steam:</b> {a.steamUrl || "—"}</p>
-      <p><b>Часовой пояс:</b> {a.timezone || "—"}</p>
-      <p><b>Доступность:</b> {a.availability || "—"}</p>
-      <p><b>Почему хочет вступить:</b> {a.whyJoin || "—"}</p>
-      <p><b>Откуда узнал:</b> {a.howFound || "—"}</p>
-      <p><b>Устав принят:</b> {a.charterAgreed ? "да" : "нет"}</p>
-
-      <label>Статус</label>
-      <select value={p.status} onChange={e => onStatusChange(uid, e.target.value)}>
-        {STATUS_ORDER.map(s => <option key={s} value={s}>{s}</option>)}
-      </select>
-
-      <label>Выдать награду (иконка emoji)</label>
-      <input type="text" placeholder="🏅" value={icon} onChange={e => setIcon(e.target.value)} />
-      <label>Описание награды</label>
-      <input type="text" placeholder="За отвагу в бою" value={desc} onChange={e => setDesc(e.target.value)} />
-      <button className="btn secondary" onClick={() => { onGiveAward(uid, icon, desc); setIcon(""); setDesc(""); }}>Выдать награду</button>
-
-      <button className="btn danger" onClick={() => onDelete(uid)}>Удалить пользователя</button>
-    </div>
   );
 }

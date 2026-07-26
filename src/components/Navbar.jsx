@@ -5,7 +5,7 @@ import { auth } from "../firebase";
 import logo from "./Logo.jpg";
 
 export default function Navbar() {
-  const { currentUser, profile } = useAuth();
+  const { currentUser, profile, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -29,6 +29,7 @@ export default function Navbar() {
           <NavLink to="/history" className={linkClass}>История</NavLink>
           <NavLink to="/contact" className={linkClass}>Контакты</NavLink>
           <NavLink to="/queue" className={linkClass}>Очередь на КО</NavLink>
+          {isAdmin && <NavLink to="/admin" className={linkClass}>Панель администратора</NavLink>}
           {currentUser ? (
             <>
               <NavLink to="/profile" className={linkClass}>{profile?.callsign || "Профиль"}</NavLink>
