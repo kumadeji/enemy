@@ -25,7 +25,7 @@ body {
   font-size: 15px;
 }
 
-a {
+/* a {
   color: var(--accent);
   text-decoration: none;
   transition: color 0.15s ease;
@@ -36,7 +36,7 @@ a:visited {
 a:hover {
   color: var(--accent-bright);
   text-decoration: underline;
-}
+} */
 
 .container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
 /* Отдельный, более широкий контейнер только для шапки —
