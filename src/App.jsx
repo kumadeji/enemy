@@ -18,6 +18,7 @@ import Contact from "./pages/Contact";
 import Queue from "./pages/Queue";
 import Admin from "./pages/Admin";
 import AdminPlayerDetail from "./pages/AdminPlayerDetail";
+import AdminMigrate from "./pages/AdminMigrate";
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/queue" element={<ProtectedRoute require="auth"><Queue /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
           <Route path="/admin/player/:uid" element={<ProtectedRoute require="admin"><AdminPlayerDetail /></ProtectedRoute>} />
+		  <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
           <div className="container">© Мультиигровое сообщество ENEMY</div>
