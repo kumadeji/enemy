@@ -175,8 +175,11 @@ export default function Queue() {
         <h2>Статистика отыгрышей КО</h2>
         {statsData.length === 0 && <p className="hint">Пока нет данных статистики.</p>}
         <div className="ko-chart">
-          {statsData.map(p => (
+          {statsData.map((p, index) => (
             <div key={p.uid} className="ko-chart-row">
+              <span className="ko-chart-rank">
+                {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
+              </span>
               <span className="ko-chart-label">{p.callsign}</span>
               <div className="ko-chart-bar-track">
                 <div className="ko-chart-bar" style={{ width: `${((p.koCount || 0) / maxKo) * 100}%` }}></div>

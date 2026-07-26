@@ -41,6 +41,9 @@ export default function Profile() {
         <p><b>Steam:</b> <a href={p.steamProfileUrl} target="_blank" rel="noreferrer">{p.steamProfileUrl}</a></p>
         {p.armaId && <p><b>Arma ID:</b> {p.armaId}</p>}
         {p.timezone && <p><b>Часовой пояс:</b> {p.timezone}</p>}
+        {p.birthDate && (
+          <p className="birthdate-row">🎂 <b>Дата рождения:</b> {p.birthDate}</p>
+        )}
 
         {contacts.phone && <p><b>Телефон:</b> {contacts.phone}</p>}
         {contacts.telegram && <p><b>Telegram:</b> {contacts.telegram}</p>}
