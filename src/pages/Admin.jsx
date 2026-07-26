@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { db, STATUS_ORDER } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
+import StatusBadges from "../components/StatusBadges";
 
 export default function Admin() {
   const [players, setPlayers] = useState([]);
@@ -93,8 +94,8 @@ export default function Admin() {
         <tbody>
           {filtered.map(p => (
             <tr key={p.uid}>
-              <td>{p.callsign} {p.isSquadLeader && <span className="badge">КО</span>}</td>
-              <td><span className="badge" data-status={p.status}>{p.status}</span></td>
+              <td>{p.callsign}</td>
+              <td><StatusBadges status={p.status} isSquadLeader={p.isSquadLeader} /></td>
               <td>{p.gamesInterested?.join(", ")}</td>
               <td>{formatDate(p.createdAt)}</td>
               <td><Link to={`/admin/player/${p.uid}`} className="btn secondary">Открыть</Link></td>

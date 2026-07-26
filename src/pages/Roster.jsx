@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
+import StatusBadges from "../components/StatusBadges";
 
 export default function Roster() {
   const [profiles, setProfiles] = useState([]);
@@ -34,7 +35,7 @@ export default function Roster() {
           {filtered.map(p => (
             <tr key={p.uid}>
               <td><Link to={`/profile/${p.uid}`}>{p.callsign}</Link></td>
-              <td><span className="badge" data-status={p.status}>{p.status}</span></td>
+              <td><StatusBadges status={p.status} isSquadLeader={p.isSquadLeader} /></td>
             </tr>
           ))}
         </tbody>

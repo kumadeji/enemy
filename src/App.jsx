@@ -42,7 +42,6 @@ export default function App() {
           <Route path="/queue" element={<ProtectedRoute require="auth"><Queue /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
           <Route path="/admin/player/:uid" element={<ProtectedRoute require="admin"><AdminPlayerDetail /></ProtectedRoute>} />
-		  <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
           <div className="container">© Мультиигровое сообщество ENEMY</div>
