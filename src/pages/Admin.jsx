@@ -58,8 +58,7 @@ export default function Admin() {
       <h1>Панель администратора</h1>
 
       <div className="admin-stats card">
-        <div><span className="stat-value">{stats.total}</span><span className="stat-label">всего участников</span></div>
-        <div><span className="stat-value">{stats.pending}</span><span className="stat-label">заявок на рассмотрении</span></div>
+        <div><span className="stat-value">{stats.total}</span><span className="stat-label">Всего</span></div>
         {STATUS_ORDER.map(s => (
           <div key={s}><span className="stat-value">{stats.byStatus[s] || 0}</span><span className="stat-label">{s}</span></div>
         ))}

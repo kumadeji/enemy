@@ -397,33 +397,73 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 /* ---------- Обновление 0.2 ---------- */
 
-.field-tooltip {
-  position: relative;
+.field-tooltip-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   margin-left: 6px;
   border-radius: 50%;
   background: var(--border);
   color: var(--text-muted);
   font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
   vertical-align: middle;
+  border: none;
+  padding: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
-.field-tooltip-popup {
-  position: absolute;
-  bottom: 26px;
-  left: 0;
-  z-index: 50;
+.field-tooltip-btn:hover {
+  background: var(--accent);
+  color: #14110a;
+}
+
+.image-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 24px;
+  animation: fadeIn 0.2s ease;
+}
+.image-modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border-radius: 14px;
+  padding: 20px;
 }
-.field-tooltip-popup img { max-width: 320px; max-height: 320px; display: block; border-radius: 4px; }
+.image-modal-content img {
+  max-width: 100%;
+  max-height: 80vh;
+  display: block;
+  border-radius: 8px;
+}
+.image-modal-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #14110a;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
 
 .optional-tag { color: var(--text-muted); font-weight: 400; font-size: 11px; margin-left: 6px; }
 
@@ -528,10 +568,102 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .btn-mini:hover { border-color: var(--accent); color: var(--accent); }
 
 /* Диаграмма статистики КО */
-.ko-chart { display: flex; flex-direction: column; gap: 10px; }
-.ko-chart-row { display: grid; grid-template-columns: 120px 1fr 32px; align-items: center; gap: 10px; }
-.ko-chart-label { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ko-chart-bar-track { background: var(--bg-input); border-radius: 6px; height: 14px; overflow: hidden; }
-.ko-chart-bar { background: linear-gradient(90deg, var(--accent), var(--accent-bright)); height: 100%; border-radius: 6px; transition: width 0.4s ease; }
-.ko-chart-value { font-size: 13px; text-align: right; font-family: var(--font-heading); }
+.ko-chart { display: flex; flex-direction: column; gap: 12px; }
+.ko-chart-row {
+  display: grid;
+  grid-template-columns: 28px 120px 1fr 32px;
+  align-items: center;
+  gap: 12px;
+}
+.ko-chart-rank { font-size: 14px; text-align: center; color: var(--text-muted); }
+.ko-chart-label {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ko-chart-bar-track {
+  background: var(--bg-input);
+  border-radius: 6px;
+  height: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.ko-chart-bar {
+  background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+.ko-chart-value {
+  font-size: 13px;
+  text-align: right;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--accent);
+}
 
+
+.toggle-switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background-color: var(--border);
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text);
+  border-radius: 50%;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--accent);
+}
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+  background-color: #14110a;
+}
+.toggle-switch-label { font-size: 14px; color: var(--text); }
+
+/* Статистика с кнопками +/- */
+.stats-row { display: flex; gap: 32px; margin: 12px 0; flex-wrap: wrap; }
+.stat-block { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.stat-counter-buttons { display: flex; gap: 6px; }
+
+.birthdate-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13.5px;
+}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { TIMEZONES } from "../data/timezones";
 import ImageHint from "./ImageHint";
+import { formatBirthDateInput, validateBirthDate } from "../utils/birthDate";
 
 const BANNED_WORDS = ["qwe", "abracadabra", "xxx"];
 export const ALL_GAMES = ["Arma Reforger", "Squad"];
@@ -32,26 +33,6 @@ export function buildSteamProfileUrl(steamId) {
   const trimmed = (steamId || "").trim();
   if (!trimmed) return "";
   return `https://steamcommunity.com/profiles/${trimmed}/`;
-}
-
-function validateBirthDate(value) {
-  if (!value.trim()) return null;
-  const match = value.trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-  if (!match) return "Дата рождения должна быть в формате ДД.ММ.ГГГГ.";
-  const dd = Number(match[1]), mm = Number(match[2]), yyyy = Number(match[3]);
-  if (mm < 1 || mm > 12) return "Некорректный месяц.";
-  const daysInMonth = new Date(yyyy, mm, 0).getDate();
-  if (dd < 1 || dd > daysInMonth) return "Некорректный день месяца.";
-  const currentYear = new Date().getFullYear();
-  if (yyyy < currentYear - 100 || yyyy > currentYear - 5) return "Проверьте год рождения.";
-  return null;
-}
-
-function formatBirthDateInput(value) {
-  const digits = value.replace(/\D/g, "").slice(0, 8);
-  if (digits.length > 4) return `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4)}`;
-  if (digits.length > 2) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
-  return digits;
 }
 
 function validatePhone(value) {
@@ -129,7 +110,7 @@ export default function ApplicationForm({
     }
 
     const age = Number(form.age);
-    if (!age || age < 16 || age > 99) { setFormError("Возраст должен быть от 16 до 99 лет."); return; }
+    if (!age || age < 16 || age > 99) { setFormError("В клан принимаются лица только старше 16 лет."); return; }
 
     const bErr = validateBirthDate(form.birthDate);
     if (bErr) { setBirthDateError(bErr); setFormError(bErr); return; }
@@ -211,7 +192,7 @@ export default function ApplicationForm({
           onChange={e => { updateField("birthDate", formatBirthDateInput(e.target.value)); setBirthDateError(""); }}
           onBlur={e => setBirthDateError(validateBirthDate(e.target.value) || "")}
         />
-        <div className="field-hint">Нужна только для того, чтобы мы могли поздравить вас в клане с днём рождения. Можно заполнить позже, в любое время.</div>
+        <div className="field-hint">Нам не нужны ваши личные данные — это только для того, чтобы мы могли вас поздравлять в клане с днём рождения. По желанию, но можно заполнить позже, в любое время.</div>
         {birthDateError && <div className="error">{birthDateError}</div>}
       </fieldset>
 
@@ -223,9 +204,7 @@ export default function ApplicationForm({
         </label>
         <input type="text" required value={form.steamId} onChange={e => updateField("steamId", e.target.value)} />
         <div className="field-hint">
-          Полезно заполнить — этот же Steam ID пригодится вам для регистрации на игровых проектах,
-          на которых мы играем в клане. Он будет отображаться в вашем профиле на сайте, и вы всегда
-          сможете скопировать его оттуда.
+          Steam ID — числовой код вашего профиля (не ник и не логин), обязательный контакт для поддержания связи в клане. Он же пригодится вам для регистрации на игровых проектах, на которых мы играем в клане. Он будет отображаться в вашем профиле на сайте, и вы всегда сможете скопировать его оттуда.
         </div>
         {steamProfileUrl && (
           <div className="field-hint">
@@ -238,20 +217,19 @@ export default function ApplicationForm({
           <ImageHint image="/hints/discord-id.png" alt="Где взять Discord ID" />
         </label>
         <input type="text" required value={form.discordId} onChange={e => updateField("discordId", e.target.value)} />
-        <div className="field-hint">Нужен для поддержания связи в клане — коммуникация идёт через Discord.</div>
+        <div className="field-hint">Discord ID — имя пользователя (не ник), обязательный контакт для поддержания связи в клане. Почти вся коммуникация в клане идёт через Discord.</div>
 
         <label>Дополнительные контакты <span className="optional-tag">необязательно</span></label>
         <div className="field-hint">
           Нужны для того, чтобы администрация клана могла связаться с вами, если вы пропадёте со связи
-          или перестанете заходить в Discord — чтобы решить возможные вопросы. Заполнять их желательно,
-          хотя это и не обязательно.
+          или перестанете заходить в Discord или Steam. Заполнять их желательно, хотя это и не обязательно.
         </div>
         <div className="extra-contacts-grid">
           <div>
             <input type="text" placeholder="+79991234567" value={form.extraPhone}
               onChange={e => { updateField("extraPhone", e.target.value); setPhoneError(""); }}
               onBlur={e => setPhoneError(validatePhone(e.target.value) || "")} />
-            <div className="field-hint">Телефон, в формате с плюсом и кодом страны.</div>
+            <div className="field-hint">Телефон, с формате с плюсом и кодом страны.</div>
             {phoneError && <div className="error">{phoneError}</div>}
           </div>
           <div>
@@ -262,7 +240,7 @@ export default function ApplicationForm({
             {telegramError && <div className="error">{telegramError}</div>}
           </div>
           <div>
-            <input type="text" placeholder="id12345678" value={form.extraVk}
+            <input type="text" placeholder="ivan_ivanov или id12345678" value={form.extraVk}
               onChange={e => { updateField("extraVk", e.target.value); setVkError(""); }}
               onBlur={e => setVkError(validateHandle(e.target.value, "ВКонтакте") || "")} />
             <div className="field-hint">ID страницы ВКонтакте, без пробелов и без символа @.</div>
@@ -339,9 +317,7 @@ export default function ApplicationForm({
             </label>
             <input type="text" required value={form.armaId} onChange={e => updateField("armaId", e.target.value)} />
             <div className="field-hint">
-              Полезно заполнить — этот же Arma ID пригодится вам для регистрации на игровых проектах,
-              на которых мы играем в клане. Он будет отображаться в вашем профиле на сайте, и вы всегда
-              сможете скопировать его оттуда.
+			  Arma ID — код вашей профиля в игре (не ник и не логин). Он же пригодится вам для регистрации на игровых проектах, на которых мы играем в клане. По нему выдаётся доступ по белым спискам на серверы проектов, а также баны в случае нарушений правил. Он будет отображаться в вашем профиле на сайте, и вы всегда сможете скопировать его оттуда.
             </div>
           </div>
         )}

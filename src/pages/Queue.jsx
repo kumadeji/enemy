@@ -161,11 +161,8 @@ export default function Queue() {
             {availableToAdd.map(l => <option key={l.uid} value={l.uid}>{l.callsign}</option>)}
           </select>
           <button className="btn secondary" onClick={addToQueue}>Добавить в конец очереди</button>
-          <div className="field-hint">
-            Порядок можно менять перетаскиванием (на ПК) или стрелками ↑/↓ (на любом устройстве).
-          </div>
 
-          <label style={{ marginTop: 16 }}>Назначить роль «Командир отряда» игроку</label>
+          <label style={{ marginTop: 16 }}>Назначить нового командира отряда</label>
           <select value={selectedToPromote} onChange={e => setSelectedToPromote(e.target.value)}>
             <option value="">Выберите игрока...</option>
             {nonLeaders.map(p => <option key={p.uid} value={p.uid}>{p.callsign}</option>)}

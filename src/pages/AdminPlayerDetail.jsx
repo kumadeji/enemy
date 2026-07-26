@@ -3,6 +3,9 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { db, STATUS_ORDER, GOOGLE_SHEETS_URL } from "../firebase";
 import { doc, getDoc, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
 import { TIMEZONES } from "../data/timezones";
+import ToggleSwitch from "../components/ToggleSwitch";
+import { formatBirthDateInput, validateBirthDate } from "../utils/birthDate";
+
 
 export default function AdminPlayerDetail() {
   const { uid } = useParams();
@@ -35,6 +38,10 @@ export default function AdminPlayerDetail() {
   }
   function updateAppField(field, value) {
     setApplication(prev => ({ ...prev, [field]: value }));
+  }
+  
+  function adjustKs(delta) {
+    setProfile(prev => ({ ...prev, ksCount: Math.max(0, (Number(prev.ksCount) || 0) + delta) }));
   }
 
   async function saveAll() {
@@ -125,25 +132,33 @@ export default function AdminPlayerDetail() {
         <select value={profile.status} onChange={e => updateProfileField("status", e.target.value)}>
           {STATUS_ORDER.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-
-        <label className="checkbox-label" style={{ marginTop: 12 }}>
-          <input type="checkbox" checked={!!profile.isSquadLeader}
-            onChange={e => updateProfileField("isSquadLeader", e.target.checked)} />
-          <span>Командир отряда (КО) — дополнительная роль, участвует в очереди на командование</span>
-        </label>
+      
+        <ToggleSwitch
+          checked={!!profile.isSquadLeader}
+          onChange={e => updateProfileField("isSquadLeader", e.target.checked)}
+          label="Командир отряда (КО) — дополнительная роль, участвует в очереди на командование отрядом"
+        />
       </div>
+
 
       <div className="card">
         <h2>Статистика</h2>
         <div className="stats-row">
-          <div><span className="stat-value">{profile.koCount || 0}</span><span className="stat-label">раз отыграл КО</span></div>
-          <div>
-            <label>КС (командир стороны)</label>
-            <input type="number" min={0} value={profile.ksCount || 0}
-              onChange={e => updateProfileField("ksCount", e.target.value)} style={{ width: 100 }} />
+          <div className="stat-block">
+            <span className="stat-value">{profile.koCount || 0}</span>
+            <span className="stat-label">раз отыграл КО</span>
+          </div>
+          <div className="stat-block">
+            <span className="stat-value">{profile.ksCount || 0}</span>
+            <span className="stat-label">раз отыграл КС</span>
+            <div className="stat-counter-buttons">
+              <button type="button" className="icon-btn" onClick={() => adjustKs(-1)} disabled={(profile.ksCount || 0) <= 0}>−</button>
+              <button type="button" className="icon-btn" onClick={() => adjustKs(1)}>+</button>
+            </div>
           </div>
         </div>
       </div>
+
 
       <div className="card">
         <h2>Личные данные</h2>
@@ -161,7 +176,17 @@ export default function AdminPlayerDetail() {
         <input type="number" value={application.age} onChange={e => updateAppField("age", e.target.value)} />
 
         <label>Дата рождения</label>
-        <input type="date" value={profile.birthDate || ""} onChange={e => updateProfileField("birthDate", e.target.value)} />
+        <input
+          type="text"
+          placeholder="ДД.ММ.ГГГГ"
+          maxLength={10}
+          value={profile.birthDate || ""}
+          onChange={e => updateProfileField("birthDate", formatBirthDateInput(e.target.value))}
+        />
+        {profile.birthDate && validateBirthDate(profile.birthDate) && (
+          <div className="error">{validateBirthDate(profile.birthDate)}</div>
+        )}
+
       </div>
 
       <div className="card">
