@@ -5,7 +5,9 @@ import { doc, getDoc, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
 import { TIMEZONES } from "../data/timezones";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { formatBirthDateInput, validateBirthDate } from "../utils/birthDate";
-
+import { pluralize } from "../utils/pluralize";
+import { TIMES_FORMS } from "../data/statusForms";
+import AwardChip from "../components/AwardChip";
 
 export default function AdminPlayerDetail() {
   const { uid } = useParams();
@@ -148,7 +150,7 @@ export default function AdminPlayerDetail() {
         <div className="stats-row">
           <div className="stat-block">
             <span className="stat-value">{profile.koCount || 0}</span>
-            <span className="stat-label">раз отыграл за КО</span>
+            <span className="stat-label">{pluralize(profile.koCount || 0, TIMES_FORMS)} отыграл за КО</span>
             <div className="stat-counter-buttons">
               <button type="button" className="icon-btn" onClick={() => adjustKo(-1)} disabled={(profile.koCount || 0) <= 0}>−</button>
               <button type="button" className="icon-btn" onClick={() => adjustKo(1)}>+</button>
@@ -156,7 +158,7 @@ export default function AdminPlayerDetail() {
           </div>
           <div className="stat-block">
             <span className="stat-value">{profile.ksCount || 0}</span>
-            <span className="stat-label">раз отыграл за КС</span>
+            <span className="stat-label">{pluralize(profile.ksCount || 0, TIMES_FORMS)} отыграл за КС</span>
             <div className="stat-counter-buttons">
               <button type="button" className="icon-btn" onClick={() => adjustKs(-1)} disabled={(profile.ksCount || 0) <= 0}>−</button>
               <button type="button" className="icon-btn" onClick={() => adjustKs(1)}>+</button>
@@ -164,6 +166,7 @@ export default function AdminPlayerDetail() {
           </div>
         </div>
       </div>
+
 
       <div className="card">
         <h2>Личные данные</h2>
@@ -244,8 +247,8 @@ export default function AdminPlayerDetail() {
         <h2>Награды</h2>
         {(profile.awards || []).map((a, i) => (
           <div key={i} className="award-row">
-            <span className="award-icon" title={a.desc}>{a.icon}</span> {a.desc}
-            <button className="btn secondary" onClick={() => removeAward(i)}>Убрать</button>
+            <AwardChip icon={a.icon} desc={a.desc} />
+            <button className="btn secondary" onClick={() => removeAward(i)}>Изъять награду</button>
           </div>
         ))}
         <input type="text" placeholder="Иконка (emoji)" value={awardIcon} onChange={e => setAwardIcon(e.target.value)} />
@@ -255,10 +258,10 @@ export default function AdminPlayerDetail() {
 
       <div className="card">
         <h2>Заметки комбата</h2>
-        <label>Публичная заметка <span className="optional-tag">видна всем в профиле</span></label>
+        <label>Публичная заметка — «Комбат о бойце» <span className="optional-tag">видна всем в профиле</span></label>
         <textarea value={profile.publicNote || ""} onChange={e => updateProfileField("publicNote", e.target.value)} />
-
-        <label>Внутренняя заметка <span className="optional-tag">видна только комбату и его заместителям</span></label>
+		
+        <label>Внутренняя заметка<span className="optional-tag">видна только комбату и его заместителям</span></label>
         <textarea value={note.privateNote || ""} onChange={e => setNote({ privateNote: e.target.value })} />
       </div>
 	  

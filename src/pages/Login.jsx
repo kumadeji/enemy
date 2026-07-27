@@ -26,8 +26,8 @@ export default function Login() {
   return (
     <main className="container">
       <div className="auth-page">
-        <h1>Вход в личный кабинет</h1>
-        <p className="page-lead">Игровое сообщество <b>ENEMY</b>, направление Arma Reforger.</p>
+        <h1>Вход в кабинет бойца</h1>
+        <p className="page-lead">Игровое сообщество <b>ENEMY</b>.</p>
 
         <form className="apply-form" onSubmit={handleSubmit}>
           <fieldset className="form-section">

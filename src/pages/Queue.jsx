@@ -108,7 +108,7 @@ export default function Queue() {
     <main className="container">
       <h1>Очередь на командира отряда (КО)</h1>
 
-      <details className="card">
+      <details className="card queue-rules">
         <summary>Правила очереди</summary>
         <ul>
           <li>Если игрок из очереди пришёл на игру и его очередь подошла — он становится КО.</li>

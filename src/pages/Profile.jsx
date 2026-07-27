@@ -4,6 +4,9 @@ import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import StatusBadges from "../components/StatusBadges";
 import { useAuth } from "../context/AuthContext";
+import { pluralize } from "../utils/pluralize";
+import { TIMES_FORMS } from "../data/statusForms";
+import AwardChip from "../components/AwardChip";
 
 export default function Profile() {
   const { uid } = useParams();
@@ -35,6 +38,14 @@ export default function Profile() {
       <h1>Личное дело бойца</h1>
       <div className="card">
         <h2>{p.callsign}</h2>
+		
+        {p.publicNote && (
+          <div className="handwritten-note">
+            <span className="handwritten-note-label">Комбат о бойце</span>
+            <p className="handwritten-note-text">«{p.publicNote}»</p>
+          </div>
+        )}
+		
         <StatusBadges status={p.status} isSquadLeader={p.isSquadLeader} />
 
         <p><b>Игры:</b> {p.gamesInterested.join(", ")}</p>
@@ -49,22 +60,24 @@ export default function Profile() {
         {contacts.vk && <p><b>ВКонтакте:</b> {contacts.vk}</p>}
         {contacts.other && <p><b>Другой контакт:</b> {contacts.other}</p>}
 
+        <p><b>Боевые заслуги:</b></p>
         <div className="stats-row">
-          <div className="stat-block"><span className="stat-value">{p.koCount || 0}</span><span className="stat-label">раз отыграл за КО</span></div>
-          <div className="stat-block"><span className="stat-value">{p.ksCount || 0}</span><span className="stat-label">раз отыграл за КС</span></div>
+          <div className="stat-block">
+            <span className="stat-value">{p.koCount || 0}</span>
+            <span className="stat-label">{pluralize(p.koCount || 0, TIMES_FORMS)} отыграл за КО</span>
+          </div>
+          <div className="stat-block">
+            <span className="stat-value">{p.ksCount || 0}</span>
+            <span className="stat-label">{pluralize(p.ksCount || 0, TIMES_FORMS)} отыграл за КС</span>
+          </div>
         </div>
 
-        <p><b>Награды:</b> {
-          (p.awards || []).length
-            ? p.awards.map((a, i) => <span key={i} className="award-icon" title={a.desc}>{a.icon}</span>)
-            : "пока нет"
-        }</p>
-
-        {p.publicNote && (
-          <div className="public-note-box">
-            <b>Комбат об этом бойце:</b> {p.publicNote}
-          </div>
-        )}
+        <p><b>Награды:</b></p>
+        <div className="awards-list">
+          {(p.awards || []).length
+            ? p.awards.map((a, i) => <AwardChip key={i} icon={a.icon} desc={a.desc} />)
+            : <span className="hint">пока нет, трудись, боец!</span>}
+        </div>
 
         {isOwn && (
           <Link to="/my-application" className="btn secondary" style={{ marginTop: 16 }}>Редактировать профиль</Link>

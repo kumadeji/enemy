@@ -46,7 +46,7 @@ export default function Roster() {
       <div className="admin-filters card">
         <input type="text" placeholder="Поиск по позывному..." value={search} onChange={e => setSearch(e.target.value)} />
         <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
-          <option value="name">По имени (А-Я)</option>
+          <option value="name">По имени</option>
           <option value="status">По должности</option>
         </select>
         <select value={gameFilter} onChange={e => setGameFilter(e.target.value)}>

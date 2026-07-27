@@ -4,6 +4,7 @@ import { db, STATUS_ORDER } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import StatusBadges from "../components/StatusBadges";
 import CommunityStats from "../components/CommunityStats";
+import { STATUS_SORT_ORDER } from "../data/statusSortOrder";
 
 export default function Admin() {
   const [players, setPlayers] = useState([]);
@@ -41,7 +42,7 @@ export default function Admin() {
 
     list.sort((a, b) => {
       if (sortBy === "name") return a.callsign.localeCompare(b.callsign, "ru");
-      if (sortBy === "status") return STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status);
+      if (sortBy === "status") return STATUS_SORT_ORDER.indexOf(a.status) - STATUS_SORT_ORDER.indexOf(b.status);
       const aDate = a.createdAt?.seconds || 0;
       const bDate = b.createdAt?.seconds || 0;
       return sortBy === "date-asc" ? aDate - bDate : bDate - aDate;
@@ -74,7 +75,7 @@ export default function Admin() {
         <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
           <option value="date-desc">Сначала новые</option>
           <option value="date-asc">Сначала старые</option>
-          <option value="name">По имени (А-Я)</option>
+          <option value="name">По имени</option>
           <option value="status">По должности</option>
         </select>
         <select value={gameFilter} onChange={e => setGameFilter(e.target.value)}>
