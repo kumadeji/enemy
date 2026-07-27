@@ -68,6 +68,14 @@ export default function Apply() {
           birthDate: values.birthDate || "",
           createdAt: serverTimestamp()
         });
+		
+        tx.set(doc(db, "rosterPublic", uid), {
+          callsign: values.callsign.trim(),
+          status: "Новобранец",
+          isSquadLeader: false,
+          gamesInterested: values.games,
+          koCount: 0
+        });
 
         tx.set(doc(db, "applications", uid), {
           email: values.email, fullName: values.fullName, age: Number(values.age),

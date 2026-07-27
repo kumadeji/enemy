@@ -53,7 +53,7 @@ export default function Profile() {
         <p><b>Steam:</b> <a href={p.steamProfileUrl} target="_blank" rel="noreferrer">{p.steamProfileUrl}</a></p>
         {p.armaId && <p><b>Arma ID:</b> {p.armaId}</p>}
         {p.timezone && <p><b>Часовой пояс:</b> {p.timezone}</p>}
-        {p.birthDate && <p className="birthdate-row">🎂 <b>Дата рождения:</b> {p.birthDate}</p>}
+        {p.birthDate && <p><b>Дата рождения:</b> {p.birthDate}</p>}
 
         {contacts.phone && <p><b>Телефон:</b> {contacts.phone}</p>}
         {contacts.telegram && <p><b>Telegram:</b> {contacts.telegram}</p>}
@@ -61,22 +61,24 @@ export default function Profile() {
         {contacts.other && <p><b>Другой контакт:</b> {contacts.other}</p>}
 
         <p><b>Боевые заслуги:</b></p>
-        <div className="stats-row">
-          <div className="stat-block">
+        <div className="profile-stats-row">
+          <div className="profile-stat-card">
             <span className="stat-value">{p.koCount || 0}</span>
             <span className="stat-label">{pluralize(p.koCount || 0, TIMES_FORMS)} отыграл за КО</span>
           </div>
-          <div className="stat-block">
+          <div className="profile-stat-card">
             <span className="stat-value">{p.ksCount || 0}</span>
             <span className="stat-label">{pluralize(p.ksCount || 0, TIMES_FORMS)} отыграл за КС</span>
           </div>
         </div>
 
+
+
         <p><b>Награды:</b></p>
         <div className="awards-list">
           {(p.awards || []).length
             ? p.awards.map((a, i) => <AwardChip key={i} icon={a.icon} desc={a.desc} />)
-            : <span className="hint">пока нет, трудись, боец!</span>}
+            : <span className="hint">Пока нет наград, трудись, боец!</span>}
         </div>
 
         {isOwn && (

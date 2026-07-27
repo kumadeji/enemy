@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import KoStatsChart from "../components/KoStatsChart";
 
 export default function Queue() {
-  const { isAdmin } = useAuth();
+  const { currentUser, isAdmin } = useAuth();
   const [queue, setQueue] = useState([]);
   const [profilesMap, setProfilesMap] = useState({});
   const [selectedToAdd, setSelectedToAdd] = useState("");
@@ -20,9 +20,10 @@ export default function Queue() {
     const current = qSnap.exists() ? (qSnap.data().current || []) : [];
     setQueue(current);
 
-    const profilesSnap = await getDocs(collection(db, "profiles"));
+    // Публичная коллекция — доступна без авторизации
+    const rosterSnap = await getDocs(collection(db, "rosterPublic"));
     const map = {};
-    profilesSnap.docs.forEach(d => { map[d.id] = { uid: d.id, ...d.data() }; });
+    rosterSnap.docs.forEach(d => { map[d.id] = { uid: d.id, ...d.data() }; });
     setProfilesMap(map);
   }
 
@@ -39,7 +40,6 @@ export default function Queue() {
     const list = Object.values(profilesMap).filter(p => (p.koCount || 0) > 0 || p.isSquadLeader);
     return [...list].sort((a, b) => (b.koCount || 0) - (a.koCount || 0));
   }, [profilesMap]);
-  const maxKo = Math.max(1, ...statsData.map(p => p.koCount || 0));
 
   async function saveQueue(newQueue) {
     await setDoc(doc(db, "queue", "state"), { current: newQueue });
@@ -85,9 +85,12 @@ export default function Queue() {
   async function markPlayed(uid) {
     await runTransaction(db, async (tx) => {
       const profileRef = doc(db, "profiles", uid);
+      const rosterRef = doc(db, "rosterPublic", uid);
       const profileSnap = await tx.get(profileRef);
       const koCount = (profileSnap.data()?.koCount || 0) + 1;
+
       tx.update(profileRef, { koCount });
+      tx.update(rosterRef, { koCount });
 
       const queueRef = doc(db, "queue", "state");
       const newQueue = [...queue.filter(q => q.uid !== uid), { uid }];
@@ -100,6 +103,7 @@ export default function Queue() {
   async function promoteToSquadLeader() {
     if (!selectedToPromote) return;
     await updateDoc(doc(db, "profiles", selectedToPromote), { isSquadLeader: true });
+    await updateDoc(doc(db, "rosterPublic", selectedToPromote), { isSquadLeader: true });
     setProfilesMap(prev => ({ ...prev, [selectedToPromote]: { ...prev[selectedToPromote], isSquadLeader: true } }));
     setSelectedToPromote("");
   }
@@ -120,7 +124,7 @@ export default function Queue() {
       </details>
 
       <div className="card queue-card">
-        {queue.length === 0 && <p className="hint">Очередь пуста. Добавьте игроков со должностью «Командир отряда».</p>}
+        {queue.length === 0 && <p className="hint">Очередь пуста. Добавьте бойцов с должностью «Командир отряда».</p>}
         <ol className="queue-ordered-list">
           {queue.map((item, index) => {
             const p = profilesMap[item.uid];
@@ -137,7 +141,9 @@ export default function Queue() {
               >
                 {isAdmin && <span className="drag-handle">⠿</span>}
                 <span className="queue-pos">{index + 1}</span>
-                <Link to={`/profile/${p.uid}`} className="queue-callsign">{p.callsign}</Link>
+                {currentUser
+                  ? <Link to={`/profile/${p.uid}`} className="queue-callsign">{p.callsign}</Link>
+                  : <span className="queue-callsign">{p.callsign}</span>}
                 {index === 0 && <span className="badge">Следующий КО</span>}
                 {isAdmin && (
                   <span className="queue-actions">
@@ -153,31 +159,32 @@ export default function Queue() {
         </ol>
       </div>
 
-      {isAdmin && (
+      <div className="card">
+        <h2>Статистика отыгрышей за КО</h2>
+        {statsData.length === 0 && <p className="hint">Пока нет данных статистики.</p>}
+        <KoStatsChart data={statsData} />
+        <p className="stats-since-note">Статистика игр за КО ведётся с 25 июля 2026 года.</p>
+      </div>
+	  
+	  {isAdmin && (
         <div className="card">
           <h2>Управление очередью</h2>
           <label>Добавить командира отряда в очередь</label>
           <select value={selectedToAdd} onChange={e => setSelectedToAdd(e.target.value)}>
-            <option value="">Выберите игрока...</option>
+            <option value="">Выберите бойца...</option>
             {availableToAdd.map(l => <option key={l.uid} value={l.uid}>{l.callsign}</option>)}
           </select>
           <button className="btn secondary" onClick={addToQueue}>Добавить в конец очереди</button>
 
           <label style={{ marginTop: 16 }}>Назначить нового командира отряда</label>
           <select value={selectedToPromote} onChange={e => setSelectedToPromote(e.target.value)}>
-            <option value="">Выберите игрока...</option>
+            <option value="">Выберите бойца...</option>
             {nonLeaders.map(p => <option key={p.uid} value={p.uid}>{p.callsign}</option>)}
           </select>
           <button className="btn secondary" onClick={promoteToSquadLeader}>Назначить командиром отряда</button>
         </div>
       )}
-
-      <div className="card">
-        <h2>Статистика отыгрышей за КО</h2>
-        {statsData.length === 0 && <p className="hint">Пока нет данных статистики.</p>}
-        <KoStatsChart data={statsData} />
-      </div>
-
+	  
     </main>
   );
 }

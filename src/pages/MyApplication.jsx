@@ -127,6 +127,10 @@ export default function MyApplication() {
         extraContacts, gamesInterested: values.games,
         timezone: values.timezone, birthDate: values.birthDate || ""
       });
+	  
+      await updateDoc(doc(db, "rosterPublic", currentUser.uid), {
+        gamesInterested: values.games
+      });
 
       if (changes.length > 0) {
         await addDoc(collection(db, "changeLog"), {
@@ -181,7 +185,7 @@ export default function MyApplication() {
           <p><b>Email:</b> {application.email}</p>
           <p><b>Имя и фамилия:</b> {application.fullName}</p>
           <p><b>Возраст:</b> {application.age}</p>
-          {application.birthDate && <p className="birthdate-row">🎂 <b>Дата рождения:</b> {application.birthDate}</p>}
+          {application.birthDate && <p><b>Дата рождения:</b> {application.birthDate}</p>}
           <p><b>Позывной:</b> {profile.callsign}</p>
           <p><b>Steam:</b> <a href={application.steamProfileUrl} target="_blank" rel="noreferrer">{application.steamProfileUrl}</a></p>
           <p><b>Discord ID:</b> {application.discordId}</p>

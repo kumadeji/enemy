@@ -70,6 +70,14 @@ export default function AdminPlayerDetail() {
         extraContacts: profile.extraContacts || {}
       });
 
+      await setDoc(doc(db, "rosterPublic", uid), {
+        callsign: profile.callsign,
+        status: profile.status,
+        isSquadLeader: !!profile.isSquadLeader,
+        gamesInterested: profile.gamesInterested,
+        koCount: Number(profile.koCount || 0)
+      });
+
       await updateDoc(doc(db, "applications", uid), {
         fullName: application.fullName,
         age: Number(application.age),

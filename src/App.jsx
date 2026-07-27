@@ -19,6 +19,7 @@ import Queue from "./pages/Queue";
 import Admin from "./pages/Admin";
 import AdminPlayerDetail from "./pages/AdminPlayerDetail";
 import AdminChangeLog from "./pages/AdminChangeLog";
+import AdminMigrate from "./pages/AdminMigrate";
 
 export default function App() {
   return (
@@ -34,15 +35,16 @@ export default function App() {
           <Route path="/my-application" element={<ProtectedRoute require="auth"><MyApplication /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute require="auth"><Profile /></ProtectedRoute>} />
           <Route path="/profile/:uid" element={<ProtectedRoute require="roster"><Profile /></ProtectedRoute>} />
-          <Route path="/roster" element={<ProtectedRoute require="roster"><Roster /></ProtectedRoute>} />
+          <Route path="/roster" element={<Roster />} />
           <Route path="/media" element={<Media />} />
           <Route path="/charter" element={<Charter />} />
           <Route path="/history" element={<History />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/queue" element={<ProtectedRoute require="auth"><Queue /></ProtectedRoute>} />
+          <Route path="/queue" element={<Queue />} />
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
           <Route path="/admin/player/:uid" element={<ProtectedRoute require="admin"><AdminPlayerDetail /></ProtectedRoute>} />
 		  <Route path="/admin/changelog" element={<ProtectedRoute require="admin"><AdminChangeLog /></ProtectedRoute>} />
+		  <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
           <div className="container">© Мультиигровое сообщество ENEMY</div>
