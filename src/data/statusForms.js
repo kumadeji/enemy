@@ -10,4 +10,4 @@ export const STATUS_FORMS = {
 
 export const SQUAD_LEADER_FORMS = ["Командир отряда", "Командира отряда", "Командиров отряда"];
 
-export const TIMES_FORMS = ["раз", "раза", "раз"];
+export const TIMES_FORMS = ["Раз", "Раза", "Раз"];

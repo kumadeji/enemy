@@ -20,12 +20,14 @@ import Admin from "./pages/Admin";
 import AdminPlayerDetail from "./pages/AdminPlayerDetail";
 import AdminChangeLog from "./pages/AdminChangeLog";
 import BackgroundMap from "./components/BackgroundMap";
+import BackgroundMusic from "./components/BackgroundMusic";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <BackgroundMap />
+		<BackgroundMusic />
 		<AlphaBadge />
         <Navbar />
         <InfoBanner />
@@ -47,7 +49,7 @@ export default function App() {
 		  <Route path="/admin/changelog" element={<ProtectedRoute require="admin"><AdminChangeLog /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
-          <div className="container">© Мультиигровое сообщество ENEMY</div>
+          <div className="container">© Игровое сообщество ENEMY. 2026. Разработчик сайта - [En-Y]Boba, aka kumadeji.</div>
         </footer>
       </AuthProvider>
     </BrowserRouter>
