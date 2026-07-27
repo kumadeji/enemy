@@ -66,7 +66,7 @@ export default function Admin() {
           Новые заявки {stats.pending > 0 && <span className="tab-badge">{stats.pending}</span>}
         </button>
         <button className={`tab-btn ${tab === "all" ? "active" : ""}`} onClick={() => setTab("all")}>Все бойцы</button>
-        <Link to="/admin/changelog" className="changelog-nav-link">История изменений</Link>
+        <Link to="/admin/changelog" className="changelog-nav-link">Журнал изменений</Link>
       </div>
 
 

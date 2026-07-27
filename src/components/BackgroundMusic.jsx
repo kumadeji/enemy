@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const VOLUME = 0.05; // 5%, как и требовалось
+const VOLUME = 0.02; // 5%, как и требовалось
 const STORAGE_KEY = "enemy_music_muted";
 
 export default function BackgroundMusic() {

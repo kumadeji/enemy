@@ -23,7 +23,7 @@ export default function AdminChangeLog() {
   return (
     <main className="container">
       <p><Link to="/admin">← Назад к списку бойцов</Link></p>
-      <h1>История изменений</h1>
+      <h1>Журнал изменений</h1>
       <p className="page-lead">Журнал всех изменений, внесённых бойцами в свои личные дела.</p>
 
       {entries.length === 0 && <p className="hint">Изменений пока не было.</p>}
