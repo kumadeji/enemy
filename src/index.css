@@ -909,12 +909,15 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   text-align: center;
 }
 
-/* Temp */
-.migration-log {
-  white-space: pre-wrap;
-  font-family: monospace;
-  font-size: 13px;
-  color: var(--text-muted);
-  max-height: 300px;
-  overflow-y: auto;
+/* ==========================================================================
+   ФОНОВАЯ АНИМИРОВАННАЯ КАРТА (эффект пролёта камеры)
+   ========================================================================== */
+.bg-map {
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* строго позади всего контента сайта */
+  background-size: 180% auto; /* крупнее экрана — даёт запас для панорамирования */
+  background-repeat: no-repeat;
+  pointer-events: none; /* клики проходят "сквозь" фон */
+  will-change: background-position, opacity;
 }

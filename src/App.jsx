@@ -19,13 +19,14 @@ import Queue from "./pages/Queue";
 import Admin from "./pages/Admin";
 import AdminPlayerDetail from "./pages/AdminPlayerDetail";
 import AdminChangeLog from "./pages/AdminChangeLog";
-import AdminMigrate from "./pages/AdminMigrate";
+import BackgroundMap from "./components/BackgroundMap";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AlphaBadge />
+        <BackgroundMap />
+		<AlphaBadge />
         <Navbar />
         <InfoBanner />
         <Routes>
@@ -44,7 +45,6 @@ export default function App() {
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
           <Route path="/admin/player/:uid" element={<ProtectedRoute require="admin"><AdminPlayerDetail /></ProtectedRoute>} />
 		  <Route path="/admin/changelog" element={<ProtectedRoute require="admin"><AdminChangeLog /></ProtectedRoute>} />
-		  <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
           <div className="container">© Мультиигровое сообщество ENEMY</div>
