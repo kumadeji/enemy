@@ -155,8 +155,8 @@ export default function AdminPlayerDetail() {
 
       <div className="card">
         <h2>Статистика</h2>
-        <div className="stats-row">
-          <div className="stat-block">
+        <div className="profile-stats-row">
+          <div className="profile-stat-card">
             <span className="stat-value">{profile.koCount || 0}</span>
             <span className="stat-label">{pluralize(profile.koCount || 0, TIMES_FORMS)} отыграл за КО</span>
             <div className="stat-counter-buttons">
@@ -164,7 +164,7 @@ export default function AdminPlayerDetail() {
               <button type="button" className="icon-btn" onClick={() => adjustKo(1)}>+</button>
             </div>
           </div>
-          <div className="stat-block">
+          <div className="profile-stat-card">
             <span className="stat-value">{profile.ksCount || 0}</span>
             <span className="stat-label">{pluralize(profile.ksCount || 0, TIMES_FORMS)} отыграл за КС</span>
             <div className="stat-counter-buttons">
@@ -174,7 +174,6 @@ export default function AdminPlayerDetail() {
           </div>
         </div>
       </div>
-
 
       <div className="card">
         <h2>Личные данные</h2>

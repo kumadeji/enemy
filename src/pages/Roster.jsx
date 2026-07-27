@@ -82,7 +82,7 @@ export default function Roster() {
               <td>
                 {canOpenProfiles
                   ? <Link to={`/profile/${p.uid}`} className="btn secondary">Открыть</Link>
-                  : <span className="hint">недоступно</span>}
+                  : <span className="hint">Нет доступа</span>}
               </td>
             </tr>
           ))}

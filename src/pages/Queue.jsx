@@ -142,7 +142,7 @@ export default function Queue() {
                 {isAdmin && <span className="drag-handle">⠿</span>}
                 <span className="queue-pos">{index + 1}</span>
                 {currentUser
-                  ? <Link to={`/profile/${p.uid}`} className="queue-callsign">{p.callsign}</Link>
+                  ? <Link to={`/profile/${p.uid}`} className="queue-callsign queue-callsign-link">{p.callsign}</Link>
                   : <span className="queue-callsign">{p.callsign}</span>}
                 {index === 0 && <span className="badge">Следующий КО</span>}
                 {isAdmin && (

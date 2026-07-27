@@ -624,10 +624,29 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-card); }
 .tab-badge { background: var(--danger); color: #fff; border-radius: 999px; padding: 1px 7px; font-size: 11px; margin-left: 6px; }
 /* Ссылка "История изменений", оформленная как вкладка */
-.tab-btn-link { text-decoration: none; display: inline-flex; align-items: center; }
 
 .admin-filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .admin-filters input, .admin-filters select { width: auto; flex: 1; min-width: 160px; margin: 0; }
+
+/* Ссылка на журнал изменений — отдельная страница, а не переключаемая
+   вкладка, поэтому всегда нейтрально-серая, без "активного" состояния */
+.changelog-nav-link {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 10px 16px;
+  border-radius: 8px 8px 0 0;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.changelog-nav-link:hover {
+  color: var(--text);
+  border-color: #3a3e44;
+}
 
 /* Переключатель "Командир отряда" в карточке игрока в админке */
 .toggle-switch-wrapper {
@@ -740,7 +759,9 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .queue-pos { font-weight: 700; width: 24px; text-align: center; font-family: var(--font-heading); }
 .drag-handle { cursor: grab; color: var(--text-muted); }
 .queue-callsign { color: var(--text); text-decoration: none; font-weight: 600; }
-.queue-callsign:hover { color: var(--accent); }
+/* Подсветка при наведении — только для настоящей ссылки (авторизованные
+   пользователи), чтобы у гостей позывной не выглядел кликабельным */
+.queue-callsign-link:hover { color: var(--accent); }
 .queue-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
 
 /* ==========================================================================
