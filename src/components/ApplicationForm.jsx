@@ -181,7 +181,7 @@ export default function ApplicationForm({
 
         <label>Возраст</label>
         <input type="number" min={16} max={99} required value={form.age} onChange={e => updateField("age", e.target.value)} />
-        <div className="field-hint">В клан принимаются лица от 16 до 99 лет.</div>
+        <div className="field-hint">В клан принимаются лица от 16 лет.</div>
 
         <label>Дата рождения <span className="optional-tag">необязательно</span></label>
         <input

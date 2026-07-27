@@ -75,7 +75,7 @@ export default function Admin() {
         <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
           <option value="date-desc">Сначала новые</option>
           <option value="date-asc">Сначала старые</option>
-          <option value="name">По имени</option>
+          <option value="name">По позывному</option>
           <option value="status">По должности</option>
         </select>
         <select value={gameFilter} onChange={e => setGameFilter(e.target.value)}>
