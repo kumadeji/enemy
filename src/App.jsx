@@ -12,6 +12,7 @@ import MyApplication from "./pages/MyApplication";
 import Profile from "./pages/Profile";
 import Roster from "./pages/Roster";
 import Media from "./pages/Media";
+import TempTable from "./pages/TempTable";
 import Charter from "./pages/Charter";
 import History from "./pages/History";
 import Contact from "./pages/Contact";
@@ -40,7 +41,8 @@ export default function App() {
           <Route path="/profile/:uid" element={<ProtectedRoute require="roster"><Profile /></ProtectedRoute>} />
           <Route path="/roster" element={<Roster />} />
           <Route path="/media" element={<Media />} />
-          <Route path="/charter" element={<Charter />} />
+          <Route path="/temptable" element={<TempTable />} />
+		  <Route path="/charter" element={<Charter />} />
           <Route path="/history" element={<History />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/queue" element={<Queue />} />
