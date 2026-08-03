@@ -4,7 +4,7 @@ export default function Media() {
       <h1>Таблица: проблема с никами и регистрациями в клане</h1>
       <div className="card">
       <iframe
-        src="https://script.google.com/macros/s/AKfycbyCBivnciW2l7aYA22HgIo4qS3jDtFjjR5d6nM9ZIr_gL0N5JpQhY1pATikkjZKw7Z1ag/exec"
+        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRHphlLIK6i0m2PMjXfXDfQJUq2GKilASFWJ6wrqGSJFyNTy6G3VwrwGGo1Q5WWNGK9AQ9ph-lrjbF-/pubhtml?gid=1027293757&single=true&widget=false&headers=false&range='Таблица, где можно менять всё и вносить правки'!A1:J28"
         width="100%"
         height="900"
         style="border: 0;"
