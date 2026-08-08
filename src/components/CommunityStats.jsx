@@ -9,51 +9,26 @@ import {
   getPositionColor
 } from "../data/gameRoles";
 
-function CompositionLabel({ name, count, color }) {
+function NodeLabel({ badge, count, color, dashed }) {
   return (
-    <div className="stats-compact-node">
-      <span className="badge" style={{ color, borderColor: color }}>
-        {name}
-      </span>
-      <span className="stats-compact-count">{count}</span>
-    </div>
+    <span className={`cs-node ${dashed ? "cs-node-dashed" : ""}`}>
+      <span className="badge" style={{ color, borderColor: color }}>{badge}</span>
+      <span className="cs-count">{count}</span>
+    </span>
   );
 }
 
-function PositionLabel({ name, count, color }) {
+function RootLabel({ count, game }) {
   return (
-    <div className="stats-compact-node">
-      <span className="badge" style={{ color, borderColor: color }}>
-        {name}
-      </span>
-      <span className="stats-compact-count">{count}</span>
-    </div>
-  );
-}
-
-function SquadLeaderLabel({ count }) {
-  return (
-    <div className="stats-compact-node stats-compact-squad">
-      <span className="badge squad-leader-badge">
-        {pluralize(count, SQUAD_LEADER_FORMS)}
-      </span>
-      <span className="stats-compact-count">{count}</span>
-    </div>
-  );
-}
-
-function RootLabel({ total, game }) {
-  return (
-    <div className="stats-compact-root">
-      <span className="stats-compact-root-number">{total}</span>
-      <span className="stats-compact-root-text">Всего бойцов в клане</span>
-      <span className="stats-compact-root-game">по игре: <b>{game}</b></span>
-    </div>
+    <span className="cs-root">
+      <span className="cs-root-num">{count}</span>
+      <span className="cs-root-text">по игре: <b>{game}</b></span>
+    </span>
   );
 }
 
 export default function CommunityStats({ allProfiles, game, profilesForGame }) {
-  const total = allProfiles.length;
+  const totalAll = allProfiles.length;
 
   function countByPosition(composition, position) {
     return profilesForGame.filter(p => {
@@ -79,27 +54,33 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
     p => p.gameRoles?.[game]?.isSquadLeader
   ).length;
 
+  const totalInGame = profilesForGame.length;
+
   return (
     <div className="community-stats-card card">
-      <div className="stats-tree-scroll">
+      
+      {/* Блок 1: Общая статистика сайта (статичная) */}
+      <div className="cs-site-row">
+        <span className="cs-site-num">{totalAll}</span>
+        <span className="cs-site-text">Всего бойцов в клане</span>
+      </div>
+
+      <div className="cs-divider"></div>
+
+      {/* Блок 2: Дерево по игре */}
+      <div className="cs-tree-scroll">
         <Tree
-          lineWidth="2px"
+          lineWidth="1px"
           lineColor="var(--border)"
-          lineBorderRadius="8px"
-          label={<RootLabel total={total} game={game} />}
+          lineBorderRadius="4px"
+          label={<RootLabel count={totalInGame} game={game} />}
         >
           {compositions.map(({ composition, total: branchTotal, positions }) => {
             const compColor = getCompositionColor(composition);
             return (
               <TreeNode
                 key={composition}
-                label={
-                  <CompositionLabel 
-                    name={composition} 
-                    count={branchTotal} 
-                    color={compColor} 
-                  />
-                }
+                label={<NodeLabel badge={composition} count={branchTotal} color={compColor} />}
               >
                 {positions.map(({ position, count }) => {
                   const posColor = getPositionColor(position);
@@ -110,13 +91,7 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
                   return (
                     <TreeNode
                       key={position}
-                      label={
-                        <PositionLabel 
-                          name={label} 
-                          count={count} 
-                          color={posColor} 
-                        />
-                      }
+                      label={<NodeLabel badge={label} count={count} color={posColor} />}
                     />
                   );
                 })}
@@ -126,7 +101,14 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
 
           {squadLeadersCount > 0 && (
             <TreeNode
-              label={<SquadLeaderLabel count={squadLeadersCount} />}
+              label={
+                <span className="cs-node cs-node-squad">
+                  <span className="badge squad-leader-badge">
+                    {pluralize(squadLeadersCount, SQUAD_LEADER_FORMS)}
+                  </span>
+                  <span className="cs-count">{squadLeadersCount}</span>
+                </span>
+              }
             />
           )}
         </Tree>

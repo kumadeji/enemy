@@ -1072,92 +1072,114 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 /* КНОПКА РЕДАКТИРОВАНИЯ В ПРОФИЛЕ */
 .profile-edit-btn { margin-top: 16px; }
 
-
 /* ==========================================================================
-   СТАТИСТИКА КЛАНА (компактное дерево)
+   СТАТИСТИКА КЛАНА
    ========================================================================== */
 .community-stats-card { 
-  padding: 20px;
+  padding: 18px 22px;
   margin-bottom: 20px;
-  overflow: hidden;
 }
 
-.stats-tree-scroll {
-  overflow-x: auto;
-  padding: 12px 0;
+/* Блок 1: Общая статистика сайта */
+.cs-site-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 
-/* Корневой узел — компактный, в одну строку */
-.stats-compact-root {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--bg-card);
-  border: 1px solid var(--accent);
-  border-radius: 10px;
-  padding: 10px 18px;
-  white-space: nowrap;
-}
-
-.stats-compact-root-number {
+.cs-site-num {
   font-family: var(--font-heading);
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--accent);
   line-height: 1;
 }
 
-.stats-compact-root-text {
+.cs-site-text {
   font-size: 13px;
   color: var(--text);
   font-weight: 500;
 }
 
-.stats-compact-root-game {
-  font-size: 11px;
-  color: var(--text-muted);
-  border-left: 1px solid var(--border);
-  padding-left: 10px;
-  margin-left: 2px;
+/* Разделитель между блоками */
+.cs-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0;
 }
 
-/* Компактный узел дерева — бейдж и число в одну строку */
-.stats-compact-node {
+/* Скролл для дерева */
+.cs-tree-scroll {
+  overflow-x: auto;
+  padding: 4px 0;
+}
+
+/* Корень дерева */
+.cs-root {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
   white-space: nowrap;
 }
 
+.cs-root-num {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.cs-root-text {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Узел дерева: бейдж + число в одну строку */
+.cs-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* КО — пунктир только вокруг бейджа, без внешней рамки */
+.cs-node-squad .badge {
+  border-style: dashed;
+}
+
 /* Число рядом с бейджем */
-.stats-compact-count {
+.cs-count {
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--accent);
-  line-height: 1;
 }
 
-/* Узел КО — пунктирная рамка вокруг */
-.stats-compact-squad {
-  border: 1.5px dashed var(--accent);
-  border-radius: 8px;
-  padding: 6px 12px;
+/* Ужимаем библиотеку react-organizational-chart */
+.community-stats-card .organizational-chart-tree {
+  padding: 0;
 }
 
-/* Переопределяем стили библиотеки для компактности */
 .community-stats-card .organizational-chart-node {
-  padding: 4px 2px;
+  padding: 2px 4px;
+}
+
+.community-stats-card .organizational-chart-node-content {
+  padding: 2px;
 }
 
 .community-stats-card .organizational-chart-line {
   background-color: var(--border) !important;
 }
 
-/* Адаптив */
-@media (max-width: 768px) {
-  .stats-tree-scroll {
-    margin: 0 -20px;
-    padding: 12px 20px;
-  }
+.community-stats-card .organizational-chart-node > .organizational-chart-line {
+  height: 12px;
+}
+
+.community-stats-card .organizational-chart-node > .organizational-chart-line::before {
+  border-top: 1px solid var(--border);
+}
+
+.community-stats-card .organizational-chart-node > .organizational-chart-line::after {
+  border-left: 1px solid var(--border);
 }
