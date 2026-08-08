@@ -22,37 +22,34 @@ export default function Profile() {
 
   const targetUid = uid || currentUser?.uid;
   const isOwn = targetUid === currentUser?.uid;
-
+  
   useEffect(() => {
     async function load() {
       setProfileData(null);
       setNotFound(false);
-
+  
+      let data;
       try {
         const snap = await getDoc(doc(db, "profiles", targetUid));
         if (!snap.exists()) { setNotFound(true); return; }
-        var data = snap.data();
+        data = snap.data();
       } catch {
         setNotFound(true); // недостаточно прав или профиль недоступен в этой игре
         return;
       }
-
-      const data = snap.data();
+  
       setProfileData(data);
-
-      // Игра по умолчанию для отображения — первая из тех, куда подавался игрок,
-      // либо первая по общему списку, если данных по играм почему-то нет
+  
       const firstGame = data.gamesInterested?.[0] || GAMES[0];
       setActiveGame(firstGame);
-
-      // Список тех, кого этот игрок пригласил в клан (реферальная система)
+  
       const q = query(collection(db, "profiles"), where("referredByUid", "==", targetUid));
       const inviteSnap = await getDocs(q);
       setInvitees(inviteSnap.docs.map(d => ({ uid: d.id, callsign: d.data().callsign })));
     }
     if (targetUid) load();
   }, [targetUid]);
-
+  
   if (notFound) return <main className="container"><p>Личное дело не найдено.</p></main>;
   if (!profileData || !activeGame) return <main className="container"><p>Загрузка...</p></main>;
 
