@@ -9,6 +9,10 @@ import {
   getPositionColor
 } from "../data/gameRoles";
 
+// Формы склонения для слова "боец" в разных контекстах
+const COMMUNITY_FORMS = ["боец в сообществе", "бойца в сообществе", "бойцов в сообществе"];
+const GAME_FORMS = ["боец, играющий в", "бойца, играющих в", "бойцов, играющих в"];
+
 function NodeLabel({ badge, count, color, dashed }) {
   return (
     <div className="cs-node-box">
@@ -21,16 +25,18 @@ function NodeLabel({ badge, count, color, dashed }) {
 }
 
 function RootLabel({ count, game }) {
+  const gameLabel = pluralize(count, GAME_FORMS);
   return (
     <div className="cs-node-box cs-root-box">
       <span className="cs-root-num">{count}</span>
-      <span className="cs-root-text">по игре: <b>{game}</b></span>
+      <span className="cs-root-text">{gameLabel} <b>{game}</b></span>
     </div>
   );
 }
 
 export default function CommunityStats({ allProfiles, game, profilesForGame }) {
   const totalAll = allProfiles.length;
+  const totalInGame = profilesForGame.length;
 
   function countByPosition(composition, position) {
     return profilesForGame.filter(p => {
@@ -56,7 +62,7 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
     p => p.gameRoles?.[game]?.isSquadLeader
   ).length;
 
-  const totalInGame = profilesForGame.length;
+  const communityLabel = pluralize(totalAll, COMMUNITY_FORMS);
 
   return (
     <div className="community-stats-card card">
@@ -64,7 +70,7 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
       {/* Блок 1: Общая статистика сайта */}
       <div className="cs-site-row">
         <span className="cs-site-num">{totalAll}</span>
-        <span className="cs-site-text">Всего бойцов в клане</span>
+        <span className="cs-site-text">{communityLabel}</span>
       </div>
 
       <div className="cs-divider"></div>

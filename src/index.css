@@ -1072,6 +1072,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 /* КНОПКА РЕДАКТИРОВАНИЯ В ПРОФИЛЕ */
 .profile-edit-btn { margin-top: 16px; }
 
+
 /* ==========================================================================
    СТАТИСТИКА КЛАНА
    ========================================================================== */
@@ -1114,14 +1115,15 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   padding: 4px 0;
 }
 
-/* Фиксированный контейнер узла — выравнивает все узлы по одной высоте */
+/* Контейнер узла */
 .cs-node-box {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   min-height: 52px;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 4px;
   white-space: nowrap;
 }
 
@@ -1131,6 +1133,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   align-items: baseline;
   gap: 8px;
   min-height: auto;
+  padding-top: 0;
 }
 
 .cs-root-num {
@@ -1145,7 +1148,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   color: var(--text-muted);
 }
 
-/* Бейдж в статистике — фиксированная высота, текст по центру */
+/* Бейдж в статистике */
 .cs-badge {
   display: inline-flex;
   align-items: center;
@@ -1159,12 +1162,12 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   max-width: 120px;
 }
 
-/* Пунктирная рамка для КО */
+/* Пунктир для КО */
 .cs-badge-dashed {
   border-style: dashed;
 }
 
-/* Число под бейджем */
+/* Число */
 .cs-count {
   font-family: var(--font-heading);
   font-weight: 700;
@@ -1173,20 +1176,31 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   line-height: 1;
 }
 
-/* Ужимаем библиотеку react-organizational-chart */
+/* ===== КРИТИЧЕСКИ ВАЖНО: выравнивание уровней ===== */
+/* Все узлы библиотеки выравниваем по верхнему краю */
+.community-stats-card .organizational-chart-node {
+  padding: 2px 3px;
+  vertical-align: top !important;
+  text-align: center;
+}
+
+/* Контейнер дочерних узлов — выравнивание по верху */
+.community-stats-card .organizational-chart-node > .organizational-chart-node {
+  vertical-align: top !important;
+}
+
+/* Убираем лишние отступы */
 .community-stats-card .organizational-chart-tree {
   padding: 0;
 }
 
-.community-stats-card .organizational-chart-node {
-  padding: 2px 3px;
+.community-stats-card .organizational-chart-node-content {
+  padding: 0;
+  display: inline-block;
   vertical-align: top;
 }
 
-.community-stats-card .organizational-chart-node-content {
-  padding: 0;
-}
-
+/* Линии */
 .community-stats-card .organizational-chart-line {
   background-color: var(--border) !important;
 }
