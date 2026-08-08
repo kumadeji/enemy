@@ -47,48 +47,48 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
         </div>
       </div>
 
-      <div className="stats-tree">
-        {/* Левая часть: дерево составов */}
-        <div className="stats-branches">
+      <div className="stats-tree-wrapper">
+        <div className="stats-tree">
           {compositions.map(({ composition, total: branchTotal, positions }) => {
             const compColor = getCompositionColor(composition);
             return (
-              <div key={composition} className="stats-branch">
-                {/* Линия от корня к составу */}
-                <div className="stats-connector-top"></div>
-                
-                {/* Состав (бейдж как в таблице) */}
-                <div className="stats-node">
+              <div key={composition} className="stats-branch-column">
+                {/* Состав */}
+                <div className="stats-composition-node">
                   <span 
-                    className="badge stats-badge" 
+                    className="badge" 
                     style={{ color: compColor, borderColor: compColor }}
                   >
                     {composition}
                   </span>
-                  <span className="stats-count">{branchTotal}</span>
+                  <span className="stats-node-count">{branchTotal}</span>
                 </div>
 
-                {/* Должности под составом */}
-                <div className="stats-positions-list">
-                  {positions.map(({ position, count }) => {
+                {/* Вертикальная линия от состава к должностям */}
+                <div className="stats-vertical-line"></div>
+
+                {/* Должности */}
+                <div className="stats-positions-container">
+                  {positions.map(({ position, count }, index) => {
                     const posColor = getPositionColor(position);
                     const label = pluralize(
                       count, 
                       POSITION_FORMS[position] || [position, position, position]
                     );
                     return (
-                      <div key={position} className="stats-position-row">
+                      <div key={position} className="stats-position-item">
                         {/* Горизонтальная линия к должности */}
-                        <div className="stats-connector-side"></div>
+                        <div className="stats-horizontal-line"></div>
                         
-                        {/* Должность (бейдж как в таблице) */}
-                        <span 
-                          className="badge stats-badge" 
-                          style={{ color: posColor, borderColor: posColor }}
-                        >
-                          {label}
-                        </span>
-                        <span className="stats-count">{count}</span>
+                        <div className="stats-position-node">
+                          <span 
+                            className="badge" 
+                            style={{ color: posColor, borderColor: posColor }}
+                          >
+                            {label}
+                          </span>
+                          <span className="stats-node-count">{count}</span>
+                        </div>
                       </div>
                     );
                   })}
@@ -98,14 +98,14 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
           })}
         </div>
 
-        {/* Правая часть: Командиры отделения */}
+        {/* Командиры отделения */}
         {squadLeadersCount > 0 && (
-          <div className="stats-squad-leaders">
-            <div className="stats-squad-leaders-box">
+          <div className="stats-squad-leaders-column">
+            <div className="stats-squad-leaders-node">
               <span className="badge squad-leader-badge">
                 {pluralize(squadLeadersCount, SQUAD_LEADER_FORMS)}
               </span>
-              <span className="stats-count">{squadLeadersCount}</span>
+              <span className="stats-node-count">{squadLeadersCount}</span>
             </div>
           </div>
         )}
