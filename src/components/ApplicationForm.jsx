@@ -117,7 +117,7 @@ export default function ApplicationForm({
     setFormError("");
 
     if (showAccountFields) {
-      if (!form.email.trim()) { setFormError("Укажите email."); return; }
+      if (!form.email.trim()) { setFormError("Укажите электронную почту."); return; }
       if (!form.password || form.password.length < 6) { setFormError("Пароль должен быть не короче 6 символов."); return; }
     }
 

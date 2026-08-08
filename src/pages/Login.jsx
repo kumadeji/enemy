@@ -18,7 +18,7 @@ export default function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/profile");
     } catch {
-      setError("Неверный email или пароль.");
+      setError("Неверная электронная почта или пароль.");
       setSubmitting(false);
     }
   }
@@ -31,13 +31,13 @@ export default function Login() {
 
         <form className="apply-form" onSubmit={handleSubmit}>
           <fieldset className="form-section">
-            <label>Email</label>
+            <label>Электронная почта</label>
             <input type="email" required value={email} onChange={e => setEmail(e.target.value)} />
 
             <label>Пароль</label>
             <input type="password" required value={password} onChange={e => setPassword(e.target.value)} />
             <div className="field-hint">
-              Восстановление пароля на сайте не предусмотрено. Если вы забыли пароль —
+              <b>Восстановление пароля на сайте не предусмотрено.</b> Если вы забыли пароль —
               обратитесь к комбату или его заместителям для полного сброса аккаунта.
             </div>
           </fieldset>

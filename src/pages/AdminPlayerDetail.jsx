@@ -287,7 +287,7 @@ export default function AdminPlayerDetail() {
         <label>Имя и фамилия</label>
         <input type="text" value={application.fullName} onChange={e => updateAppField("fullName", e.target.value)} />
 
-        <label>Email (логин, виден только комбату и его заместителям)</label>
+        <label>Электронная почта (логин, виден только комбату и его заместителям)</label>
         <input type="email" value={application.email} disabled />
 
         <label>Возраст</label>
