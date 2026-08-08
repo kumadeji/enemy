@@ -13,7 +13,8 @@ export default function Roster() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [game, setGame] = useState(null);
-
+  const navigate = useNavigate();
+  
   useEffect(() => {
     async function load() {
       const snap = await getDocs(collection(db, "rosterPublic"));
@@ -96,13 +97,14 @@ export default function Roster() {
           <tbody>
             {filtered.map(p => {
               const gr = p.gameRoles[game];
-              const color = getStatusColor(gr.composition, gr.position);
 			  const compColor = getCompositionColor(gr.composition);
 			  const posColor = getPositionColor(gr.position);
-			  const navigate = useNavigate();
               return (
-                <tr key={p.uid} className={canOpenProfiles ? "clickable-row" : ""}
-                    onClick={() => canOpenProfiles && navigate(`/profile/${p.uid}`)}
+                <tr 
+                  key={p.uid} 
+                  className={canOpenProfiles ? "clickable-row" : ""}
+                  onClick={() => canOpenProfiles && navigate(`/profile/${p.uid}`)}
+                >
                   <td>
                     {canOpenProfiles
                       ? <Link to={`/profile/${p.uid}`}>{p.callsign}</Link>
