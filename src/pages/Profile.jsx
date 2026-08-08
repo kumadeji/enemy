@@ -15,6 +15,8 @@ import { ProfileTable, ProfileRow } from "../components/ProfileTable";
 export default function Profile() {
   const { uid } = useParams();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  
   const [profileData, setProfileData] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [invitees, setInvitees] = useState([]);
@@ -34,7 +36,7 @@ export default function Profile() {
         if (!snap.exists()) { setNotFound(true); return; }
         data = snap.data();
       } catch {
-        setNotFound(true); // недостаточно прав или профиль недоступен в этой игре
+        setNotFound(true);
         return;
       }
   
@@ -48,7 +50,7 @@ export default function Profile() {
       setInvitees(inviteSnap.docs.map(d => ({ uid: d.id, callsign: d.data().callsign })));
     }
     if (targetUid) load();
-  }, [targetUid]);
+  }, [targetUid, currentUser]);
   
   if (notFound) return <main className="container"><p>Личное дело не найдено.</p></main>;
   if (!profileData || !activeGame) return <main className="container"><p>Загрузка...</p></main>;
@@ -57,7 +59,6 @@ export default function Profile() {
   const contacts = p.extraContacts || {};
   const gameRole = p.gameRoles?.[activeGame];
   const playedGames = p.gamesInterested || [];
-  const navigate = useNavigate();
 
   return (
     <main className="container">
@@ -72,10 +73,8 @@ export default function Profile() {
           </div>
         )}
 
-        {/* Активные дисциплинарные взыскания — привлекают внимание красным */}
         <DisciplinaryList actions={p.disciplinaryActions || []} showHistory={false} />
 
-        {/* Если игрок подавался в несколько игр — переключение между ними */}
         {playedGames.length > 1 && (
           <div className="game-tabs">
             {playedGames.map(g => (
