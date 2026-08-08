@@ -1,18 +1,24 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
-import StatusBadges from "../components/StatusBadges";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import { pluralize } from "../utils/pluralize";
 import { TIMES_FORMS } from "../data/statusForms";
+import { GAMES } from "../data/gameRoles";
+import StatusBadges from "../components/StatusBadges";
 import AwardChip from "../components/AwardChip";
+import CopyableField from "../components/CopyableField";
+import DisciplinaryList from "../components/DisciplinaryList";
+import { ProfileTable, ProfileRow } from "../components/ProfileTable";
 
 export default function Profile() {
   const { uid } = useParams();
   const { currentUser } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  const [invitees, setInvitees] = useState([]);
+  const [activeGame, setActiveGame] = useState(null);
 
   const targetUid = uid || currentUser?.uid;
   const isOwn = targetUid === currentUser?.uid;
@@ -20,48 +26,113 @@ export default function Profile() {
   useEffect(() => {
     async function load() {
       setProfileData(null);
-      const snap = await getDoc(doc(db, "profiles", targetUid));
-      if (snap.exists()) setProfileData(snap.data());
-      else setNotFound(true);
+      setNotFound(false);
+
+      try {
+        const snap = await getDoc(doc(db, "profiles", targetUid));
+        if (!snap.exists()) { setNotFound(true); return; }
+        var data = snap.data();
+      } catch {
+        setNotFound(true); // недостаточно прав или профиль недоступен в этой игре
+        return;
+      }
+
+      const data = snap.data();
+      setProfileData(data);
+
+      // Игра по умолчанию для отображения — первая из тех, куда подавался игрок,
+      // либо первая по общему списку, если данных по играм почему-то нет
+      const firstGame = data.gamesInterested?.[0] || GAMES[0];
+      setActiveGame(firstGame);
+
+      // Список тех, кого этот игрок пригласил в клан (реферальная система)
+      const q = query(collection(db, "profiles"), where("referredByUid", "==", targetUid));
+      const inviteSnap = await getDocs(q);
+      setInvitees(inviteSnap.docs.map(d => ({ uid: d.id, callsign: d.data().callsign })));
     }
     if (targetUid) load();
   }, [targetUid]);
 
   if (notFound) return <main className="container"><p>Личное дело не найдено.</p></main>;
-  if (!profileData) return <main className="container"><p>Загрузка...</p></main>;
+  if (!profileData || !activeGame) return <main className="container"><p>Загрузка...</p></main>;
 
   const p = profileData;
   const contacts = p.extraContacts || {};
+  const gameRole = p.gameRoles?.[activeGame];
+  const playedGames = p.gamesInterested || [];
 
   return (
     <main className="container">
       <h1>Личное дело бойца</h1>
       <div className="card">
         <h2>{p.callsign}</h2>
-		
+
         {p.publicNote && (
           <div className="handwritten-note">
             <span className="handwritten-note-label">Комбат о бойце</span>
             <p className="handwritten-note-text">«{p.publicNote}»</p>
           </div>
         )}
-		
-        <StatusBadges status={p.status} isSquadLeader={p.isSquadLeader} />
 
-        <p><b>Игры:</b> {p.gamesInterested.join(", ")}</p>
-        <p><b>Discord ID:</b> {p.discordId}</p>
-        <p><b>Steam:</b> <a href={p.steamProfileUrl} target="_blank" rel="noreferrer">{p.steamProfileUrl}</a></p>
-        {p.armaId && <p><b>Arma ID:</b> {p.armaId}</p>}
-        {p.timezone && <p><b>Часовой пояс:</b> {p.timezone}</p>}
-        {p.birthDate && <p><b>Дата рождения:</b> {p.birthDate}</p>}
+        {/* Активные дисциплинарные взыскания — привлекают внимание красным */}
+        <DisciplinaryList actions={p.disciplinaryActions || []} showHistory={false} />
 
-        {contacts.phone && <p><b>Телефон:</b> {contacts.phone}</p>}
-        {contacts.telegram && <p><b>Telegram:</b> {contacts.telegram}</p>}
-        {contacts.vk && <p><b>ВКонтакте:</b> {contacts.vk}</p>}
-        {contacts.other && <p><b>Другой контакт:</b> {contacts.other}</p>}
+        {/* Если игрок подавался в несколько игр — переключение между ними */}
+        {playedGames.length > 1 && (
+          <div className="game-tabs">
+            {playedGames.map(g => (
+              <button
+                key={g}
+                type="button"
+                className={`tab-btn ${activeGame === g ? "active" : ""}`}
+                onClick={() => setActiveGame(g)}
+              >
+                {g}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {gameRole ? (
+          <StatusBadges gameRole={gameRole} />
+        ) : (
+          <p className="hint">Нет должности в выбранной игре.</p>
+        )}
+
+        <ProfileTable>
+          <ProfileRow label="Игры">{playedGames.join(", ")}</ProfileRow>
+          <ProfileRow label="Discord ID">{p.discordId}</ProfileRow>
+          <ProfileRow label="Steam ID"><CopyableField value={p.steamId} /></ProfileRow>
+          <ProfileRow label="Ссылка на Steam">
+            <a href={p.steamProfileUrl} target="_blank" rel="noreferrer">{p.steamProfileUrl}</a>
+          </ProfileRow>
+          {p.armaId && (
+            <ProfileRow label="Arma ID"><CopyableField value={p.armaId} /></ProfileRow>
+          )}
+          {p.timezone && <ProfileRow label="Часовой пояс">{p.timezone}</ProfileRow>}
+          {p.birthDate && <ProfileRow label="Дата рождения">{p.birthDate}</ProfileRow>}
+          {contacts.phone && <ProfileRow label="Телефон">{contacts.phone}</ProfileRow>}
+          {contacts.telegram && <ProfileRow label="Telegram">{contacts.telegram}</ProfileRow>}
+          {contacts.vk && <ProfileRow label="ВКонтакте">{contacts.vk}</ProfileRow>}
+          {contacts.other && <ProfileRow label="Другой контакт">{contacts.other}</ProfileRow>}
+          {invitees.length > 0 && (
+            <ProfileRow label="Кого пригласил в клан">
+              {invitees.map((inv, i) => (
+                <span key={inv.uid}>
+                  {i > 0 && ", "}
+                  <Link to={`/profile/${inv.uid}`}>{inv.callsign}</Link>
+                </span>
+              ))}
+            </ProfileRow>
+          )}
+        </ProfileTable>
 
         <p><b>Боевые заслуги:</b></p>
         <div className="profile-stats-row">
+          <div className="profile-stat-card">
+            <span className="stat-value">{p.playedAsSoldierCount || 0}</span>
+            <span className="stat-label">{pluralize(p.playedAsSoldierCount || 0, TIMES_FORMS)} отыграл как боец</span>
+          </div>
           <div className="profile-stat-card">
             <span className="stat-value">{p.koCount || 0}</span>
             <span className="stat-label">{pluralize(p.koCount || 0, TIMES_FORMS)} отыграл за КО</span>
@@ -72,8 +143,6 @@ export default function Profile() {
           </div>
         </div>
 
-
-
         <p><b>Награды:</b></p>
         <div className="awards-list">
           {(p.awards || []).length
@@ -82,7 +151,7 @@ export default function Profile() {
         </div>
 
         {isOwn && (
-          <Link to="/my-application" className="btn secondary" style={{ marginTop: 16 }}>Редактировать профиль</Link>
+          <Link to="/my-application" className="btn secondary">Редактировать личное дело</Link>
         )}
       </div>
     </main>

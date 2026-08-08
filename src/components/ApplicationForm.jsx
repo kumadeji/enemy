@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { TIMEZONES } from "../data/timezones";
 import ImageHint from "./ImageHint";
 import { formatBirthDateInput, validateBirthDate } from "../utils/birthDate";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 
-const BANNED_WORDS = ["qwe", "abracadabra", "xxx"];
 export const ALL_GAMES = ["Arma Reforger", "Squad"];
 
 export function validateCallsign(value) {
@@ -17,14 +18,6 @@ export function validateCallsign(value) {
   const allowedPattern = /^[A-Za-z0-9\-_. ]+$/;
   if (!allowedPattern.test(trimmed)) return "Допустимы только латинские буквы, цифры и символы - _ . Кириллица не допускается.";
 
-  for (const word of words) {
-    if (/[a-z][A-Z]/.test(word)) {
-      return "Нельзя чередовать регистр букв внутри слова (например, sToRm). Допустимо: обычный регистр (Stormbreaker) или слово целиком заглавными буквами (STORM).";
-    }
-  }
-
-  const lower = trimmed.toLowerCase();
-  if (BANNED_WORDS.some(w => lower.includes(w))) return "Позывной похож на бессмысленный набор символов — выберите другой.";
   if (/\(|\)|"|'/.test(trimmed)) return "Не используйте скобки, кавычки или реальные имена через разделители.";
   return null;
 }
@@ -53,7 +46,7 @@ const emptyValues = {
   steamId: "", discordId: "", armaId: "",
   extraPhone: "", extraTelegram: "", extraVk: "", extraOther: "",
   callsign: "", timezone: "", availability: "",
-  whyJoin: "", howFound: "", charterAgreed: false,
+  whyJoin: "", howFound: "", referredByUid: "", charterAgreed: false,
   games: [], gameDetails: {}
 };
 
@@ -73,6 +66,25 @@ export default function ApplicationForm({
   const [telegramError, setTelegramError] = useState("");
   const [vkError, setVkError] = useState("");
   const [formError, setFormError] = useState("");
+
+  // Реферальная система: выбор между "пригласил зарегистрированный игрок"
+  // и "узнал(а) другим способом" (свободный текст)
+  const [referralType, setReferralType] = useState(
+    initialValues?.referredByUid ? "player" : "text"
+  );
+  const [rosterList, setRosterList] = useState([]);
+
+  useEffect(() => {
+    async function loadRoster() {
+      const snap = await getDocs(collection(db, "rosterPublic"));
+      const list = snap.docs
+        .map(d => ({ uid: d.id, ...d.data() }))
+        .filter(p => p.callsign);
+      list.sort((a, b) => a.callsign.localeCompare(b.callsign, "ru"));
+      setRosterList(list);
+    }
+    loadRoster();
+  }, []);
 
   const isLocked = (field) => lockedFields.includes(field);
 
@@ -134,7 +146,16 @@ export default function ApplicationForm({
     if (!form.timezone) { setFormError("Выберите часовой пояс."); return; }
     if (!form.availability.trim()) { setFormError("Укажите доступность для игр."); return; }
     if (!form.whyJoin.trim()) { setFormError("Расскажите, почему хотите вступить."); return; }
-    if (!form.howFound.trim()) { setFormError("Укажите, откуда узнали о клане."); return; }
+
+    if (referralType === "player" && !form.referredByUid) {
+      setFormError("Выберите бойца, который вас пригласил.");
+      return;
+    }
+    if (referralType === "text" && !form.howFound.trim()) {
+      setFormError("Укажите в свободной форме, откуда узнали о клане.");
+      return;
+    }
+
     if (!form.charterAgreed) { setFormError("Нужно подтвердить, что вы ознакомились с уставом и манифестом."); return; }
 
     const cErr = validateCallsign(form.callsign);
@@ -147,7 +168,18 @@ export default function ApplicationForm({
       }
     }
 
-    await onSubmit({ ...form, steamProfileUrl });
+    const referrerCallsign = referralType === "player"
+      ? rosterList.find(p => p.uid === form.referredByUid)?.callsign || ""
+      : "";
+
+    await onSubmit({
+      ...form,
+      steamProfileUrl,
+      referralType,
+      referrerCallsign,
+      referredByUid: referralType === "player" ? form.referredByUid : "",
+      howFound: referralType === "text" ? form.howFound : ""
+    });
   }
 
   return (
@@ -274,8 +306,7 @@ export default function ApplicationForm({
             <li>Распространенные имена, фамилии и их производные: <i>Aleks, Sergei, Dimon</i>.</li>
             <li>Кириллица: <i>Киллер200, Немец, Кула40к</i>.</li>
             <li>Дополнительные позывные в скобках, кавычках или через разделители: <i>BURBON (Sergei), Wolf_Ivan</i>.</li>
-            <li>Бессмысленные наборы символов («абракадабра»): <i>qwe123, fgdsdfghs, xXx_DarXx_xXx</i>.</li>
-            <li>Волнообразное чередование регистра: <i>sToRm, AnDrYuHa228</i>.</li>
+			<li>Волнообразное чередование регистра: <i>sToRm, AnDrYuHa228</i>.</li>
             <li>Позывные из трёх и более слов (максимум 2 слова).</li>
           </ul>
           <p>📌 <b>Примеры корректных позывных:</b> <i>Storm Breaker, Volchara, Fizik</i>.</p>
@@ -317,7 +348,7 @@ export default function ApplicationForm({
             </label>
             <input type="text" required value={form.armaId} onChange={e => updateField("armaId", e.target.value)} />
             <div className="field-hint">
-			  Arma ID — код вашей профиля в игре (не ник и не логин). Он же пригодится вам для регистрации на игровых проектах, на которых мы играем в клане. По нему выдаётся доступ по белым спискам на серверы проектов, а также баны в случае нарушений правил. Он будет отображаться в вашем профиле на сайте, и вы всегда сможете скопировать его оттуда.
+              Arma ID — код вашей профиля в игре (не ник и не логин). Он же пригодится вам для регистрации на игровых проектах, на которых мы играем в клане. По нему выдаётся доступ по белым спискам на серверы проектов, а также баны в случае нарушений правил. Он будет отображаться в вашем профиле на сайте, и вы всегда сможете скопировать его оттуда.
             </div>
           </div>
         )}
@@ -342,7 +373,41 @@ export default function ApplicationForm({
         <textarea required value={form.whyJoin} onChange={e => updateField("whyJoin", e.target.value)} />
 
         <label>Откуда узнали о клане?</label>
-        <textarea required value={form.howFound} onChange={e => updateField("howFound", e.target.value)} />
+        <div className="referral-type-switch">
+          <label className="checkbox-label">
+            <input
+              type="radio"
+              name="referralType"
+              checked={referralType === "player"}
+              onChange={() => { setReferralType("player"); updateField("howFound", ""); }}
+            />
+            <span>Меня пригласил боец из клана</span>
+          </label>
+          <label className="checkbox-label">
+            <input
+              type="radio"
+              name="referralType"
+              checked={referralType === "text"}
+              onChange={() => { setReferralType("text"); updateField("referredByUid", ""); }}
+            />
+            <span>Узнал другим способом</span>
+          </label>
+        </div>
+
+        {referralType === "player" ? (
+          <select value={form.referredByUid} onChange={e => updateField("referredByUid", e.target.value)}>
+            <option value="">Выберите пригласившего бойца...</option>
+            {rosterList.map(p => (
+              <option key={p.uid} value={p.uid}>{p.callsign}</option>
+            ))}
+          </select>
+        ) : (
+          <textarea
+            value={form.howFound}
+            onChange={e => updateField("howFound", e.target.value)}
+            placeholder="Расскажите, откуда узнали о клане и почему выбрали именно его"
+          />
+        )}
       </fieldset>
 
       <fieldset className="form-section">

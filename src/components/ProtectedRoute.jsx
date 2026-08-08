@@ -1,5 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import { hasRosterAccess } from "../data/gameRoles";
 
 export default function ProtectedRoute({ require = "auth", children }) {
   const { currentUser, profile, isAdmin } = useAuth();
@@ -12,7 +13,7 @@ export default function ProtectedRoute({ require = "auth", children }) {
           <p>Этот раздел доступен только зарегистрированным бойцам клана.</p>
           <div className="access-actions">
             <Link to="/apply" className="btn">Подать заявку на вступление</Link>
-            <Link to="/login" className="btn secondary">У меня уже есть аккаунт — войти</Link>
+            <Link to="/login" className="btn secondary">Я уже принят в клан — войти</Link>
           </div>
         </div>
       </main>
@@ -31,19 +32,20 @@ export default function ProtectedRoute({ require = "auth", children }) {
   }
 
   if (require === "roster") {
-    const allowed = ["Боец запаса", "Боец личного состава", "Командир"];
-    // Если статус ещё не подгрузился по какой-то причине — считаем "Новобранец" по умолчанию,
-    // а не показываем "неизвестен": это соответствует статусу, который присваивается при регистрации.
-    const status = profile?.status || "Новобранец";
+    // Проверяем, есть ли у пользователя допуск (состав "Запас" или "Личный
+    // состав") хотя бы в ОДНОЙ из игр. Это клиентская UX-проверка — точное
+    // разграничение "по нужной именно игре" в любом случае обеспечивают
+    // правила Firestore при попытке прочитать конкретный профиль.
+    const myRoles = profile?.gameRoles || {};
+    const hasAnyAccess = Object.values(myRoles).some(hasRosterAccess);
 
-    if (!isAdmin && !allowed.includes(status)) {
+    if (!isAdmin && !hasAnyAccess) {
       return (
         <main className="container">
           <div className="card access-denied">
             <h2>Доступ ограничен</h2>
             <p>
-              Этот раздел виден бойцам со должностью «Боец запаса» и выше.
-              Ваша текущая должность: <b>{status}</b>.
+              Личные дела других бойцов доступны от состава «Запас» и выше.
             </p>
             <p>
               Комбат или его заместитель ещё не проверил вашу заявку на вступление — но не переживайте,

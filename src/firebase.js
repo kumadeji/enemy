@@ -16,13 +16,3 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 export const GOOGLE_SHEETS_URL = import.meta.env.VITE_GOOGLE_SHEETS_URL;
-export const STATUS_ORDER = [
-  "Новобранец",
-  "Боец запаса",
-  "Боец личного состава",
-  "Комбат",
-  "Заместитель комбата",
-  "Дезертир"
-];
-
-

@@ -5,6 +5,9 @@ import { doc, getDoc, setDoc, updateDoc, runTransaction, collection, getDocs } f
 import { useAuth } from "../context/AuthContext";
 import KoStatsChart from "../components/KoStatsChart";
 
+// Очередь на КО ведётся строго по направлению Arma Reforger
+const QUEUE_GAME = "Arma Reforger";
+
 export default function Queue() {
   const { currentUser, isAdmin } = useAuth();
   const [queue, setQueue] = useState([]);
@@ -29,15 +32,26 @@ export default function Queue() {
 
   useEffect(() => { loadAll(); }, []);
 
-  const squadLeaders = useMemo(() => Object.values(profilesMap).filter(p => p.isSquadLeader), [profilesMap]);
-  const nonLeaders = useMemo(() => Object.values(profilesMap).filter(p => !p.isSquadLeader), [profilesMap]);
+  // Является ли игрок "Командиром отделения" именно в Arma Reforger
+  function isSquadLeaderInQueueGame(p) {
+    return !!p.gameRoles?.[QUEUE_GAME]?.isSquadLeader;
+  }
+
+  const squadLeaders = useMemo(
+    () => Object.values(profilesMap).filter(isSquadLeaderInQueueGame),
+    [profilesMap]
+  );
+  const nonLeaders = useMemo(
+    () => Object.values(profilesMap).filter(p => p.gameRoles?.[QUEUE_GAME] && !isSquadLeaderInQueueGame(p)),
+    [profilesMap]
+  );
   const availableToAdd = useMemo(
     () => squadLeaders.filter(l => !queue.some(q => q.uid === l.uid)),
     [squadLeaders, queue]
   );
 
   const statsData = useMemo(() => {
-    const list = Object.values(profilesMap).filter(p => (p.koCount || 0) > 0 || p.isSquadLeader);
+    const list = Object.values(profilesMap).filter(p => (p.koCount || 0) > 0 || isSquadLeaderInQueueGame(p));
     return [...list].sort((a, b) => (b.koCount || 0) - (a.koCount || 0));
   }, [profilesMap]);
 
@@ -102,9 +116,15 @@ export default function Queue() {
 
   async function promoteToSquadLeader() {
     if (!selectedToPromote) return;
-    await updateDoc(doc(db, "profiles", selectedToPromote), { isSquadLeader: true });
-    await updateDoc(doc(db, "rosterPublic", selectedToPromote), { isSquadLeader: true });
-    setProfilesMap(prev => ({ ...prev, [selectedToPromote]: { ...prev[selectedToPromote], isSquadLeader: true } }));
+    const target = profilesMap[selectedToPromote];
+    const currentRole = target.gameRoles?.[QUEUE_GAME] || {};
+    const updatedRole = { ...currentRole, isSquadLeader: true };
+    const updatedGameRoles = { ...target.gameRoles, [QUEUE_GAME]: updatedRole };
+
+    await updateDoc(doc(db, "profiles", selectedToPromote), { gameRoles: updatedGameRoles });
+    await updateDoc(doc(db, "rosterPublic", selectedToPromote), { gameRoles: updatedGameRoles });
+
+    setProfilesMap(prev => ({ ...prev, [selectedToPromote]: { ...prev[selectedToPromote], gameRoles: updatedGameRoles } }));
     setSelectedToPromote("");
   }
 
@@ -124,7 +144,7 @@ export default function Queue() {
       </details>
 
       <div className="card queue-card">
-        {queue.length === 0 && <p className="hint">Очередь пуста. Добавьте бойцов с должностью «Командир отряда».</p>}
+        {queue.length === 0 && <p className="hint">Очередь пуста. Добавьте бойцов с должностью «Командир отделения».</p>}
         <ol className="queue-ordered-list">
           {queue.map((item, index) => {
             const p = profilesMap[item.uid];
@@ -165,26 +185,26 @@ export default function Queue() {
         <KoStatsChart data={statsData} />
         <p className="stats-since-note">Статистика игр за КО ведётся с 25 июля 2026 года.</p>
       </div>
-	  
-	  {isAdmin && (
+
+      {isAdmin && (
         <div className="card">
           <h2>Управление очередью</h2>
-          <label>Добавить командира отряда в очередь</label>
+          <label>Добавить командира отделения в очередь</label>
           <select value={selectedToAdd} onChange={e => setSelectedToAdd(e.target.value)}>
             <option value="">Выберите бойца...</option>
             {availableToAdd.map(l => <option key={l.uid} value={l.uid}>{l.callsign}</option>)}
           </select>
           <button className="btn secondary" onClick={addToQueue}>Добавить в конец очереди</button>
 
-          <label style={{ marginTop: 16 }}>Назначить нового командира отряда</label>
+          <label style={{ marginTop: 16 }}>Назначить нового командира отделения</label>
           <select value={selectedToPromote} onChange={e => setSelectedToPromote(e.target.value)}>
             <option value="">Выберите бойца...</option>
             {nonLeaders.map(p => <option key={p.uid} value={p.uid}>{p.callsign}</option>)}
           </select>
-          <button className="btn secondary" onClick={promoteToSquadLeader}>Назначить командиром отряда</button>
+          <button className="btn secondary" onClick={promoteToSquadLeader}>Назначить командиром отделения</button>
         </div>
       )}
-	  
+
     </main>
   );
 }

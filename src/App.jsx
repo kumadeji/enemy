@@ -23,6 +23,8 @@ import AdminChangeLog from "./pages/AdminChangeLog";
 import BackgroundMap from "./components/BackgroundMap";
 import BackgroundMusic from "./components/BackgroundMusic";
 
+import AdminMigrate from "./pages/AdminMigrate";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -49,9 +51,10 @@ export default function App() {
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
           <Route path="/admin/player/:uid" element={<ProtectedRoute require="admin"><AdminPlayerDetail /></ProtectedRoute>} />
 		  <Route path="/admin/changelog" element={<ProtectedRoute require="admin"><AdminChangeLog /></ProtectedRoute>} />
+		  <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
-          <div className="container">© Игровое сообщество ENEMY. 2026. Разработчик сайта - [En-Y]Boba, aka kumadeji.</div>
+          <div className="container">© Мультиигровое сообщество ENEMY. 2026. Разработчик сайта - [En-Y]Boba, aka kumadeji.</div>
         </footer>
       </AuthProvider>
     </BrowserRouter>

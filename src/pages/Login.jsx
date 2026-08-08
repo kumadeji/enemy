@@ -27,7 +27,7 @@ export default function Login() {
     <main className="container">
       <div className="auth-page">
         <h1>Вход в кабинет бойца</h1>
-        <p className="page-lead">Игровое сообщество <b>ENEMY</b>.</p>
+        <p className="page-lead">Мультиигровое сообщество <b>ENEMY</b>.</p>
 
         <form className="apply-form" onSubmit={handleSubmit}>
           <fieldset className="form-section">

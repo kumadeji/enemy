@@ -483,13 +483,7 @@ label { font-size: 14px; font-weight: 600; display: block; margin-top: 4px; }
   align-items: center;
 }
 
-/* Цвета статусов: зелёный / горчичный / красный по требованиям.
-   "Новобранец" и "Дезертир(частично)" используют нейтральный цвет по умолчанию из .badge */
-.badge[data-status="Боец запаса"] { color: #4caf6d; border-color: #4caf6d; }
-.badge[data-status="Боец личного состава"] { color: #c9a227; border-color: #c9a227; }
-.badge[data-status="Комбат"],
-.badge[data-status="Заместитель комбата"] { color: #e05252; border-color: #e05252; }
-.badge[data-status="Дезертир"] { color: var(--text-muted); border-color: var(--text-muted); opacity: 0.7; }
+/* ЦВЕТ СТАТУСА КОМАНДИРА ОТДЕЛЕНИЯ */
 
 .squad-leader-badge {
   color: var(--accent);
@@ -630,7 +624,8 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 /* Ссылка на журнал изменений — отдельная страница, а не переключаемая
    вкладка, поэтому всегда нейтрально-серая, без "активного" состояния */
-.changelog-nav-link {
+.changelog-nav-link,
+.changelog-nav-link:visited {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-muted);
@@ -641,7 +636,6 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  transition: color 0.15s ease, border-color 0.15s ease;
 }
 .changelog-nav-link:hover {
   color: var(--text);
@@ -864,43 +858,6 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .award-row .award-chip { margin: 0; }
 .award-row button { margin-left: auto; flex-shrink: 0; }
 
-/* Статистика клана: строка НИКОГДА не переносится на вторую строку —
-   вместо этого при нехватке места переносится текст ВНУТРИ подписи
-   (например, "Заместитель / комбата" на два ряда внутри своего блока),
-   а на очень узких экранах включается горизонтальная прокрутка. */
-.community-stats {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 14px;
-  justify-content: center;
-  overflow-x: auto;
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
-.community-stat-block {
-  flex: 0 0 auto;
-  width: 84px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 4px;
-}
-.community-stat-block .stat-value {
-  font-size: 20px;
-}
-.community-stat-block .stat-label {
-  font-size: 11px;
-  line-height: 1.3;
-  white-space: normal; /* подписи вроде "Заместитель комбата" переносятся на 2 строки сами */
-}
-
-@media (max-width: 700px) {
-  .community-stat-block { width: 72px; }
-  .community-stat-block .stat-value { font-size: 18px; }
-  .community-stat-block .stat-label { font-size: 10px; }
-}
-
 /* Обрамление для блока статистики КО/КС именно в профиле игрока */
 .profile-stats-row {
   display: flex;
@@ -936,11 +893,14 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .bg-map {
   position: fixed;
   inset: 0;
-  z-index: -1; /* строго позади всего контента сайта */
-  background-size: 180% auto; /* крупнее экрана — даёт запас для панорамирования */
+  z-index: -1;
+  background-size: 250% auto;
   background-repeat: no-repeat;
-  pointer-events: none; /* клики проходят "сквозь" фон */
+  pointer-events: none;
   will-change: background-position, opacity;
+}
+@media (max-width: 700px) {
+  .bg-map { background-size: 400% auto; }
 }
 
 /* ==========================================================================
@@ -979,3 +939,150 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
     font-size: 16px;
   }
 }
+
+/* ==========================================================================
+   ДНИ РОЖДЕНИЯ В ПАНЕЛИ КОМБАТА
+   ========================================================================== */
+.birthday-reminder {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+}
+.birthday-reminder h2 { margin-top: 0; color: var(--accent); }
+.birthday-reminder ul { margin: 8px 0 0; padding-left: 18px; }
+.birthday-reminder li { margin-bottom: 4px; }
+
+/* ==========================================================================
+   ВЫБОР РЕФЕРАЛЛА НА СТРАНИЦЕ РЕГИСТРАЦИИ
+   ========================================================================== */
+.referral-type-switch {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 10px 0 12px;
+}
+
+/* ==========================================================================
+   КОПИРОВАНИЕ ДАННЫХ ИЗ ПРОФИЛЯ
+   ========================================================================== */
+.copyable-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.copy-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ==========================================================================
+   СТАТИСТИКА КЛАНА
+   ========================================================================== */
+
+ .community-stats-wrapper { padding: 20px; }
+.community-stats-section-title {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 16px 0 10px;
+}
+.community-stats-divider { border-top: 1px dashed var(--border); margin: 8px 0; }
+
+/* overflow-x: auto — блок скроллится отдельно от страницы на телефонах.
+   justify-content: safe center — на десктопе центрируется, но если контент
+   не помещается (узкий экран), выравнивание "падает" к началу, чтобы первый
+   элемент не оказывался недостижимо "отрезанным" слева при скролле. */
+.community-stats-section {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  justify-content: safe center;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.community-stat-block {
+  flex: 0 0 auto;
+  width: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+.community-stat-block .stat-value { font-size: 20px; }
+.community-stat-block .stat-label {
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: normal;
+}
+.community-stat-block .stat-label small { color: var(--text-muted); font-size: 10px; }
+
+/* ==========================================================================
+   КЛИКАБЕЛЬНЫЕ СТРОКИ В СОСТАВЕ И ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ ТАБЛИЦ
+   ========================================================================== */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.clickable-row { cursor: pointer; }
+.inline-badge { margin-left: 6px; }
+
+/* ==========================================================================
+   ДЛЯ ПЕРЕКЛЮЧАТЕЛЕЙ ИГР И РОЛЕЙ В СОСТАВЕ
+   ========================================================================== */
+
+.game-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.game-role-editor { max-width: 360px; }
+
+/* ==========================================================================
+   ДИСЦИПЛИНАРНЫЕ ВЗЫСКАНИЯ - БЛОК
+   ========================================================================== */
+
+.disciplinary-box {
+  background: rgba(224, 82, 82, 0.1);
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 14px 0;
+}
+.disciplinary-title { color: var(--danger); font-weight: 700; margin-bottom: 8px; }
+.disciplinary-item { font-size: 13.5px; margin-bottom: 8px; }
+.disciplinary-item.disciplinary-expired { opacity: 0.55; }
+.disciplinary-meta { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+
+/* ==========================================================================
+   АДАПТИВНАЯ ШИРИНА ДЛЯ ССЫЛКИ НА STEAM ПРОФИЛЬ
+   ========================================================================== */
+
+.card p, .field-hint, td {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ==========================================================================
+   ТАБЛИЧНОЕ ОФОРМЛЕНИЕ ПРОФИЛЯ
+   ========================================================================== */
+
+.profile-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.profile-table tr { border-bottom: 1px solid var(--border); }
+.profile-table tr:last-child { border-bottom: none; }
+.profile-table td { padding: 10px 8px; vertical-align: top; }
+.profile-table-label {
+  width: 160px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.profile-table-value { font-size: 14px; }

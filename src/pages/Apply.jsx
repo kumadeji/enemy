@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, runTransaction, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import ApplicationForm from "../components/ApplicationForm";
+import { defaultGameRole } from "../data/gameRoles";
 
 export default function Apply() {
   const { currentUser, refreshProfile } = useAuth();
@@ -45,6 +46,10 @@ export default function Apply() {
         other: values.extraOther || ""
       };
 
+      // Роли по каждой выбранной игре — все начинаются с одинакового
+      // дефолта: состав "Отбор", должность "Новобранец"
+      const gameRoles = Object.fromEntries(values.games.map(g => [g, defaultGameRole()]));
+
       await runTransaction(db, async (tx) => {
         const existing = await tx.get(callsignRef);
         if (existing.exists()) throw new Error("Этот позывной уже занят, выберите другой.");
@@ -58,23 +63,29 @@ export default function Apply() {
           armaId: values.games.includes("Arma Reforger") ? values.armaId : "",
           extraContacts,
           gamesInterested: values.games,
-          status: "Новобранец",
-          isSquadLeader: false,
+          gameRoles,
           awards: [],
           koCount: 0,
           ksCount: 0,
+          playedAsSoldierCount: 0,
+          disciplinaryActions: [],
           publicNote: "",
           timezone: values.timezone,
           birthDate: values.birthDate || "",
+          referredByUid: values.referralType === "player" ? values.referredByUid : "",
+          referredByText: values.referralType === "text" ? values.howFound : "",
           createdAt: serverTimestamp()
         });
-		
+
+        // Публичная "облегчённая" копия профиля — доступна всем без авторизации
+        // (используется на страницах "Состав клана" и "Очередь на КО")
         tx.set(doc(db, "rosterPublic", uid), {
           callsign: values.callsign.trim(),
-          status: "Новобранец",
-          isSquadLeader: false,
+          gameRoles,
           gamesInterested: values.games,
-          koCount: 0
+          koCount: 0,
+          ksCount: 0,
+          playedAsSoldierCount: 0
         });
 
         tx.set(doc(db, "applications", uid), {
@@ -85,7 +96,9 @@ export default function Apply() {
           extraContacts,
           hoursByGame, experienceByGame,
           timezone: values.timezone, availability: values.availability,
-          whyJoin: values.whyJoin, howFound: values.howFound,
+          whyJoin: values.whyJoin, howFound: values.howFound || "",
+          referredByText: values.referralType === "text" ? values.howFound : "",
+          referrerCallsign: values.referrerCallsign || "",
           charterAgreed: values.charterAgreed,
           createdAt: serverTimestamp()
         });
@@ -101,7 +114,9 @@ export default function Apply() {
             callsign: values.callsign, email: values.email, fullName: values.fullName, age: values.age,
             steamProfileUrl: values.steamProfileUrl, discordId: values.discordId, armaId: values.armaId,
             extraContacts, gamesInterested: values.games, timezone: values.timezone,
-            availability: values.availability, whyJoin: values.whyJoin, howFound: values.howFound,
+            availability: values.availability,
+            whyJoin: values.whyJoin,
+            howFound: values.referralType === "player" ? `Приглашён бойцом: ${values.referrerCallsign}` : values.howFound,
             charterAgreed: values.charterAgreed
           })
         }).catch(() => {});
@@ -118,9 +133,10 @@ export default function Apply() {
     <main className="container">
       <h1>Заявка на вступление</h1>
       <p className="page-lead">
-        Игровое сообщество <b>ENEMY</b>. Приём заявок открыт для закрытого направления
-        по игре <b>Arma Reforger</b>. После заполнения заявка поступит на рассмотрение комбату и его заместителям.
+        <b>Добро пожаловать в ряды, боец!</b> Полную анкету увидят только командир батальона
+        и его заместители — именно они рассмотрят вашу заявку. Другие не смогут увидеть личные данные.
       </p>
+
       <ApplicationForm
         onSubmit={handleSubmit}
         submitLabel="Отправить заявку"

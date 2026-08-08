@@ -3,7 +3,7 @@ import VkWidget from "../components/VkWidget";
 export default function Home() {
   return (
     <main className="container">
-      <h1>Игровое сообщество ENEMY</h1>
+      <h1>Мультиигровое сообщество ENEMY</h1>
 
       <section className="card">
         <h2>О клане</h2>

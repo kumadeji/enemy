@@ -30,7 +30,7 @@ export default function ImageHint({ image, alt }) {
       {open && (
         <div className="image-modal-overlay" onClick={() => setOpen(false)}>
           <div className="image-modal-content" onClick={e => e.stopPropagation()}>
-            <button className="image-modal-close" onClick={() => setOpen(false)} aria-label="Закрыть">✕</button>
+            <button className="image-modal-close" onClick={() => setOpen(false)}>✕</button>
             <img src={image} alt={alt} />
           </div>
         </div>

@@ -64,7 +64,11 @@ export default function MyApplication() {
     callsign: profile.callsign,
     timezone: application.timezone,
     availability: application.availability,
-    whyJoin: application.whyJoin, howFound: application.howFound,
+    whyJoin: application.whyJoin,
+    howFound: application.howFound || "",
+    // Если при регистрации был выбран реферал-игрок — передаём его uid,
+    // чтобы ApplicationForm по умолчанию открылся в режиме "пригласил игрок с сайта"
+    referredByUid: profile.referredByUid || "",
     charterAgreed: application.charterAgreed,
     games: profile.gamesInterested,
     gameDetails: Object.fromEntries(
@@ -118,16 +122,21 @@ export default function MyApplication() {
         discordId: values.discordId, armaId: values.armaId || "",
         extraContacts, hoursByGame, experienceByGame,
         timezone: values.timezone, availability: values.availability,
-        whyJoin: values.whyJoin, howFound: values.howFound
+        whyJoin: values.whyJoin,
+        howFound: values.referralType === "text" ? values.howFound : "",
+        referredByText: values.referralType === "text" ? values.howFound : "",
+        referrerCallsign: values.referrerCallsign || ""
       });
 
       await updateDoc(doc(db, "profiles", currentUser.uid), {
         discordId: values.discordId, steamId: values.steamId, steamProfileUrl,
         armaId: values.games.includes("Arma Reforger") ? values.armaId : "",
         extraContacts, gamesInterested: values.games,
-        timezone: values.timezone, birthDate: values.birthDate || ""
+        timezone: values.timezone, birthDate: values.birthDate || "",
+        referredByUid: values.referralType === "player" ? values.referredByUid : "",
+        referredByText: values.referralType === "text" ? values.howFound : ""
       });
-	  
+
       await updateDoc(doc(db, "rosterPublic", currentUser.uid), {
         gamesInterested: values.games
       });
@@ -153,7 +162,8 @@ export default function MyApplication() {
             callsign: profile.callsign, email: application.email, fullName: values.fullName, age: values.age,
             steamProfileUrl, discordId: values.discordId, armaId: values.armaId,
             extraContacts, gamesInterested: values.games, timezone: values.timezone,
-            availability: values.availability, whyJoin: values.whyJoin, howFound: values.howFound,
+            availability: values.availability, whyJoin: values.whyJoin,
+            howFound: values.referralType === "player" ? `Приглашён бойцом: ${values.referrerCallsign}` : values.howFound,
             charterAgreed: values.charterAgreed
           })
         }).catch(() => {});
@@ -169,14 +179,18 @@ export default function MyApplication() {
 
   return (
     <main className="container">
-      <h1>Моя заявка</h1>
+      <h1>Заявка</h1>
 
       <div className="card">
-        {profile.status === "Новобранец" ? (
-          <p>Ваша заявка на вступление получена и находится на рассмотрении комбата и его заместителей. Ожидайте — обычно это занимает некоторое время.</p>
-        ) : (
-          <p>Ваша заявка была рассмотрена. Текущая должность: <b>{profile.status}</b>.</p>
-        )}
+        {(() => {
+          const gr = profile.gameRoles?.[profile.gamesInterested?.[0]];
+          const isPending = gr?.composition === "Отбор";
+          return isPending ? (
+            <p>Ваша заявка на вступление получена и находится на рассмотрении. Ожидайте.</p>
+          ) : (
+            <p>Ваша заявка была рассмотрена. Текущий состав: <b>{gr?.composition}</b>, должность: <b>{gr?.position}</b>.</p>
+          );
+        })()}
       </div>
 
       {!editing ? (
@@ -197,8 +211,13 @@ export default function MyApplication() {
           <p><b>Часовой пояс:</b> {application.timezone}</p>
           <p><b>Доступность:</b> {application.availability}</p>
           <p><b>Почему хочет вступить:</b> {application.whyJoin}</p>
-          <p><b>Откуда узнал:</b> {application.howFound}</p>
-          <button className="btn" onClick={() => setEditing(true)}>Внести изменения</button>
+          <p>
+            <b>Откуда узнал:</b>{" "}
+            {profile.referredByUid
+              ? `Приглашён бойцом${application.referrerCallsign ? ` (${application.referrerCallsign})` : ""}`
+              : (application.howFound || "—")}
+          </p>
+          <button className="btn secondary" onClick={() => setEditing(true)}>Внести изменения</button>
         </div>
       ) : (
         <ApplicationForm
