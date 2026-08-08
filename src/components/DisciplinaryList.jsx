@@ -6,7 +6,7 @@ export default function DisciplinaryList({ actions = [], showHistory = false }) 
 
   return (
     <div className="disciplinary-box">
-      <div className="disciplinary-title">⚠ Дисциплинарные взыскания</div>
+      <div className="disciplinary-title">Дисциплинарные взыскания</div>
       {list.map(a => (
         <div key={a.id} className={`disciplinary-item ${isActionActive(a) ? "" : "disciplinary-expired"}`}>
           <b>{a.type}</b> — {a.reason}
