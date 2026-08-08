@@ -1,3 +1,4 @@
+import { Tree, TreeNode } from "react-organizational-chart";
 import { pluralize } from "../utils/pluralize";
 import {
   COMPOSITIONS_ORDER,
@@ -7,6 +8,49 @@ import {
   getCompositionColor,
   getPositionColor
 } from "../data/gameRoles";
+
+function CompositionLabel({ name, count, color }) {
+  return (
+    <div className="stats-tree-node">
+      <span className="badge" style={{ color, borderColor: color }}>
+        {name}
+      </span>
+      <span className="stats-tree-count">{count}</span>
+    </div>
+  );
+}
+
+function PositionLabel({ name, count, color }) {
+  return (
+    <div className="stats-tree-node stats-tree-node-small">
+      <span className="badge" style={{ color, borderColor: color }}>
+        {name}
+      </span>
+      <span className="stats-tree-count">{count}</span>
+    </div>
+  );
+}
+
+function SquadLeaderLabel({ count }) {
+  return (
+    <div className="stats-tree-node stats-tree-node-squad">
+      <span className="badge squad-leader-badge">
+        {pluralize(count, SQUAD_LEADER_FORMS)}
+      </span>
+      <span className="stats-tree-count">{count}</span>
+    </div>
+  );
+}
+
+function RootLabel({ total, game }) {
+  return (
+    <div className="stats-tree-root">
+      <div className="stats-tree-root-number">{total}</div>
+      <div className="stats-tree-root-label">Всего бойцов в клане</div>
+      <div className="stats-tree-root-game">по игре: <b>{game}</b></div>
+    </div>
+  );
+}
 
 export default function CommunityStats({ allProfiles, game, profilesForGame }) {
   const total = allProfiles.length;
@@ -37,78 +81,55 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
 
   return (
     <div className="community-stats-card card">
-      <div className="stats-header">
-        <div className="stats-total-block">
-          <div className="stats-total-number">{total}</div>
-          <div className="stats-total-label">Всего бойцов в клане</div>
-        </div>
-        <div className="stats-game-indicator">
-          по игре: <b>{game}</b>
-        </div>
-      </div>
-
-      <div className="stats-tree-wrapper">
-        <div className="stats-tree">
+      <div className="stats-tree-scroll">
+        <Tree
+          lineWidth="2px"
+          lineColor="var(--border)"
+          lineBorderRadius="8px"
+          label={<RootLabel total={total} game={game} />}
+        >
           {compositions.map(({ composition, total: branchTotal, positions }) => {
             const compColor = getCompositionColor(composition);
             return (
-              <div key={composition} className="stats-branch-column">
-                {/* Состав */}
-                <div className="stats-composition-node">
-                  <span 
-                    className="badge" 
-                    style={{ color: compColor, borderColor: compColor }}
-                  >
-                    {composition}
-                  </span>
-                  <span className="stats-node-count">{branchTotal}</span>
-                </div>
-
-                {/* Вертикальная линия от состава к должностям */}
-                <div className="stats-vertical-line"></div>
-
-                {/* Должности */}
-                <div className="stats-positions-container">
-                  {positions.map(({ position, count }, index) => {
-                    const posColor = getPositionColor(position);
-                    const label = pluralize(
-                      count, 
-                      POSITION_FORMS[position] || [position, position, position]
-                    );
-                    return (
-                      <div key={position} className="stats-position-item">
-                        {/* Горизонтальная линия к должности */}
-                        <div className="stats-horizontal-line"></div>
-                        
-                        <div className="stats-position-node">
-                          <span 
-                            className="badge" 
-                            style={{ color: posColor, borderColor: posColor }}
-                          >
-                            {label}
-                          </span>
-                          <span className="stats-node-count">{count}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <TreeNode
+                key={composition}
+                label={
+                  <CompositionLabel 
+                    name={composition} 
+                    count={branchTotal} 
+                    color={compColor} 
+                  />
+                }
+              >
+                {positions.map(({ position, count }) => {
+                  const posColor = getPositionColor(position);
+                  const label = pluralize(
+                    count, 
+                    POSITION_FORMS[position] || [position, position, position]
+                  );
+                  return (
+                    <TreeNode
+                      key={position}
+                      label={
+                        <PositionLabel 
+                          name={label} 
+                          count={count} 
+                          color={posColor} 
+                        />
+                      }
+                    />
+                  );
+                })}
+              </TreeNode>
             );
           })}
-        </div>
 
-        {/* Командиры отделения */}
-        {squadLeadersCount > 0 && (
-          <div className="stats-squad-leaders-column">
-            <div className="stats-squad-leaders-node">
-              <span className="badge squad-leader-badge">
-                {pluralize(squadLeadersCount, SQUAD_LEADER_FORMS)}
-              </span>
-              <span className="stats-node-count">{squadLeadersCount}</span>
-            </div>
-          </div>
-        )}
+          {squadLeadersCount > 0 && (
+            <TreeNode
+              label={<SquadLeaderLabel count={squadLeadersCount} />}
+            />
+          )}
+        </Tree>
       </div>
     </div>
   );

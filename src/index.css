@@ -1071,254 +1071,97 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 /* КНОПКА РЕДАКТИРОВАНИЯ В ПРОФИЛЕ */
 .profile-edit-btn { margin-top: 16px; }
-
 /* ==========================================================================
-   СТАТИСТИКА КЛАНА (древовидная структура)
+   СТАТИСТИКА КЛАНА (react-organizational-chart)
    ========================================================================== */
 .community-stats-card { 
   padding: 24px;
   margin-bottom: 20px;
+  overflow: hidden;
 }
 
-.stats-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
+.stats-tree-scroll {
+  overflow-x: auto;
+  padding: 20px 0;
 }
 
-.stats-total-block {
+/* Корневой узел */
+.stats-tree-root {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 16px 24px;
 }
 
-.stats-total-number {
+.stats-tree-root-number {
   font-family: var(--font-heading);
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--accent);
   line-height: 1;
 }
 
-.stats-total-label {
+.stats-tree-root-label {
   font-size: 13px;
   color: var(--text-muted);
   font-weight: 500;
 }
 
-.stats-game-indicator {
-  font-size: 13px;
+.stats-tree-root-game {
+  font-size: 11px;
   color: var(--text-muted);
-  text-align: right;
+  margin-top: 4px;
 }
 
-/* Обёртка для всего дерева */
-.stats-tree-wrapper {
-  display: flex;
-  gap: 40px;
-  align-items: flex-start;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-
-/* Контейнер для всех составов */
-.stats-tree {
-  display: flex;
-  gap: 32px;
-  position: relative;
-  padding-top: 32px;
-}
-
-/* Горизонтальная линия соединяющая все составы сверху */
-.stats-tree::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--border);
-}
-
-/* Вертикальная линия от корня к горизонтальной линии */
-.stats-tree::after {
-  content: "";
-  position: absolute;
-  top: -32px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 32px;
-  background: var(--border);
-}
-
-/* Колонка одного состава */
-.stats-branch-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  position: relative;
-  min-width: 160px;
-}
-
-/* Вертикальная линия от горизонтальной линии к составу */
-.stats-branch-column::before {
-  content: "";
-  position: absolute;
-  top: -32px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 32px;
-  background: var(--border);
-}
-
-/* Узел состава */
-.stats-composition-node {
+/* Узлы дерева */
+.stats-tree-node {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  position: relative;
-  z-index: 2;
   background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  white-space: nowrap;
+}
+
+.stats-tree-node-small {
   padding: 8px 12px;
-  border-radius: 8px;
 }
 
-/* Вертикальная линия от состава к должностям */
-.stats-vertical-line {
-  width: 2px;
-  height: 16px;
-  background: var(--border);
+.stats-tree-node-squad {
+  border: 2px dashed var(--accent);
 }
 
-/* Контейнер должностей */
-.stats-positions-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  position: relative;
-  padding-left: 24px;
-}
-
-/* Вертикальная пунктирная линия вдоль списка должностей */
-.stats-positions-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2px;
-  height: 100%;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--border) 0px,
-    var(--border) 4px,
-    transparent 4px,
-    transparent 8px
-  );
-}
-
-/* Одна должность */
-.stats-position-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-}
-
-/* Горизонтальная пунктирная линия к должности */
-.stats-horizontal-line {
-  position: absolute;
-  left: -24px;
-  width: 24px;
-  height: 2px;
-  background: repeating-linear-gradient(
-    to right,
-    var(--border) 0px,
-    var(--border) 4px,
-    transparent 4px,
-    transparent 8px
-  );
-}
-
-/* Узел должности */
-.stats-position-node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  position: relative;
-  z-index: 2;
-  background: var(--bg-card);
-  padding: 6px 10px;
-  border-radius: 8px;
-}
-
-/* Количество в узле */
-.stats-node-count {
+.stats-tree-count {
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 16px;
   color: var(--accent);
-  line-height: 1;
 }
 
-/* Колонка командиров отделения */
-.stats-squad-leaders-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 32px;
+/* Переопределяем стили библиотеки для тёмной темы */
+.community-stats-card .organizational-chart-tree {
+  padding: 0;
 }
 
-/* Узел командиров отделения */
-.stats-squad-leaders-node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: var(--bg-card);
-  border: 2px dashed var(--accent);
-  border-radius: 10px;
+.community-stats-card .organizational-chart-node {
+  padding: 8px 4px;
 }
 
-.stats-squad-leaders-node .badge {
-  font-size: 13px;
+.community-stats-card .organizational-chart-line {
+  background-color: var(--border) !important;
 }
 
 /* Адаптив */
 @media (max-width: 768px) {
-  .stats-tree-wrapper {
-    flex-direction: column;
-    gap: 32px;
-  }
-  
-  .stats-tree {
-    flex-direction: column;
-    gap: 24px;
-  }
-  
-  .stats-tree::before,
-  .stats-tree::after {
-    display: none;
-  }
-  
-  .stats-branch-column::before {
-    display: none;
-  }
-  
-  .stats-squad-leaders-column {
-    padding-top: 0;
-    width: 100%;
-  }
-  
-  .stats-squad-leaders-node {
-    width: 100%;
+  .stats-tree-scroll {
+    margin: 0 -24px;
+    padding: 20px 24px;
   }
 }
