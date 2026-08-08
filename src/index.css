@@ -1125,7 +1125,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   white-space: nowrap;
 }
 
-/* Корневой узел — число и текст на одном baseline */
+/* Корневой узел */
 .cs-root-box {
   flex-direction: row;
   align-items: baseline;
@@ -1174,52 +1174,13 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   line-height: 1;
 }
 
-/* ===== ВЫРАВНИВАНИЕ УРОВНЕЙ ДЕРЕВА ===== */
-
-/* Все узлы библиотеки — по верхнему краю */
-.community-stats-card .organizational-chart-node {
-  vertical-align: top !important;
-  text-align: center;
-}
-
-/* Flex-контейнеры внутри библиотеки — выравнивание по верху */
-.community-stats-card .organizational-chart-node {
-  display: inline-block;
-}
-
-/* Контейнер дочерних узлов — по верху */
-.community-stats-card .organizational-chart-tree,
-.community-stats-card .organizational-chart-node {
-  align-items: flex-start !important;
-}
-
-/* Убираем центрирование по вертикали */
-.community-stats-card .organizational-chart-node-content {
-  padding: 0;
-  display: inline-block;
-  vertical-align: top;
-}
-
-/* Убираем лишние отступы */
+/* Минимальные стили для библиотеки */
 .community-stats-card .organizational-chart-tree {
   padding: 0;
 }
 
-/* Линии */
-.community-stats-card .organizational-chart-line {
-  background-color: var(--border) !important;
-}
-
-.community-stats-card .organizational-chart-node > .organizational-chart-line {
-  height: 10px;
-}
-
-.community-stats-card .organizational-chart-node > .organizational-chart-line::before {
-  border-top: 1px solid var(--border);
-}
-
-.community-stats-card .organizational-chart-node > .organizational-chart-line::after {
-  border-left: 1px solid var(--border);
+.community-stats-card .organizational-chart-node-content {
+  padding: 0;
 }
 
 /* Адаптив */
