@@ -1071,87 +1071,83 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 /* КНОПКА РЕДАКТИРОВАНИЯ В ПРОФИЛЕ */
 .profile-edit-btn { margin-top: 16px; }
+
+
 /* ==========================================================================
-   СТАТИСТИКА КЛАНА (react-organizational-chart)
+   СТАТИСТИКА КЛАНА (компактное дерево)
    ========================================================================== */
 .community-stats-card { 
-  padding: 24px;
+  padding: 20px;
   margin-bottom: 20px;
   overflow: hidden;
 }
 
 .stats-tree-scroll {
   overflow-x: auto;
-  padding: 20px 0;
+  padding: 12px 0;
 }
 
-/* Корневой узел */
-.stats-tree-root {
-  display: flex;
-  flex-direction: column;
+/* Корневой узел — компактный, в одну строку */
+.stats-compact-root {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
   background: var(--bg-card);
-  border: 2px solid var(--accent);
-  border-radius: 12px;
-  padding: 16px 24px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 10px 18px;
+  white-space: nowrap;
 }
 
-.stats-tree-root-number {
+.stats-compact-root-number {
   font-family: var(--font-heading);
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--accent);
   line-height: 1;
 }
 
-.stats-tree-root-label {
+.stats-compact-root-text {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text);
   font-weight: 500;
 }
 
-.stats-tree-root-game {
+.stats-compact-root-game {
   font-size: 11px;
   color: var(--text-muted);
-  margin-top: 4px;
+  border-left: 1px solid var(--border);
+  padding-left: 10px;
+  margin-left: 2px;
 }
 
-/* Узлы дерева */
-.stats-tree-node {
-  display: flex;
-  flex-direction: column;
+/* Компактный узел дерева — бейдж и число в одну строку */
+.stats-compact-node {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 16px;
+  gap: 8px;
   white-space: nowrap;
 }
 
-.stats-tree-node-small {
-  padding: 8px 12px;
-}
-
-.stats-tree-node-squad {
-  border: 2px dashed var(--accent);
-}
-
-.stats-tree-count {
+/* Число рядом с бейджем */
+.stats-compact-count {
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--accent);
+  line-height: 1;
 }
 
-/* Переопределяем стили библиотеки для тёмной темы */
-.community-stats-card .organizational-chart-tree {
-  padding: 0;
+/* Узел КО — пунктирная рамка вокруг */
+.stats-compact-squad {
+  border: 1.5px dashed var(--accent);
+  border-radius: 8px;
+  padding: 6px 12px;
 }
 
+/* Переопределяем стили библиотеки для компактности */
 .community-stats-card .organizational-chart-node {
-  padding: 8px 4px;
+  padding: 4px 2px;
 }
 
 .community-stats-card .organizational-chart-line {
@@ -1161,7 +1157,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 /* Адаптив */
 @media (max-width: 768px) {
   .stats-tree-scroll {
-    margin: 0 -24px;
-    padding: 20px 24px;
+    margin: 0 -20px;
+    padding: 12px 20px;
   }
 }

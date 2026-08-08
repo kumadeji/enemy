@@ -11,43 +11,43 @@ import {
 
 function CompositionLabel({ name, count, color }) {
   return (
-    <div className="stats-tree-node">
+    <div className="stats-compact-node">
       <span className="badge" style={{ color, borderColor: color }}>
         {name}
       </span>
-      <span className="stats-tree-count">{count}</span>
+      <span className="stats-compact-count">{count}</span>
     </div>
   );
 }
 
 function PositionLabel({ name, count, color }) {
   return (
-    <div className="stats-tree-node stats-tree-node-small">
+    <div className="stats-compact-node">
       <span className="badge" style={{ color, borderColor: color }}>
         {name}
       </span>
-      <span className="stats-tree-count">{count}</span>
+      <span className="stats-compact-count">{count}</span>
     </div>
   );
 }
 
 function SquadLeaderLabel({ count }) {
   return (
-    <div className="stats-tree-node stats-tree-node-squad">
+    <div className="stats-compact-node stats-compact-squad">
       <span className="badge squad-leader-badge">
         {pluralize(count, SQUAD_LEADER_FORMS)}
       </span>
-      <span className="stats-tree-count">{count}</span>
+      <span className="stats-compact-count">{count}</span>
     </div>
   );
 }
 
 function RootLabel({ total, game }) {
   return (
-    <div className="stats-tree-root">
-      <div className="stats-tree-root-number">{total}</div>
-      <div className="stats-tree-root-label">Всего бойцов в клане</div>
-      <div className="stats-tree-root-game">по игре: <b>{game}</b></div>
+    <div className="stats-compact-root">
+      <span className="stats-compact-root-number">{total}</span>
+      <span className="stats-compact-root-text">Всего бойцов в клане</span>
+      <span className="stats-compact-root-game">по игре: <b>{game}</b></span>
     </div>
   );
 }
