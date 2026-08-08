@@ -11,19 +11,21 @@ import {
 
 function NodeLabel({ badge, count, color, dashed }) {
   return (
-    <span className={`cs-node ${dashed ? "cs-node-dashed" : ""}`}>
-      <span className="badge" style={{ color, borderColor: color }}>{badge}</span>
+    <div className="cs-node-box">
+      <span className={`badge cs-badge ${dashed ? "cs-badge-dashed" : ""}`} style={{ color, borderColor: color }}>
+        {badge}
+      </span>
       <span className="cs-count">{count}</span>
-    </span>
+    </div>
   );
 }
 
 function RootLabel({ count, game }) {
   return (
-    <span className="cs-root">
+    <div className="cs-node-box cs-root-box">
       <span className="cs-root-num">{count}</span>
       <span className="cs-root-text">по игре: <b>{game}</b></span>
-    </span>
+    </div>
   );
 }
 
@@ -59,7 +61,7 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
   return (
     <div className="community-stats-card card">
       
-      {/* Блок 1: Общая статистика сайта (статичная) */}
+      {/* Блок 1: Общая статистика сайта */}
       <div className="cs-site-row">
         <span className="cs-site-num">{totalAll}</span>
         <span className="cs-site-text">Всего бойцов в клане</span>
@@ -102,12 +104,12 @@ export default function CommunityStats({ allProfiles, game, profilesForGame }) {
           {squadLeadersCount > 0 && (
             <TreeNode
               label={
-                <span className="cs-node cs-node-squad">
-                  <span className="badge squad-leader-badge">
-                    {pluralize(squadLeadersCount, SQUAD_LEADER_FORMS)}
-                  </span>
-                  <span className="cs-count">{squadLeadersCount}</span>
-                </span>
+                <NodeLabel 
+                  badge={pluralize(squadLeadersCount, SQUAD_LEADER_FORMS)} 
+                  count={squadLeadersCount} 
+                  color="var(--accent)" 
+                  dashed 
+                />
               }
             />
           )}

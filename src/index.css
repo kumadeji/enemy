@@ -1101,25 +1101,36 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   font-weight: 500;
 }
 
-/* Разделитель между блоками */
+/* Разделитель */
 .cs-divider {
   height: 1px;
   background: var(--border);
   margin: 12px 0;
 }
 
-/* Скролл для дерева */
+/* Скролл дерева */
 .cs-tree-scroll {
   overflow-x: auto;
   padding: 4px 0;
 }
 
-/* Корень дерева */
-.cs-root {
+/* Фиксированный контейнер узла — выравнивает все узлы по одной высоте */
+.cs-node-box {
   display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 52px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* Корневой узел */
+.cs-root-box {
+  flex-direction: row;
   align-items: baseline;
   gap: 8px;
-  white-space: nowrap;
+  min-height: auto;
 }
 
 .cs-root-num {
@@ -1134,25 +1145,32 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   color: var(--text-muted);
 }
 
-/* Узел дерева: бейдж + число в одну строку */
-.cs-node {
+/* Бейдж в статистике — фиксированная высота, текст по центру */
+.cs-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  white-space: nowrap;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
+  max-width: 120px;
 }
 
-/* КО — пунктир только вокруг бейджа, без внешней рамки */
-.cs-node-squad .badge {
+/* Пунктирная рамка для КО */
+.cs-badge-dashed {
   border-style: dashed;
 }
 
-/* Число рядом с бейджем */
+/* Число под бейджем */
 .cs-count {
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 13px;
   color: var(--accent);
+  line-height: 1;
 }
 
 /* Ужимаем библиотеку react-organizational-chart */
@@ -1161,11 +1179,12 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 }
 
 .community-stats-card .organizational-chart-node {
-  padding: 2px 4px;
+  padding: 2px 3px;
+  vertical-align: top;
 }
 
 .community-stats-card .organizational-chart-node-content {
-  padding: 2px;
+  padding: 0;
 }
 
 .community-stats-card .organizational-chart-line {
@@ -1173,7 +1192,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 }
 
 .community-stats-card .organizational-chart-node > .organizational-chart-line {
-  height: 12px;
+  height: 10px;
 }
 
 .community-stats-card .organizational-chart-node > .organizational-chart-line::before {
@@ -1182,4 +1201,12 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 
 .community-stats-card .organizational-chart-node > .organizational-chart-line::after {
   border-left: 1px solid var(--border);
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+  .cs-tree-scroll {
+    margin: 0 -22px;
+    padding: 4px 22px;
+  }
 }
