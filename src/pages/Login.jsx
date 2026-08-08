@@ -26,8 +26,8 @@ export default function Login() {
   return (
     <main className="container">
       <div className="auth-page">
-        <h1>Вход в кабинет бойца</h1>
-        <p className="page-lead">Мультиигровое сообщество <b>ENEMY</b>.</p>
+        <h1>Вход в личный кабинет бойца</h1>
+        <p className="page-lead">Мультиигровое сообщество <b>ENEMY</b></p>
 
         <form className="apply-form" onSubmit={handleSubmit}>
           <fieldset className="form-section">
@@ -38,7 +38,7 @@ export default function Login() {
             <input type="password" required value={password} onChange={e => setPassword(e.target.value)} />
             <div className="field-hint">
               Восстановление пароля на сайте не предусмотрено. Если вы забыли пароль —
-              обратитесь к комбату или его заместителям для сброса аккаунта.
+              обратитесь к комбату или его заместителям для полного сброса аккаунта.
             </div>
           </fieldset>
 

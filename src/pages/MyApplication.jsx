@@ -217,7 +217,7 @@ export default function MyApplication() {
               ? `Приглашён бойцом${application.referrerCallsign ? ` (${application.referrerCallsign})` : ""}`
               : (application.howFound || "—")}
           </p>
-          <button className="btn secondary" onClick={() => setEditing(true)}>Внести изменения</button>
+          <button type="button" className="btn secondary profile-edit-btn" onClick={() => setEditing(true)}>Внести изменения</button>
         </div>
       ) : (
         <ApplicationForm

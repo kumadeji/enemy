@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import StatusBadges from "../components/StatusBadges";
 import CommunityStats from "../components/CommunityStats";
-import { GAMES, COMPOSITION_RANK, POSITION_RANK, hasRosterAccess, getStatusColor } from "../data/gameRoles";
+import { GAMES, COMPOSITION_RANK, POSITION_RANK, hasRosterAccess, getCompositionColor, getPositionColor } from "../data/gameRoles";
 
 export default function Roster() {
   const { currentUser, isAdmin } = useAuth();
@@ -97,17 +97,20 @@ export default function Roster() {
             {filtered.map(p => {
               const gr = p.gameRoles[game];
               const color = getStatusColor(gr.composition, gr.position);
+			  const compColor = getCompositionColor(gr.composition);
+			  const posColor = getPositionColor(gr.position);
+			  const navigate = useNavigate();
               return (
                 <tr key={p.uid} className={canOpenProfiles ? "clickable-row" : ""}
-                    onClick={() => canOpenProfiles && (window.location.href = `/profile/${p.uid}`)}>
+                    onClick={() => canOpenProfiles && navigate(`/profile/${p.uid}`)}
                   <td>
                     {canOpenProfiles
                       ? <Link to={`/profile/${p.uid}`}>{p.callsign}</Link>
                       : p.callsign}
                     {gr.isSquadLeader && <span className="badge squad-leader-badge inline-badge">КО</span>}
                   </td>
-                  <td><span className="badge" style={{ color, borderColor: color }}>{gr.composition}</span></td>
-                  <td><span className="badge" style={{ color, borderColor: color }}>{gr.position}</span></td>
+				  <td><span className="badge" style={{ color: compColor, borderColor: compColor }}>{gr.composition}</span></td>
+				  <td><span className="badge" style={{ color: posColor, borderColor: posColor }}>{gr.position}</span></td>
                 </tr>
               );
             })}

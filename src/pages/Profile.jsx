@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
@@ -57,6 +57,7 @@ export default function Profile() {
   const contacts = p.extraContacts || {};
   const gameRole = p.gameRoles?.[activeGame];
   const playedGames = p.gamesInterested || [];
+  const navigate = useNavigate();
 
   return (
     <main className="container">
@@ -143,12 +144,14 @@ export default function Profile() {
         <p><b>Награды:</b></p>
         <div className="awards-list">
           {(p.awards || []).length
-            ? p.awards.map((a, i) => <AwardChip key={i} icon={a.icon} desc={a.desc} />)
+            ? p.awards.map((a, i) => <AwardChip key={i} icon={a.icon} name={a.name || a.desc} description={a.description || ""} />)
             : <span className="hint">Пока нет наград, трудись, боец!</span>}
         </div>
 
         {isOwn && (
-          <Link to="/my-application" className="btn secondary">Редактировать личное дело</Link>
+          <button type="button" className="btn secondary profile-edit-btn" onClick={() => navigate("/my-application")}>
+            Редактировать личное дело
+          </button>
         )}
       </div>
     </main>

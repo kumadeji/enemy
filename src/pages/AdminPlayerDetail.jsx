@@ -27,7 +27,8 @@ export default function AdminPlayerDetail() {
   const [application, setApplication] = useState(null);
   const [note, setNote] = useState({ privateNote: "" });
   const [awardIcon, setAwardIcon] = useState("");
-  const [awardDesc, setAwardDesc] = useState("");
+  const [awardName, setAwardName] = useState("");
+  const [awardDescription, setAwardDescription] = useState("");
   const [activeGame, setActiveGame] = useState(GAMES[0]);
   const [newActionType, setNewActionType] = useState("Замечание");
   const [newActionReason, setNewActionReason] = useState("");
@@ -172,11 +173,11 @@ export default function AdminPlayerDetail() {
   }
 
   async function giveAward() {
-    if (!awardIcon || !awardDesc) return;
-    const awards = [...(profile.awards || []), { icon: awardIcon, desc: awardDesc }];
+    if (!awardIcon || !awardName) return;
+    const awards = [...(profile.awards || []), { icon: awardIcon, name: awardName, description: awardDescription }];
     await updateDoc(doc(db, "profiles", uid), { awards });
     setProfile(prev => ({ ...prev, awards }));
-    setAwardIcon(""); setAwardDesc("");
+    setAwardIcon(""); setAwardName(""); setAwardDescription("");
   }
 
   async function removeAward(index) {
@@ -378,12 +379,13 @@ export default function AdminPlayerDetail() {
         <h2>Награды</h2>
         {(profile.awards || []).map((a, i) => (
           <div key={i} className="award-row">
-            <AwardChip icon={a.icon} desc={a.desc} />
+            <AwardChip icon={a.icon} name={a.name || a.desc} description={a.description || ""} />
             <button className="btn secondary" onClick={() => removeAward(i)}>Изъять награду</button>
           </div>
         ))}
-        <input type="text" placeholder="Иконка (emoji)" value={awardIcon} onChange={e => setAwardIcon(e.target.value)} />
-        <input type="text" placeholder="Описание награды" value={awardDesc} onChange={e => setAwardDesc(e.target.value)} />
+        <input type="text" placeholder="Иконка (эмодзи)" value={awardIcon} onChange={e => setAwardIcon(e.target.value)} />
+        <input type="text" placeholder="Название награды" value={awardName} onChange={e => setAwardName(e.target.value)} />
+        <textarea placeholder="Развёрнутое описание — за что дана награда" value={awardDescription} onChange={e => setAwardDescription(e.target.value)} />
         <button className="btn secondary" onClick={giveAward}>Выдать награду</button>
       </div>
 

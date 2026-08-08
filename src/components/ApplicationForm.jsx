@@ -187,7 +187,7 @@ export default function ApplicationForm({
 
       {showAccountFields && (
         <fieldset className="form-section">
-          <legend>Аккаунт на сайте</legend>
+          <legend>Данные для входа</legend>
           <label>Электронная почта</label>
           <input type="email" required value={form.email} onChange={e => updateField("email", e.target.value)} />
           <div className="field-hint">Используется в качестве логина для входа на сайт, а также для связи комбата и его заместителей с вами.</div>
@@ -196,7 +196,7 @@ export default function ApplicationForm({
           <input type="password" minLength={6} required value={form.password} onChange={e => updateField("password", e.target.value)} />
           <div className="field-hint">
             Хранится в зашифрованном виде. <b>Восстановление пароля на сайте не предусмотрено.</b> Не теряйте его —
-            при утере обратитесь к комбату или его заместителям для сброса аккаунта.
+            при утере обратитесь к комбату или его заместителям для полного сброса аккаунта.
           </div>
         </fieldset>
       )}

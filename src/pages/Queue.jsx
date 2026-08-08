@@ -130,7 +130,7 @@ export default function Queue() {
 
   return (
     <main className="container">
-      <h1>Очередь на командира отряда (КО)</h1>
+      <h1>Очередь на командира отделения (КО)</h1>
 
       <details className="card queue-rules">
         <summary>Правила очереди</summary>

@@ -2,10 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
-import StatusBadges from "../components/StatusBadges";
 import CommunityStats from "../components/CommunityStats";
 import BirthdayReminders from "../components/BirthdayReminders";
-import { GAMES, COMPOSITION_RANK, POSITION_RANK, getStatusColor } from "../data/gameRoles";
+import { GAMES, COMPOSITION_RANK, POSITION_RANK, getCompositionColor, getPositionColor } from "../data/gameRoles";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -23,28 +22,46 @@ export default function Admin() {
     load();
   }, []);
 
-  // Список игроков, у которых вообще есть роль в выбранной игре
+  // "Новые заявки" — кросс-игровой список: показывает всех, у кого хотя бы
+  // в одной игре состав "Отбор", независимо от выбора игры в фильтре
+  const pendingList = useMemo(() => {
+    return players
+      .map(p => {
+        const pendingGames = Object.entries(p.gameRoles || {})
+          .filter(([, gr]) => gr.composition === "Отбор")
+          .map(([g]) => g);
+        return { ...p, pendingGames };
+      })
+      .filter(p => p.pendingGames.length > 0);
+  }, [players]);
+
+  const filteredPending = useMemo(() => {
+    let list = [...pendingList];
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(p => p.callsign.toLowerCase().includes(q));
+    }
+    list.sort((a, b) => {
+      if (sortBy === "name") return a.callsign.localeCompare(b.callsign, "ru");
+      const aDate = a.createdAt?.seconds || 0;
+      const bDate = b.createdAt?.seconds || 0;
+      return sortBy === "date-asc" ? aDate - bDate : bDate - aDate;
+    });
+    return list;
+  }, [pendingList, search, sortBy]);
+
+  // "Все бойцы" — список по конкретной выбранной игре, как и раньше
   const profilesForGame = useMemo(
     () => players.filter(p => p.gameRoles?.[game]),
     [players, game]
   );
 
-  const pendingCount = useMemo(
-    () => profilesForGame.filter(p => p.gameRoles[game].composition === "Отбор").length,
-    [profilesForGame, game]
-  );
-
-  const filtered = useMemo(() => {
+  const filteredAll = useMemo(() => {
     let list = [...profilesForGame];
-
-    if (tab === "pending") {
-      list = list.filter(p => p.gameRoles[game].composition === "Отбор");
-    }
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(p => p.callsign.toLowerCase().includes(q));
     }
-
     list.sort((a, b) => {
       const grA = a.gameRoles[game];
       const grB = b.gameRoles[game];
@@ -56,7 +73,7 @@ export default function Admin() {
       return sortBy === "date-asc" ? aDate - bDate : bDate - aDate;
     });
     return list;
-  }, [profilesForGame, tab, search, sortBy, game]);
+  }, [profilesForGame, search, sortBy, game]);
 
   function formatDate(ts) {
     if (!ts?.seconds) return "—";
@@ -73,7 +90,7 @@ export default function Admin() {
 
       <div className="admin-tabs">
         <button className={`tab-btn ${tab === "pending" ? "active" : ""}`} onClick={() => setTab("pending")}>
-          Новые заявки {pendingCount > 0 && <span className="tab-badge">{pendingCount}</span>}
+          Новые заявки {pendingList.length > 0 && <span className="tab-badge">{pendingList.length}</span>}
         </button>
         <button className={`tab-btn ${tab === "all" ? "active" : ""}`} onClick={() => setTab("all")}>Все бойцы</button>
         <Link to="/admin/changelog" className="changelog-nav-link">Журнал изменений</Link>
@@ -85,45 +102,57 @@ export default function Admin() {
           <option value="date-desc">Сначала новые</option>
           <option value="date-asc">Сначала старые</option>
           <option value="name">По позывному</option>
-          <option value="composition">По составу</option>
-          <option value="position">По должности</option>
+          {tab === "all" && <option value="composition">По составу</option>}
+          {tab === "all" && <option value="position">По должности</option>}
         </select>
-        <select value={game} onChange={e => setGame(e.target.value)}>
-          {GAMES.map(g => <option key={g} value={g}>{g}</option>)}
-        </select>
+        {tab === "all" && (
+          <select value={game} onChange={e => setGame(e.target.value)}>
+            {GAMES.map(g => <option key={g} value={g}>{g}</option>)}
+          </select>
+        )}
       </div>
 
       <div className="table-scroll-wrapper">
-        <table>
-          <thead>
-            <tr><th>Позывной</th><th>Состав</th><th>Должность</th><th>Регистрация</th></tr>
-          </thead>
-          <tbody>
-            {filtered.map(p => {
-              const gr = p.gameRoles[game];
-              const color = getStatusColor(gr.composition, gr.position);
-              return (
-                <tr
-                  key={p.uid}
-                  className="clickable-row"
-                  onClick={() => navigate(`/admin/player/${p.uid}`)}
-                >
-                  <td>
-                    <Link to={`/admin/player/${p.uid}`}>{p.callsign}</Link>
-                    {gr.isSquadLeader && <span className="badge squad-leader-badge inline-badge">КО</span>}
-                  </td>
-                  <td><span className="badge" style={{ color, borderColor: color }}>{gr.composition}</span></td>
-                  <td><span className="badge" style={{ color, borderColor: color }}>{gr.position}</span></td>
+        {tab === "pending" ? (
+          <table>
+            <thead><tr><th>Позывной</th><th>Игры</th><th>Регистрация</th></tr></thead>
+            <tbody>
+              {filteredPending.map(p => (
+                <tr key={p.uid} className="clickable-row" onClick={() => navigate(`/admin/player/${p.uid}`)}>
+                  <td><Link to={`/admin/player/${p.uid}`}>{p.callsign}</Link></td>
+                  <td>{p.pendingGames.join(", ")}</td>
                   <td>{formatDate(p.createdAt)}</td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <table>
+            <thead><tr><th>Позывной</th><th>Состав</th><th>Должность</th><th>Регистрация</th></tr></thead>
+            <tbody>
+              {filteredAll.map(p => {
+                const gr = p.gameRoles[game];
+                const compColor = getCompositionColor(gr.composition);
+                const posColor = getPositionColor(gr.position);
+                return (
+                  <tr key={p.uid} className="clickable-row" onClick={() => navigate(`/admin/player/${p.uid}`)}>
+                    <td>
+                      <Link to={`/admin/player/${p.uid}`}>{p.callsign}</Link>
+                      {gr.isSquadLeader && <span className="badge squad-leader-badge inline-badge">КО</span>}
+                    </td>
+                    <td><span className="badge" style={{ color: compColor, borderColor: compColor }}>{gr.composition}</span></td>
+                    <td><span className="badge" style={{ color: posColor, borderColor: posColor }}>{gr.position}</span></td>
+                    <td>{formatDate(p.createdAt)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
 
-
-      {filtered.length === 0 && <p className="hint">Никого не найдено.</p>}
+      {tab === "pending" && filteredPending.length === 0 && <p className="hint">Новых заявок нет.</p>}
+      {tab === "all" && filteredAll.length === 0 && <p className="hint">Никого не найдено.</p>}
     </main>
   );
 }

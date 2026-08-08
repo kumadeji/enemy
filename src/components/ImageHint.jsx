@@ -28,9 +28,16 @@ export default function ImageHint({ image, alt }) {
       </button>
 
       {open && (
+        // Клик по затемнённому фону закрывает модалку —
+        // обработчик именно на внешнем overlay, а не на контенте
         <div className="image-modal-overlay" onClick={() => setOpen(false)}>
-          <div className="image-modal-content" onClick={e => e.stopPropagation()}>
-            <button className="image-modal-close" onClick={() => setOpen(false)}>✕</button>
+          <div
+            className="image-modal-content"
+            // stopPropagation именно здесь — клик по самой картинке
+            // не должен "проваливаться" наружу и закрывать модалку
+            onClick={e => e.stopPropagation()}
+          >
+            <button className="image-modal-close" onClick={() => setOpen(false)} aria-label="Закрыть">✕</button>
             <img src={image} alt={alt} />
           </div>
         </div>
