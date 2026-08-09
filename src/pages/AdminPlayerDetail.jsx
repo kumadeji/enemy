@@ -8,12 +8,12 @@ import {
 import { createAction, isActionActive } from "../utils/discipline";
 import { pluralize } from "../utils/pluralize";
 import { TIMES_FORMS } from "../data/statusForms";
+import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
 import ToggleSwitch from "../components/ToggleSwitch";
+import AdminAwardChip from "../components/AdminAwardChip";
 import CopyableField from "../components/CopyableField";
 import DisciplinaryList from "../components/DisciplinaryList";
 import { ProfileTable, ProfileRow } from "../components/ProfileTable";
-import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
-import AdminAwardChip from "../components/AdminAwardChip";
 
 export default function AdminPlayerDetail() {
   const { uid } = useParams();
@@ -26,15 +26,25 @@ export default function AdminPlayerDetail() {
   const [invitees, setInvitees] = useState([]);
   const [inviter, setInviter] = useState(null);
 
-  const [awardIcon, setAwardIcon] = useState("");
-  const [awardName, setAwardName] = useState("");
-  const [awardDescription, setAwardDescription] = useState("");
-  const [awardScope, setAwardScope] = useState("game");
+  // Форма "выдать общую награду" (раздел "Анкета")
+  const [globalAwardIcon, setGlobalAwardIcon] = useState("");
+  const [globalAwardName, setGlobalAwardName] = useState("");
+  const [globalAwardDescription, setGlobalAwardDescription] = useState("");
 
-  const [actionType, setActionType] = useState("Замечание");
-  const [actionReason, setActionReason] = useState("");
-  const [actionScope, setActionScope] = useState("game");
-  const [disciplineError, setDisciplineError] = useState("");
+  // Форма "выдать награду по игре" (раздел "По игре")
+  const [gameAwardIcon, setGameAwardIcon] = useState("");
+  const [gameAwardName, setGameAwardName] = useState("");
+  const [gameAwardDescription, setGameAwardDescription] = useState("");
+
+  // Форма "выдать общее взыскание" (раздел "Анкета")
+  const [globalActionType, setGlobalActionType] = useState("Замечание");
+  const [globalActionReason, setGlobalActionReason] = useState("");
+  const [globalDisciplineError, setGlobalDisciplineError] = useState("");
+
+  // Форма "выдать взыскание по игре" (раздел "По игре")
+  const [gameActionType, setGameActionType] = useState("Замечание");
+  const [gameActionReason, setGameActionReason] = useState("");
+  const [gameDisciplineError, setGameDisciplineError] = useState("");
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -94,22 +104,26 @@ export default function AdminPlayerDetail() {
     });
   }
 
-  function giveAward() {
-    if (!awardIcon || !awardName) return;
-    const award = { icon: awardIcon, name: awardName, description: awardDescription };
-    if (awardScope === "global") {
-      setProfile(prev => ({ ...prev, globalAwards: [...(prev.globalAwards || []), award] }));
-    } else {
-      setProfile(prev => ({
-        ...prev,
-        gameAwards: { ...prev.gameAwards, [activeGame]: [...(prev.gameAwards?.[activeGame] || []), award] }
-      }));
-    }
-    setAwardIcon(""); setAwardName(""); setAwardDescription("");
+  // ---------- Награды: общие ----------
+  function giveGlobalAward() {
+    if (!globalAwardIcon || !globalAwardName) return;
+    const award = { icon: globalAwardIcon, name: globalAwardName, description: globalAwardDescription };
+    setProfile(prev => ({ ...prev, globalAwards: [...(prev.globalAwards || []), award] }));
+    setGlobalAwardIcon(""); setGlobalAwardName(""); setGlobalAwardDescription("");
   }
-
   function removeGlobalAward(index) {
     setProfile(prev => ({ ...prev, globalAwards: prev.globalAwards.filter((_, i) => i !== index) }));
+  }
+
+  // ---------- Награды: по игре ----------
+  function giveGameAward() {
+    if (!gameAwardIcon || !gameAwardName) return;
+    const award = { icon: gameAwardIcon, name: gameAwardName, description: gameAwardDescription };
+    setProfile(prev => ({
+      ...prev,
+      gameAwards: { ...prev.gameAwards, [activeGame]: [...(prev.gameAwards?.[activeGame] || []), award] }
+    }));
+    setGameAwardIcon(""); setGameAwardName(""); setGameAwardDescription("");
   }
   function removeGameAward(game, index) {
     setProfile(prev => ({
@@ -118,31 +132,38 @@ export default function AdminPlayerDetail() {
     }));
   }
 
-  function issueAction() {
-    if (!actionReason.trim()) return;
-    const existingActive = actionScope === "global"
-      ? (profile.globalDisciplinaryActions || []).filter(a => a.type === "Замечание" && isActionActive(a))
-      : (profile.gameDisciplinaryActions?.[activeGame] || []).filter(a => a.type === "Замечание" && isActionActive(a));
-    if (actionType === "Замечание" && existingActive.length >= 3) {
-      setDisciplineError("Уже 3 действующих замечания в этой категории — новое выдать нельзя. Дальше — только выговоры.");
+  // ---------- Дисциплина: общая ----------
+  function issueGlobalAction() {
+    if (!globalActionReason.trim()) return;
+    const activeWarnings = (profile.globalDisciplinaryActions || []).filter(a => a.type === "Замечание" && isActionActive(a));
+    if (globalActionType === "Замечание" && activeWarnings.length >= 3) {
+      setGlobalDisciplineError("Уже 3 действующих общих замечания — новое выдать нельзя. Дальше — только выговоры.");
       return;
     }
-    setDisciplineError("");
-    const newAction = createAction(actionType, actionReason.trim(), actionScope === "global" ? "global" : activeGame);
-    if (actionScope === "global") {
-      setProfile(prev => ({ ...prev, globalDisciplinaryActions: [...(prev.globalDisciplinaryActions || []), newAction] }));
-    } else {
-      setProfile(prev => ({
-        ...prev,
-        gameDisciplinaryActions: { ...prev.gameDisciplinaryActions, [activeGame]: [...(prev.gameDisciplinaryActions?.[activeGame] || []), newAction] }
-      }));
-    }
-    setActionReason("");
+    setGlobalDisciplineError("");
+    const newAction = createAction(globalActionType, globalActionReason.trim(), "global");
+    setProfile(prev => ({ ...prev, globalDisciplinaryActions: [...(prev.globalDisciplinaryActions || []), newAction] }));
+    setGlobalActionReason("");
   }
-
-  // Снятие взыскания — доступно администратору как для активных, так и для истёкших (чистка истории)
   function removeGlobalAction(actionId) {
     setProfile(prev => ({ ...prev, globalDisciplinaryActions: (prev.globalDisciplinaryActions || []).filter(a => a.id !== actionId) }));
+  }
+
+  // ---------- Дисциплина: по игре ----------
+  function issueGameAction() {
+    if (!gameActionReason.trim()) return;
+    const activeWarnings = (profile.gameDisciplinaryActions?.[activeGame] || []).filter(a => a.type === "Замечание" && isActionActive(a));
+    if (gameActionType === "Замечание" && activeWarnings.length >= 3) {
+      setGameDisciplineError("Уже 3 действующих замечания по этой игре — новое выдать нельзя. Дальше — только выговоры.");
+      return;
+    }
+    setGameDisciplineError("");
+    const newAction = createAction(gameActionType, gameActionReason.trim(), activeGame);
+    setProfile(prev => ({
+      ...prev,
+      gameDisciplinaryActions: { ...prev.gameDisciplinaryActions, [activeGame]: [...(prev.gameDisciplinaryActions?.[activeGame] || []), newAction] }
+    }));
+    setGameActionReason("");
   }
   function removeGameAction(game, actionId) {
     setProfile(prev => ({
@@ -166,9 +187,6 @@ export default function AdminPlayerDetail() {
         gameDisciplinaryActions: profile.gameDisciplinaryActions || {},
         globalAwards: profile.globalAwards || [],
         globalDisciplinaryActions: profile.globalDisciplinaryActions || []
-        // Обратите внимание: birthDatePublic и contactsPublic здесь НЕ
-        // сохраняются — администратор не может менять приватность за
-        // пользователя, поэтому эти поля даже не редактируются на этой странице.
       });
 
       await setDoc(doc(db, "rosterPublic", uid), {
@@ -205,7 +223,7 @@ export default function AdminPlayerDetail() {
       <p><Link to="/admin">← Назад к списку</Link></p>
       <h1>Личное дело: {profile.callsign}</h1>
 
-      {/* ---------- Анкета ---------- */}
+      {/* ==================== БЛОК 1: АНКЕТА (общее по всему сообществу) ==================== */}
       <div className="card">
         <div className="profile-block-title">Расширенная (полная) анкета</div>
 
@@ -224,8 +242,6 @@ export default function AdminPlayerDetail() {
           <ProfileRow label="Ссылка на Steam"><a href={profile.steamProfileUrl} target="_blank" rel="noreferrer">{profile.steamProfileUrl}</a></ProfileRow>
           {profile.armaId && <ProfileRow label="Arma ID"><CopyableField value={profile.armaId} /></ProfileRow>}
           <ProfileRow label="Часовой пояс">{profile.timezone}</ProfileRow>
-          {/* Приватность — только просмотр, без кнопки-переключателя:
-              администратор не может менять этот выбор за пользователя */}
           <ProfileRow label="Дата рождения">{profile.birthDate || "—"}</ProfileRow>
           {contacts.phone && <ProfileRow label="Телефон">{contacts.phone}</ProfileRow>}
           {contacts.telegram && (
@@ -263,7 +279,8 @@ export default function AdminPlayerDetail() {
 		
 		<Link to={`/admin/player/${uid}/edit`} className="btn secondary profile-edit-btn">Редактировать чужую анкету</Link>
 
-        <p><b>Общие награды сообщества:</b></p>
+        {/* ---------- Общие награды клана ---------- */}
+        <p><b>Общие награды клана:</b></p>
         <div className="awards-list">
           {(profile.globalAwards || []).length ? (
             profile.globalAwards.map((a, i) => (
@@ -274,13 +291,33 @@ export default function AdminPlayerDetail() {
           )}
         </div>
 
+        <div className="admin-subform">
+          <label>Выдать общую награду</label>
+          <input type="text" placeholder="Иконка награды (эмодзи)" value={globalAwardIcon} onChange={e => setGlobalAwardIcon(e.target.value)} />
+          <input type="text" placeholder="Короткое название" value={globalAwardName} onChange={e => setGlobalAwardName(e.target.value)} />
+          <textarea placeholder="Развёрнутое описание — за что дана награда" value={globalAwardDescription} onChange={e => setGlobalAwardDescription(e.target.value)} />
+          <button className="btn secondary" onClick={giveGlobalAward}>Выдать общую награду</button>
+        </div>
+
+        {/* ---------- Общие дисциплинарные взыскания ---------- */}
+        <div className="admin-subform">
+          <label>Выдать общее взыскание</label>
+          <select value={globalActionType} onChange={e => setGlobalActionType(e.target.value)}>
+            <option value="Замечание">Замечание (1 месяц)</option>
+            <option value="Выговор">Выговор (3 месяца)</option>
+          </select>
+          <textarea value={globalActionReason} onChange={e => setGlobalActionReason(e.target.value)} placeholder="Причина" />
+          <button className="btn secondary" onClick={issueGlobalAction}>Выдать общее взыскание</button>
+          {globalDisciplineError && <div className="error">{globalDisciplineError}</div>}
+        </div>
+
         <div style={{ marginTop: 16 }}>
           <label>Внутренняя заметка <span className="optional-tag">видна только комбату и его заместителям</span></label>
           <textarea value={note.privateNote || ""} onChange={e => setNote({ privateNote: e.target.value })} />
         </div>
       </div>
 
-      {/* ---------- По игре ---------- */}
+      {/* ==================== БЛОК 2: ПО ИГРЕ ==================== */}
       <div className="card">
         <div className="profile-block-title">По игре</div>
         <div className="game-tabs">
@@ -322,6 +359,7 @@ export default function AdminPlayerDetail() {
           })}
         </div>
 
+        {/* ---------- Награды по этой игре ---------- */}
         <p><b>Награды ({activeGame}):</b></p>
         <div className="awards-list">
           {(profile.gameAwards?.[activeGame] || []).length ? (
@@ -333,16 +371,15 @@ export default function AdminPlayerDetail() {
           )}
         </div>
 
-        <label style={{ marginTop: 16 }}>Выдать награду</label>
-        <select value={awardScope} onChange={e => setAwardScope(e.target.value)}>
-          <option value="game">Только для {activeGame}</option>
-          <option value="global">Общая для всего сообщества</option>
-        </select>
-        <input type="text" placeholder="Иконка награды (эмодзи)" value={awardIcon} onChange={e => setAwardIcon(e.target.value)} />
-        <input type="text" placeholder="Короткое название" value={awardName} onChange={e => setAwardName(e.target.value)} />
-        <textarea placeholder="Развёрнутое описание — за что дана награда" value={awardDescription} onChange={e => setAwardDescription(e.target.value)} />
-        <button className="btn secondary" onClick={giveAward}>Выдать награду</button>
+        <div className="admin-subform">
+          <label>Выдать награду за {activeGame}</label>
+          <input type="text" placeholder="Иконка награды (эмодзи)" value={gameAwardIcon} onChange={e => setGameAwardIcon(e.target.value)} />
+          <input type="text" placeholder="Короткое название" value={gameAwardName} onChange={e => setGameAwardName(e.target.value)} />
+          <textarea placeholder="Развёрнутое описание — за что дана награда" value={gameAwardDescription} onChange={e => setGameAwardDescription(e.target.value)} />
+          <button className="btn secondary" onClick={giveGameAward}>Выдать награду</button>
+        </div>
 
+        {/* ---------- Дисциплина по этой игре ---------- */}
         <p style={{ marginTop: 20 }}><b>Дисциплинарные взыскания ({activeGame}):</b></p>
         <DisciplinaryList
           actions={profile.gameDisciplinaryActions?.[activeGame] || []}
@@ -350,18 +387,16 @@ export default function AdminPlayerDetail() {
           onRemove={id => removeGameAction(activeGame, id)}
         />
 
-        <label>Выдать взыскание</label>
-        <select value={actionScope} onChange={e => setActionScope(e.target.value)}>
-          <option value="game">Только для {activeGame}</option>
-          <option value="global">Общее для всего сообщества</option>
-        </select>
-        <select value={actionType} onChange={e => setActionType(e.target.value)}>
-          <option value="Замечание">Замечание (1 месяц)</option>
-          <option value="Выговор">Выговор (3 месяца)</option>
-        </select>
-        <textarea value={actionReason} onChange={e => setActionReason(e.target.value)} placeholder="Причина" />
-        <button className="btn secondary" onClick={issueAction}>Выдать взыскание</button>
-        {disciplineError && <div className="error">{disciplineError}</div>}
+        <div className="admin-subform">
+          <label>Выдать взыскание за {activeGame}</label>
+          <select value={gameActionType} onChange={e => setGameActionType(e.target.value)}>
+            <option value="Замечание">Замечание (1 месяц)</option>
+            <option value="Выговор">Выговор (3 месяца)</option>
+          </select>
+          <textarea value={gameActionReason} onChange={e => setGameActionReason(e.target.value)} placeholder="Причина" />
+          <button className="btn secondary" onClick={issueGameAction}>Выдать взыскание</button>
+          {gameDisciplineError && <div className="error">{gameDisciplineError}</div>}
+        </div>
       </div>
 
       <div className="save-actions">
