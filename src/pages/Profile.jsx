@@ -87,7 +87,7 @@ export default function Profile() {
 
   return (
     <main className="container">
-      <h1>Личное дело: {profile.callsign}</h1>
+      <h1>Личное дело: {p.callsign}</h1>
 
       {/* ---------- Блок 1: Анкета ---------- */}
       <div className="card">

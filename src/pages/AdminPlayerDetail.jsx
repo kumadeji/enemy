@@ -207,7 +207,6 @@ export default function AdminPlayerDetail() {
       {/* ---------- Анкета ---------- */}
       <div className="card">
         <div className="profile-block-title">Анкета</div>
-        <h2>{profile.callsign}</h2>
 
         <DisciplinaryList
           actions={profile.globalDisciplinaryActions || []}
