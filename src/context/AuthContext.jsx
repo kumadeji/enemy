@@ -24,10 +24,25 @@ export function AuthProvider({ children }) {
     }
     try {
       const profileSnap = await getDoc(doc(db, "profiles", user.uid));
-      setProfile(profileSnap.exists() ? { id: user.uid, ...profileSnap.data() } : null);
+      const profileData = profileSnap.exists() ? { id: user.uid, ...profileSnap.data() } : null;
+      setProfile(profileData);
 
+      // ОК 1: Администраторы определяются автоматически по должности
+      // "командир батальона" или "зам. командира батальона" в любой игре
+      let isAutoAdmin = false;
+      if (profileData?.gameRoles) {
+        for (const game of Object.keys(profileData.gameRoles)) {
+          const role = profileData.gameRoles[game];
+          if (role?.position === "Командир батальона" || role?.position === "Зам. командира батальона") {
+            isAutoAdmin = true;
+            break;
+          }
+        }
+      }
+      
+      // Также проверяем явное наличие в коллекции admins (для обратной совместимости)
       const adminSnap = await getDoc(doc(db, "admins", user.uid));
-      setIsAdmin(adminSnap.exists());
+      setIsAdmin(isAutoAdmin || adminSnap.exists());
     } catch (err) {
       console.error("Ошибка загрузки профиля:", err);
       setProfile(null);
