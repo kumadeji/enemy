@@ -11,6 +11,7 @@ import CopyableField from "../components/CopyableField";
 import DisciplinaryList from "../components/DisciplinaryList";
 import PrivacyToggleField from "../components/PrivacyToggleField";
 import { ProfileTable, ProfileRow } from "../components/ProfileTable";
+import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
 
 export default function Profile() {
   const { uid } = useParams();
@@ -140,10 +141,14 @@ export default function Profile() {
             <ProfileRow label="Ссылка на Telegram">
               {isOwn ? (
                 <PrivacyToggleField isPublic={isFieldPublic("telegram")} onToggle={() => toggleContactField("telegram")}>
-                  <a href={p.telegramUrl} target="_blank" rel="noreferrer">{p.telegramUrl}</a>
+                  <a href={p.telegramUrl || buildTelegramUrl(contacts.telegram)} target="_blank" rel="noreferrer">
+                    {p.telegramUrl || buildTelegramUrl(contacts.telegram)}
+                  </a>
                 </PrivacyToggleField>
               ) : (
-                <a href={p.telegramUrl} target="_blank" rel="noreferrer">{p.telegramUrl}</a>
+                <a href={p.telegramUrl || buildTelegramUrl(contacts.telegram)} target="_blank" rel="noreferrer">
+                  {p.telegramUrl || buildTelegramUrl(contacts.telegram)}
+                </a>
               )}
             </ProfileRow>
           )}
@@ -151,10 +156,14 @@ export default function Profile() {
             <ProfileRow label="Ссылка на ВКонтакте">
               {isOwn ? (
                 <PrivacyToggleField isPublic={isFieldPublic("vk")} onToggle={() => toggleContactField("vk")}>
-                  <a href={p.vkUrl} target="_blank" rel="noreferrer">{p.vkUrl}</a>
+                  <a href={p.vkUrl || buildVkUrl(contacts.vk)} target="_blank" rel="noreferrer">
+                    {p.vkUrl || buildVkUrl(contacts.vk)}
+                  </a>
                 </PrivacyToggleField>
               ) : (
-                <a href={p.vkUrl} target="_blank" rel="noreferrer">{p.vkUrl}</a>
+                <a href={p.vkUrl || buildVkUrl(contacts.vk)} target="_blank" rel="noreferrer">
+                  {p.vkUrl || buildVkUrl(contacts.vk)}
+                </a>
               )}
             </ProfileRow>
           )}

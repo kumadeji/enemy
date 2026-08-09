@@ -13,6 +13,7 @@ import AwardChip from "../components/AwardChip";
 import CopyableField from "../components/CopyableField";
 import DisciplinaryList from "../components/DisciplinaryList";
 import { ProfileTable, ProfileRow } from "../components/ProfileTable";
+import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
 
 export default function AdminPlayerDetail() {
   const { uid } = useParams();
@@ -227,8 +228,20 @@ export default function AdminPlayerDetail() {
               администратор не может менять этот выбор за пользователя */}
           <ProfileRow label="Дата рождения">{profile.birthDate || "—"}</ProfileRow>
           {contacts.phone && <ProfileRow label="Телефон">{contacts.phone}</ProfileRow>}
-          {contacts.telegram && <ProfileRow label="Ссылка на Telegram"><a href={profile.telegramUrl} target="_blank" rel="noreferrer">{profile.telegramUrl}</a></ProfileRow>}
-          {contacts.vk && <ProfileRow label="Ссылка на ВКонтакте"><a href={profile.vkUrl} target="_blank" rel="noreferrer">{profile.vkUrl}</a></ProfileRow>}
+          {contacts.telegram && (
+            <ProfileRow label="Ссылка на Telegram">
+              <a href={profile.telegramUrl || buildTelegramUrl(contacts.telegram)} target="_blank" rel="noreferrer">
+                {profile.telegramUrl || buildTelegramUrl(contacts.telegram)}
+              </a>
+            </ProfileRow>
+          )}
+          {contacts.vk && (
+            <ProfileRow label="Ссылка на ВКонтакте">
+              <a href={profile.vkUrl || buildVkUrl(contacts.vk)} target="_blank" rel="noreferrer">
+                {profile.vkUrl || buildVkUrl(contacts.vk)}
+              </a>
+            </ProfileRow>
+          )}
           {contacts.other && <ProfileRow label="Другой контакт">{contacts.other}</ProfileRow>}
           {inviter && <ProfileRow label="Кем приглашён"><Link to={`/admin/player/${inviter.uid}`}>{inviter.callsign}</Link></ProfileRow>}
           {invitees.length > 0 && (
