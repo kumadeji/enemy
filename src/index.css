@@ -979,31 +979,6 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 }
 
 /* ==========================================================================
-   КОПИРОВАНИЕ ДАННЫХ ИЗ ПРОФИЛЯ
-   ========================================================================== */
-.copyable-field {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.copy-btn {
-  appearance: none;
-  border: 1px solid var(--border);
-  background: var(--bg-input);
-  color: var(--text-muted);
-  border-radius: 6px;
-  width: 26px;
-  height: 26px;
-  cursor: pointer;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-.copy-btn:hover { color: var(--accent); border-color: var(--accent); }
-
-/* ==========================================================================
    КЛИКАБЕЛЬНЫЕ СТРОКИ В СОСТАВЕ И ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ ТАБЛИЦ
    ========================================================================== */
 .table-scroll-wrapper {
@@ -1195,25 +1170,6 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .pending-notice-title { color: #5b8fd6; font-weight: 700; margin-bottom: 6px; }
 
 /* ==========================================================================
-   ПРИВАТНОСТЬ
-   ========================================================================== */
-
-.privacy-toggle-field { display: inline-flex; align-items: center; gap: 8px; }
-.eye-toggle-btn {
-  position: relative;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--bg-input);
-  color: var(--text-muted);
-  cursor: pointer; font-size: 12px;
-}
-.eye-toggle-btn.is-private::after {
-  content: ""; position: absolute; width: 140%; height: 1.5px;
-  background: currentColor; top: 50%; left: -20%; transform: rotate(-45deg);
-}
-
-/* ==========================================================================
    БЛОКИ ПРОФИЛЯ "АНКЕТА" / "ПО ИГРЕ"
    ========================================================================== */
 
@@ -1242,4 +1198,76 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 /* ПРОСТАЯ КАРТОЧКА СТАТИСТИКИ ЗАЯВОК НА РАССМОТРЕНИИ (КРОСС-ИГРОВАЯ) */
 .pending-stats-card {
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;
+}
+
+/* ==========================================================================
+   ЕДИНАЯ КВАДРАТНАЯ КНОПКА-ИКОНКА (копирование, приватность)
+   ========================================================================== */
+.icon-square-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  overflow: hidden; /* зачёркивающая полоска никогда не выходит за пределы квадрата */
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.icon-square-btn svg { display: block; }
+.icon-square-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Глазик приватности — цветная подсветка в зависимости от результата действия */
+.eye-toggle-btn.will-hide:hover { border-color: var(--danger); color: var(--danger); }
+.eye-toggle-btn.will-show:hover { border-color: #4caf6d; color: #4caf6d; }
+
+.eye-strike {
+  position: absolute;
+  width: 20px;
+  height: 1.6px;
+  background: currentColor;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.copyable-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.privacy-toggle-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Дисциплинарные взыскания — кнопка снятия */
+.disciplinary-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.disciplinary-remove-btn { flex-shrink: 0; }
+
+/* Кнопка "Очередь на КО" в Штабе — гарантированный контраст, независимо
+   от возможных конфликтов глобальных стилей ссылок */
+.hq-primary-btn,
+.hq-primary-btn:visited {
+  background: var(--accent) !important;
+  color: #14110a !important;
+  border: none;
+}
+.hq-primary-btn:hover {
+  background: var(--accent-bright) !important;
+  color: #14110a !important;
 }

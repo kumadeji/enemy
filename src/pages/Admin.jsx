@@ -98,7 +98,7 @@ export default function Admin() {
       <div className="table-scroll-wrapper">
         {tab === "pending" ? (
           <table>
-            <thead><tr><th>Позывной</th><th>Игры</th><th>Регистрация</th></tr></thead>
+            <thead><tr><th>Позывной</th><th>Игры (на рассмотрении)</th><th>Регистрация</th></tr></thead>
             <tbody>
               {filteredPending.map(p => (
                 <tr key={p.uid} className="clickable-row" onClick={() => navigate(`/admin/player/${p.uid}`)}>

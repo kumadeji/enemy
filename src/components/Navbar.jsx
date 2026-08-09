@@ -26,10 +26,10 @@ export default function Navbar() {
         <nav>
           <NavLink to="/" end className={linkClass}>Главная</NavLink>
           <NavLink to="/roster" className={linkClass}>Состав</NavLink>
-          <NavLink to="/media" className={linkClass}>Видео</NavLink>
-          <NavLink to="/charter" className={linkClass}>Устав и манифест</NavLink>
-          <NavLink to="/history" className={linkClass}>История</NavLink>
-          <NavLink to="/contact" className={linkClass}>Контакты</NavLink>
+          // <NavLink to="/media" className={linkClass}>Видео</NavLink>
+          // <NavLink to="/charter" className={linkClass}>Устав и манифест</NavLink>
+          // <NavLink to="/history" className={linkClass}>История</NavLink>
+          // <NavLink to="/contact" className={linkClass}>Контакты</NavLink>
 
           {canSeeArmaHQ && (
             <>

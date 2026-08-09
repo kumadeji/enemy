@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { db, GOOGLE_SHEETS_URL } from "../firebase";
+import { db } from "../firebase";
 import { doc, getDoc, updateDoc, deleteDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import {
-  GAMES, COMPOSITIONS_ORDER, POSITIONS_BY_COMPOSITION, canBeSquadLeader, defaultGameRole,
-  getCompositionColor, getPositionColor
+  GAMES, COMPOSITIONS_ORDER, POSITIONS_BY_COMPOSITION, canBeSquadLeader, defaultGameRole
 } from "../data/gameRoles";
 import { createAction, isActionActive } from "../utils/discipline";
 import { pluralize } from "../utils/pluralize";
@@ -13,7 +12,6 @@ import ToggleSwitch from "../components/ToggleSwitch";
 import AwardChip from "../components/AwardChip";
 import CopyableField from "../components/CopyableField";
 import DisciplinaryList from "../components/DisciplinaryList";
-import PrivacyToggleField from "../components/PrivacyToggleField";
 import { ProfileTable, ProfileRow } from "../components/ProfileTable";
 
 export default function AdminPlayerDetail() {
@@ -42,6 +40,8 @@ export default function AdminPlayerDetail() {
 
   useEffect(() => {
     async function load() {
+      setInviter(null);
+      setInvitees([]);
       const pSnap = await getDoc(doc(db, "profiles", uid));
       const aSnap = await getDoc(doc(db, "applications", uid));
       const nSnap = await getDoc(doc(db, "adminNotes", uid));
@@ -123,7 +123,7 @@ export default function AdminPlayerDetail() {
       ? (profile.globalDisciplinaryActions || []).filter(a => a.type === "Замечание" && isActionActive(a))
       : (profile.gameDisciplinaryActions?.[activeGame] || []).filter(a => a.type === "Замечание" && isActionActive(a));
     if (actionType === "Замечание" && existingActive.length >= 3) {
-      setDisciplineError("У бойца уже 3 действующих замечания — новое выдать нельзя. Дальше — только выговоры.");
+      setDisciplineError("Уже 3 действующих замечания в этой категории — новое выдать нельзя. Дальше — только выговоры.");
       return;
     }
     setDisciplineError("");
@@ -139,11 +139,18 @@ export default function AdminPlayerDetail() {
     setActionReason("");
   }
 
-  async function toggleBirthDatePublic() {
-    updateProfileField("birthDatePublic", !profile.birthDatePublic);
+  // Снятие взыскания — доступно администратору как для активных, так и для истёкших (чистка истории)
+  function removeGlobalAction(actionId) {
+    setProfile(prev => ({ ...prev, globalDisciplinaryActions: (prev.globalDisciplinaryActions || []).filter(a => a.id !== actionId) }));
   }
-  async function toggleContactsPublic() {
-    updateProfileField("extraContactsPublic", !profile.extraContactsPublic);
+  function removeGameAction(game, actionId) {
+    setProfile(prev => ({
+      ...prev,
+      gameDisciplinaryActions: {
+        ...prev.gameDisciplinaryActions,
+        [game]: (prev.gameDisciplinaryActions?.[game] || []).filter(a => a.id !== actionId)
+      }
+    }));
   }
 
   async function saveAll() {
@@ -157,9 +164,10 @@ export default function AdminPlayerDetail() {
         gameAwards: profile.gameAwards || {},
         gameDisciplinaryActions: profile.gameDisciplinaryActions || {},
         globalAwards: profile.globalAwards || [],
-        globalDisciplinaryActions: profile.globalDisciplinaryActions || [],
-        birthDatePublic: !!profile.birthDatePublic,
-        extraContactsPublic: !!profile.extraContactsPublic
+        globalDisciplinaryActions: profile.globalDisciplinaryActions || []
+        // Обратите внимание: birthDatePublic и contactsPublic здесь НЕ
+        // сохраняются — администратор не может менять приватность за
+        // пользователя, поэтому эти поля даже не редактируются на этой странице.
       });
 
       await setDoc(doc(db, "rosterPublic", uid), {
@@ -189,8 +197,6 @@ export default function AdminPlayerDetail() {
   }
 
   const gameRole = profile.gameRoles?.[activeGame] || defaultGameRole();
-  const compColor = getCompositionColor(gameRole.composition);
-  const posColor = getPositionColor(gameRole.position);
   const contacts = profile.extraContacts || {};
 
   return (
@@ -203,10 +209,14 @@ export default function AdminPlayerDetail() {
         <div className="profile-block-title">Анкета</div>
         <h2>{profile.callsign}</h2>
 
-        <DisciplinaryList actions={profile.globalDisciplinaryActions || []} showHistory={true} />
+        <DisciplinaryList
+          actions={profile.globalDisciplinaryActions || []}
+          showHistory={true}
+          onRemove={removeGlobalAction}
+        />
 
         <ProfileTable>
-          <ProfileRow label="Email (виден только администрации)">{application.email}</ProfileRow>
+          <ProfileRow label="Электронная почта">{application.email}</ProfileRow>
           <ProfileRow label="Имя и фамилия">{application.fullName}</ProfileRow>
           <ProfileRow label="Возраст">{application.age}</ProfileRow>
           <ProfileRow label="Discord ID">{profile.discordId}</ProfileRow>
@@ -214,22 +224,13 @@ export default function AdminPlayerDetail() {
           <ProfileRow label="Ссылка на Steam"><a href={profile.steamProfileUrl} target="_blank" rel="noreferrer">{profile.steamProfileUrl}</a></ProfileRow>
           {profile.armaId && <ProfileRow label="Arma ID"><CopyableField value={profile.armaId} /></ProfileRow>}
           <ProfileRow label="Часовой пояс">{profile.timezone}</ProfileRow>
-          <ProfileRow label="Дата рождения">
-            <PrivacyToggleField isPublic={profile.birthDatePublic} canToggle={true} onToggle={toggleBirthDatePublic}>
-              {profile.birthDate || "—"}
-            </PrivacyToggleField>
-          </ProfileRow>
-          <ProfileRow label="Дополнительные контакты">
-            <PrivacyToggleField isPublic={profile.extraContactsPublic} canToggle={true} onToggle={toggleContactsPublic}>
-              <span className="contacts-list">
-                {contacts.phone && <span>{contacts.phone}</span>}
-                {contacts.telegram && <a href={profile.telegramUrl} target="_blank" rel="noreferrer">Ссылка на Telegram: {contacts.telegram}</a>}
-                {contacts.vk && <a href={profile.vkUrl} target="_blank" rel="noreferrer">Ссылка на ВКонтакте: {contacts.vk}</a>}
-                {contacts.other && <span>{contacts.other}</span>}
-                {!contacts.phone && !contacts.telegram && !contacts.vk && !contacts.other && "—"}
-              </span>
-            </PrivacyToggleField>
-          </ProfileRow>
+          {/* Приватность — только просмотр, без кнопки-переключателя:
+              администратор не может менять этот выбор за пользователя */}
+          <ProfileRow label="Дата рождения">{profile.birthDate || "—"}</ProfileRow>
+          {contacts.phone && <ProfileRow label="Телефон">{contacts.phone}</ProfileRow>}
+          {contacts.telegram && <ProfileRow label="Ссылка на Telegram"><a href={profile.telegramUrl} target="_blank" rel="noreferrer">{profile.telegramUrl}</a></ProfileRow>}
+          {contacts.vk && <ProfileRow label="Ссылка на ВКонтакте"><a href={profile.vkUrl} target="_blank" rel="noreferrer">{profile.vkUrl}</a></ProfileRow>}
+          {contacts.other && <ProfileRow label="Другой контакт">{contacts.other}</ProfileRow>}
           {inviter && <ProfileRow label="Кем приглашён"><Link to={`/admin/player/${inviter.uid}`}>{inviter.callsign}</Link></ProfileRow>}
           {invitees.length > 0 && (
             <ProfileRow label="Кого пригласил">
@@ -237,9 +238,9 @@ export default function AdminPlayerDetail() {
             </ProfileRow>
           )}
           <ProfileRow label="Доступность для игр">{application.availability}</ProfileRow>
-          <ProfileRow label="Почему хочет вступить">{application.whyJoin}</ProfileRow>
-          <ProfileRow label="Откуда узнал">
-            {profile.referredByUid ? `Приглашён бойцом (см. выше)` : (application.howFound || "—")}
+          <ProfileRow label="Почему хочет вступить?">{application.whyJoin}</ProfileRow>
+          <ProfileRow label="Откуда узнал?">
+            {profile.referredByUid ? "Приглашён бойцом (см. выше)" : (application.howFound || "—")}
           </ProfileRow>
           {profile.gamesInterested.map(g => (
             <ProfileRow key={g} label={`Опыт в ${g}`}>
@@ -250,18 +251,22 @@ export default function AdminPlayerDetail() {
 
         <p><b>Общие награды клана:</b></p>
         <div className="awards-list">
-          {(profile.globalAwards || []).map((a, i) => (
-            <div key={i} className="award-row">
-              <AwardChip icon={a.icon} name={a.name} description={a.description} />
-              <button className="btn secondary" onClick={() => removeGlobalAward(i)}>Изъять</button>
-            </div>
-          ))}
+          {(profile.globalAwards || []).length ? (
+            profile.globalAwards.map((a, i) => (
+              <div key={i} className="award-row">
+                <AwardChip icon={a.icon} name={a.name} description={a.description} />
+                <button className="btn secondary" onClick={() => removeGlobalAward(i)}>Изъять</button>
+              </div>
+            ))
+          ) : (
+            <span className="hint">Наград нет.</span>
+          )}
         </div>
 
         <Link to={`/admin/player/${uid}/edit`} className="btn secondary profile-edit-btn">Редактировать анкету</Link>
 
         <div style={{ marginTop: 16 }}>
-          <label>Внутренняя заметка <span className="optional-tag">видна только администрации</span></label>
+          <label>Внутренняя заметка <span className="optional-tag">видна только комбату и его заместителям</span></label>
           <textarea value={note.privateNote || ""} onChange={e => setNote({ privateNote: e.target.value })} />
         </div>
       </div>
@@ -289,10 +294,6 @@ export default function AdminPlayerDetail() {
         {canBeSquadLeader(gameRole.composition) && (
           <ToggleSwitch checked={!!gameRole.isSquadLeader} onChange={e => updateGameRole(activeGame, "isSquadLeader", e.target.checked)} label="Командир отделения" />
         )}
-        <p style={{ marginTop: 8 }}>
-          Текущий цвет: <span className="badge" style={{ color: compColor, borderColor: compColor }}>{gameRole.composition}</span>{" "}
-          <span className="badge" style={{ color: posColor, borderColor: posColor }}>{gameRole.position}</span>
-        </p>
 
         <p><b>Боевые заслуги:</b></p>
         <div className="profile-stats-row">
@@ -313,12 +314,16 @@ export default function AdminPlayerDetail() {
         </div>
 
         <p><b>Награды ({activeGame}):</b></p>
-        {(profile.gameAwards?.[activeGame] || []).map((a, i) => (
-          <div key={i} className="award-row">
-            <AwardChip icon={a.icon} name={a.name} description={a.description} />
-            <button className="btn secondary" onClick={() => removeGameAward(activeGame, i)}>Изъять</button>
-          </div>
-        ))}
+        {(profile.gameAwards?.[activeGame] || []).length ? (
+          profile.gameAwards[activeGame].map((a, i) => (
+            <div key={i} className="award-row">
+              <AwardChip icon={a.icon} name={a.name} description={a.description} />
+              <button className="btn secondary" onClick={() => removeGameAward(activeGame, i)}>Изъять</button>
+            </div>
+          ))
+        ) : (
+          <span className="hint">Наград нет.</span>
+        )}
 
         <label style={{ marginTop: 16 }}>Выдать награду</label>
         <select value={awardScope} onChange={e => setAwardScope(e.target.value)}>
@@ -331,7 +336,11 @@ export default function AdminPlayerDetail() {
         <button className="btn secondary" onClick={giveAward}>Выдать награду</button>
 
         <p style={{ marginTop: 20 }}><b>Дисциплинарные взыскания ({activeGame}):</b></p>
-        <DisciplinaryList actions={profile.gameDisciplinaryActions?.[activeGame] || []} showHistory={true} />
+        <DisciplinaryList
+          actions={profile.gameDisciplinaryActions?.[activeGame] || []}
+          showHistory={true}
+          onRemove={id => removeGameAction(activeGame, id)}
+        />
 
         <label>Выдать взыскание</label>
         <select value={actionScope} onChange={e => setActionScope(e.target.value)}>

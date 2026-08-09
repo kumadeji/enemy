@@ -24,12 +24,17 @@ export default function Profile() {
 
   const targetUid = uid || currentUser?.uid;
   const isOwn = targetUid === currentUser?.uid;
-  const canManagePrivacy = isOwn || isAdmin;
 
   useEffect(() => {
     async function load() {
       setP(null);
       setNotFound(false);
+      // Важно сбрасывать инвайтера при каждой смене профиля — иначе на
+      // странице человека без пригласившего остаётся значение с предыдущей
+      // открытой страницы (баг "пригласил сам себя")
+      setInviter(null);
+      setInvitees([]);
+
       let data;
       try {
         const snap = await getDoc(doc(db, "profiles", targetUid));
@@ -59,37 +64,39 @@ export default function Profile() {
     await updateDoc(doc(db, "profiles", targetUid), { birthDatePublic: newVal });
     setP(prev => ({ ...prev, birthDatePublic: newVal }));
   }
-  async function toggleContactsPublic() {
-    const newVal = !p.extraContactsPublic;
-    await updateDoc(doc(db, "profiles", targetUid), { extraContactsPublic: newVal });
-    setP(prev => ({ ...prev, extraContactsPublic: newVal }));
+
+  async function toggleContactField(key) {
+    const current = p.contactsPublic || {};
+    const newVal = { ...current, [key]: current[key] === false ? true : false };
+    await updateDoc(doc(db, "profiles", targetUid), { contactsPublic: newVal });
+    setP(prev => ({ ...prev, contactsPublic: newVal }));
   }
 
   if (notFound) return <main className="container"><p>Личное дело не найдено.</p></main>;
   if (!p) return <main className="container"><p>Загрузка...</p></main>;
 
   const contacts = p.extraContacts || {};
+  const contactsPublic = p.contactsPublic || {};
+  const isFieldPublic = (key) => contactsPublic[key] !== false;
+
   const playedGames = p.gamesInterested || [];
   const gameRole = activeGame ? p.gameRoles?.[activeGame] : null;
   const isPending = gameRole?.composition === "Отбор";
 
-  const showBirthDate = p.birthDatePublic || canManagePrivacy;
-  const showContacts = p.extraContactsPublic || canManagePrivacy;
-  const hasAnyContact = contacts.phone || contacts.telegram || contacts.vk || contacts.other;
+  const showBirthDate = p.birthDatePublic || isOwn || isAdmin;
 
   return (
     <main className="container">
-      <h1>Личное дело бойца</h1>
+      <h1>Личное дело: {profile.callsign}</h1>
 
-      {/* ---------- Блок 1: Анкета (общая информация, не привязана к игре) ---------- */}
+      {/* ---------- Блок 1: Анкета ---------- */}
       <div className="card">
         <div className="profile-block-title">Анкета</div>
-        <h2>{p.callsign}</h2>
 
         {isOwn && isPending && (
           <div className="pending-notice">
             <div className="pending-notice-title">📋 Заявка на рассмотрении</div>
-            <p>Ваша заявка получена и находится на рассмотрении командира батальона и его заместителей. Ожидайте — как только статус изменится, это сообщение исчезнет.</p>
+            <p>Ваша заявка получена и находится на рассмотрении командира батальона и его заместителей. Как только вас примут, это сообщение исчезнет.</p>
           </div>
         )}
 
@@ -107,22 +114,59 @@ export default function Profile() {
 
           {showBirthDate && p.birthDate && (
             <ProfileRow label="Дата рождения">
-              <PrivacyToggleField isPublic={p.birthDatePublic} canToggle={canManagePrivacy} onToggle={toggleBirthDatePublic}>
-                {p.birthDate}
-              </PrivacyToggleField>
+              {isOwn ? (
+                <PrivacyToggleField isPublic={p.birthDatePublic} onToggle={toggleBirthDatePublic}>
+                  {p.birthDate}
+                </PrivacyToggleField>
+              ) : (
+                <span>{p.birthDate}</span>
+              )}
             </ProfileRow>
           )}
 
-          {showContacts && hasAnyContact && (
-            <ProfileRow label="Дополнительные контакты">
-              <PrivacyToggleField isPublic={p.extraContactsPublic} canToggle={canManagePrivacy} onToggle={toggleContactsPublic}>
-                <span className="contacts-list">
-                  {contacts.phone && <span>{contacts.phone}</span>}
-                  {contacts.telegram && <a href={p.telegramUrl} target="_blank" rel="noreferrer">Ссылка на Telegram</a>}
-                  {contacts.vk && <a href={p.vkUrl} target="_blank" rel="noreferrer">Ссылка на ВКонтакте</a>}
-                  {contacts.other && <span>{contacts.other}</span>}
-                </span>
-              </PrivacyToggleField>
+          {/* Каждый доп. контакт — отдельная строка со своей приватностью */}
+          {contacts.phone && (isFieldPublic("phone") || isOwn || isAdmin) && (
+            <ProfileRow label="Телефон">
+              {isOwn ? (
+                <PrivacyToggleField isPublic={isFieldPublic("phone")} onToggle={() => toggleContactField("phone")}>
+                  {contacts.phone}
+                </PrivacyToggleField>
+              ) : (
+                <span>{contacts.phone}</span>
+              )}
+            </ProfileRow>
+          )}
+          {contacts.telegram && (isFieldPublic("telegram") || isOwn || isAdmin) && (
+            <ProfileRow label="Ссылка на Telegram">
+              {isOwn ? (
+                <PrivacyToggleField isPublic={isFieldPublic("telegram")} onToggle={() => toggleContactField("telegram")}>
+                  <a href={p.telegramUrl} target="_blank" rel="noreferrer">{p.telegramUrl}</a>
+                </PrivacyToggleField>
+              ) : (
+                <a href={p.telegramUrl} target="_blank" rel="noreferrer">{p.telegramUrl}</a>
+              )}
+            </ProfileRow>
+          )}
+          {contacts.vk && (isFieldPublic("vk") || isOwn || isAdmin) && (
+            <ProfileRow label="Ссылка на ВКонтакте">
+              {isOwn ? (
+                <PrivacyToggleField isPublic={isFieldPublic("vk")} onToggle={() => toggleContactField("vk")}>
+                  <a href={p.vkUrl} target="_blank" rel="noreferrer">{p.vkUrl}</a>
+                </PrivacyToggleField>
+              ) : (
+                <a href={p.vkUrl} target="_blank" rel="noreferrer">{p.vkUrl}</a>
+              )}
+            </ProfileRow>
+          )}
+          {contacts.other && (isFieldPublic("other") || isOwn || isAdmin) && (
+            <ProfileRow label="Другой контакт">
+              {isOwn ? (
+                <PrivacyToggleField isPublic={isFieldPublic("other")} onToggle={() => toggleContactField("other")}>
+                  {contacts.other}
+                </PrivacyToggleField>
+              ) : (
+                <span>{contacts.other}</span>
+              )}
             </ProfileRow>
           )}
 
@@ -144,7 +188,7 @@ export default function Profile() {
         <div className="awards-list">
           {(p.globalAwards || []).length
             ? p.globalAwards.map((a, i) => <AwardChip key={i} icon={a.icon} name={a.name} description={a.description} />)
-            : <span className="hint">Пока нет общих наград.</span>}
+            : <span className="hint">Пока нет общих наград. Трудись, боец!</span>}
         </div>
 
         {isOwn && (
@@ -200,7 +244,7 @@ export default function Profile() {
           <div className="awards-list">
             {(p.gameAwards?.[activeGame] || []).length
               ? p.gameAwards[activeGame].map((a, i) => <AwardChip key={i} icon={a.icon} name={a.name} description={a.description} />)
-              : <span className="hint">Пока нет игровых наград.</span>}
+              : <span className="hint">Пока нет игровых наград. Трудись, боец!</span>}
           </div>
         </div>
       )}

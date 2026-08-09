@@ -66,7 +66,7 @@ export default function Apply() {
           telegramUrl: buildTelegramUrl(values.extraTelegram),
           vkUrl: buildVkUrl(values.extraVk),
           birthDatePublic: true,
-          extraContactsPublic: true,
+          contactsPublic: { phone: true, telegram: true, vk: true, other: true },
           gamesInterested: values.games,
           gameRoles, gameStats, gameNotes, gameAwards, gameDisciplinaryActions,
           globalAwards: [],
