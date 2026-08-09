@@ -301,7 +301,7 @@ export default function AdminPlayerDetail() {
           {POSITIONS_BY_COMPOSITION[gameRole.composition].map(pos => <option key={pos} value={pos}>{pos}</option>)}
         </select>
         {canBeSquadLeader(gameRole.composition) && (
-          <ToggleSwitch checked={!!gameRole.isSquadLeader} onChange={e => updateGameRole(activeGame, "isSquadLeader", e.target.checked)} label="Желает играть как командир отделения" />
+          <ToggleSwitch checked={!!gameRole.isSquadLeader} onChange={e => updateGameRole(activeGame, "isSquadLeader", e.target.checked)} label="Желает дополнительно играть как командир отделения" />
         )}
 
         <p><b>Боевые заслуги:</b></p>
