@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { TIMEZONES } from "../data/timezones";
 import ImageHint from "./ImageHint";
 import { formatBirthDateInput, validateBirthDate } from "../utils/birthDate";
+import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 
@@ -11,13 +12,10 @@ export const ALL_GAMES = ["Arma Reforger", "Squad"];
 export function validateCallsign(value) {
   const trimmed = value.trim();
   const words = trimmed.split(/\s+/);
-
   if (words.length > 2) return "Позывной не должен состоять больше чем из 2 слов.";
   if (trimmed.length < 3 || trimmed.length > 24) return "Длина позывного должна быть от 3 до 24 символов.";
-
   const allowedPattern = /^[A-Za-z0-9\-_. ]+$/;
   if (!allowedPattern.test(trimmed)) return "Допустимы только латинские буквы, цифры и символы - _ . Кириллица не допускается.";
-
   if (/\(|\)|"|'/.test(trimmed)) return "Не используйте скобки, кавычки или реальные имена через разделители.";
   return null;
 }
@@ -67,19 +65,16 @@ export default function ApplicationForm({
   const [vkError, setVkError] = useState("");
   const [formError, setFormError] = useState("");
 
-  // Реферальная система: выбор между "пригласил зарегистрированный игрок"
-  // и "узнал(а) другим способом" (свободный текст)
+  // По умолчанию — "меня пригласил игрок с сайта", как и просили
   const [referralType, setReferralType] = useState(
-    initialValues?.referredByUid ? "player" : "text"
+    initialValues && !initialValues.referredByUid && initialValues.howFound ? "text" : "player"
   );
   const [rosterList, setRosterList] = useState([]);
 
   useEffect(() => {
     async function loadRoster() {
       const snap = await getDocs(collection(db, "rosterPublic"));
-      const list = snap.docs
-        .map(d => ({ uid: d.id, ...d.data() }))
-        .filter(p => p.callsign);
+      const list = snap.docs.map(d => ({ uid: d.id, ...d.data() })).filter(p => p.callsign);
       list.sort((a, b) => a.callsign.localeCompare(b.callsign, "ru"));
       setRosterList(list);
     }
@@ -94,9 +89,7 @@ export default function ApplicationForm({
 
   function toggleGame(game) {
     setForm(prev => {
-      const games = prev.games.includes(game)
-        ? prev.games.filter(g => g !== game)
-        : [...prev.games, game];
+      const games = prev.games.includes(game) ? prev.games.filter(g => g !== game) : [...prev.games, game];
       const gameDetails = { ...prev.gameDetails };
       if (!gameDetails[game]) gameDetails[game] = { hours: "", experience: "" };
       return { ...prev, games, gameDetails };
@@ -111,6 +104,8 @@ export default function ApplicationForm({
   }
 
   const steamProfileUrl = buildSteamProfileUrl(form.steamId);
+  const telegramUrl = buildTelegramUrl(form.extraTelegram);
+  const vkUrl = buildVkUrl(form.extraVk);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -174,9 +169,8 @@ export default function ApplicationForm({
 
     await onSubmit({
       ...form,
-      steamProfileUrl,
-      referralType,
-      referrerCallsign,
+      steamProfileUrl, telegramUrl, vkUrl,
+      referralType, referrerCallsign,
       referredByUid: referralType === "player" ? form.referredByUid : "",
       howFound: referralType === "text" ? form.howFound : ""
     });
@@ -253,15 +247,14 @@ export default function ApplicationForm({
 
         <label>Дополнительные контакты <span className="optional-tag">необязательно</span></label>
         <div className="field-hint">
-          Нужны для того, чтобы комбат и его заместители могли связаться с вами, если вы пропадёте со связи
-          или перестанете заходить в Discord или Steam. Заполнять их желательно, хотя это и не обязательно.
+          Нужны, чтобы комбат и его заместители могли связаться с вами, если вы пропадёте со связи.
         </div>
         <div className="extra-contacts-grid">
           <div>
             <input type="text" placeholder="+79991234567" value={form.extraPhone}
               onChange={e => { updateField("extraPhone", e.target.value); setPhoneError(""); }}
               onBlur={e => setPhoneError(validatePhone(e.target.value) || "")} />
-            <div className="field-hint">Телефон, с формате с плюсом и кодом страны.</div>
+            <div className="field-hint">Телефон, в формате с плюсом и кодом страны.</div>
             {phoneError && <div className="error">{phoneError}</div>}
           </div>
           <div>
@@ -269,6 +262,11 @@ export default function ApplicationForm({
               onChange={e => { updateField("extraTelegram", e.target.value); setTelegramError(""); }}
               onBlur={e => setTelegramError(validateHandle(e.target.value, "Telegram") || "")} />
             <div className="field-hint">ID аккаунта Telegram, без пробелов и без символа @.</div>
+            {telegramUrl && (
+              <div className="field-hint">
+                Ссылка: <a href={telegramUrl} target="_blank" rel="noreferrer">{telegramUrl}</a> — откройте и убедитесь, что страница открывается.
+              </div>
+            )}
             {telegramError && <div className="error">{telegramError}</div>}
           </div>
           <div>
@@ -276,6 +274,11 @@ export default function ApplicationForm({
               onChange={e => { updateField("extraVk", e.target.value); setVkError(""); }}
               onBlur={e => setVkError(validateHandle(e.target.value, "ВКонтакте") || "")} />
             <div className="field-hint">ID страницы ВКонтакте, без пробелов и без символа @.</div>
+            {vkUrl && (
+              <div className="field-hint">
+                Ссылка: <a href={vkUrl} target="_blank" rel="noreferrer">{vkUrl}</a> — откройте и убедитесь, что страница открывается.
+              </div>
+            )}
             {vkError && <div className="error">{vkError}</div>}
           </div>
           <div>
@@ -375,38 +378,24 @@ export default function ApplicationForm({
         <label>Откуда узнали о клане?</label>
         <div className="referral-type-switch">
           <label className="checkbox-label">
-            <input
-              type="radio"
-              name="referralType"
-              checked={referralType === "player"}
-              onChange={() => { setReferralType("player"); updateField("howFound", ""); }}
-            />
+            <input type="radio" name="referralType" checked={referralType === "player"}
+              onChange={() => { setReferralType("player"); updateField("howFound", ""); }} />
             <span>Меня пригласил боец из клана</span>
           </label>
           <label className="checkbox-label">
-            <input
-              type="radio"
-              name="referralType"
-              checked={referralType === "text"}
-              onChange={() => { setReferralType("text"); updateField("referredByUid", ""); }}
-            />
+            <input type="radio" name="referralType" checked={referralType === "text"}
+              onChange={() => { setReferralType("text"); updateField("referredByUid", ""); }} />
             <span>Узнал другим способом</span>
           </label>
         </div>
-
         {referralType === "player" ? (
           <select value={form.referredByUid} onChange={e => updateField("referredByUid", e.target.value)}>
-            <option value="">Выберите пригласившего бойца...</option>
-            {rosterList.map(p => (
-              <option key={p.uid} value={p.uid}>{p.callsign}</option>
-            ))}
+            <option value="">Выберите бойца...</option>
+            {rosterList.map(p => <option key={p.uid} value={p.uid}>{p.callsign}</option>)}
           </select>
         ) : (
-          <textarea
-            value={form.howFound}
-            onChange={e => updateField("howFound", e.target.value)}
-            placeholder="Расскажите, откуда узнали о клане и почему выбрали именно его"
-          />
+          <textarea value={form.howFound} onChange={e => updateField("howFound", e.target.value)}
+            placeholder="Расскажите, откуда узнали о клане" />
         )}
       </fieldset>
 

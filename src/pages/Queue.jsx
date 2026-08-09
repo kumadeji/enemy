@@ -51,9 +51,11 @@ export default function Queue() {
   );
 
   const statsData = useMemo(() => {
-    const list = Object.values(profilesMap).filter(p => (p.koCount || 0) > 0 || isSquadLeaderInQueueGame(p));
-    return [...list].sort((a, b) => (b.koCount || 0) - (a.koCount || 0));
-  }, [profilesMap]);
+  const list = Object.values(profilesMap)
+    .filter(p => (p.gameStats?.["Arma Reforger"]?.koCount || 0) > 0 || isSquadLeaderInQueueGame(p))
+    .map(p => ({ ...p, koCount: p.gameStats?.["Arma Reforger"]?.koCount || 0 }));
+  return list.sort((a, b) => b.koCount - a.koCount);
+}, [profilesMap]);
 
   async function saveQueue(newQueue) {
     await setDoc(doc(db, "queue", "state"), { current: newQueue });
@@ -97,22 +99,23 @@ export default function Queue() {
   }
 
   async function markPlayed(uid) {
-    await runTransaction(db, async (tx) => {
-      const profileRef = doc(db, "profiles", uid);
-      const rosterRef = doc(db, "rosterPublic", uid);
-      const profileSnap = await tx.get(profileRef);
-      const koCount = (profileSnap.data()?.koCount || 0) + 1;
+  await runTransaction(db, async (tx) => {
+    const profileRef = doc(db, "profiles", uid);
+    const rosterRef = doc(db, "rosterPublic", uid);
+    const profileSnap = await tx.get(profileRef);
+    const stats = profileSnap.data()?.gameStats?.["Arma Reforger"] || { playedAsSoldierCount: 0, koCount: 0, ksCount: 0 };
+    const updatedStats = { ...stats, koCount: stats.koCount + 1 };
 
-      tx.update(profileRef, { koCount });
-      tx.update(rosterRef, { koCount });
+    tx.update(profileRef, { [`gameStats.Arma Reforger`]: updatedStats });
+    tx.update(rosterRef, { [`gameStats.Arma Reforger`]: updatedStats });
 
-      const queueRef = doc(db, "queue", "state");
-      const newQueue = [...queue.filter(q => q.uid !== uid), { uid }];
-      tx.set(queueRef, { current: newQueue });
-    });
-    setProfilesMap(prev => ({ ...prev, [uid]: { ...prev[uid], koCount: (prev[uid]?.koCount || 0) + 1 } }));
-    setQueue(prev => [...prev.filter(q => q.uid !== uid), { uid }]);
-  }
+    const queueRef = doc(db, "queue", "state");
+    tx.set(queueRef, { current: [...queue.filter(q => q.uid !== uid), { uid }] });
+  });
+  setProfilesMap(prev => ({ ...prev, [uid]: { ...prev[uid], gameStats: { ...prev[uid].gameStats, "Arma Reforger": { ...(prev[uid].gameStats?.["Arma Reforger"] || {}), koCount: (prev[uid].gameStats?.["Arma Reforger"]?.koCount || 0) + 1 } } } }));
+  setQueue(prev => [...prev.filter(q => q.uid !== uid), { uid }]);
+}
+
 
   async function promoteToSquadLeader() {
     if (!selectedToPromote) return;

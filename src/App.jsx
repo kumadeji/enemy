@@ -3,12 +3,15 @@ import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import InfoBanner from "./components/InfoBanner";
 import AlphaBadge from "./components/AlphaBadge";
+import BackgroundMap from "./components/BackgroundMap";
+import BackgroundMusic from "./components/BackgroundMusic";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
 import Apply from "./pages/Apply";
 import Login from "./pages/Login";
 import MyApplication from "./pages/MyApplication";
+import AdminEditPlayer from "./pages/AdminEditPlayer";
 import Profile from "./pages/Profile";
 import Roster from "./pages/Roster";
 import Media from "./pages/Media";
@@ -17,11 +20,11 @@ import Charter from "./pages/Charter";
 import History from "./pages/History";
 import Contact from "./pages/Contact";
 import Queue from "./pages/Queue";
+import ArmaHQ from "./pages/ArmaHQ";
 import Admin from "./pages/Admin";
 import AdminPlayerDetail from "./pages/AdminPlayerDetail";
 import AdminChangeLog from "./pages/AdminChangeLog";
-import BackgroundMap from "./components/BackgroundMap";
-import BackgroundMusic from "./components/BackgroundMusic";
+
 
 import AdminMigrate from "./pages/AdminMigrate";
 
@@ -47,14 +50,16 @@ export default function App() {
 		  <Route path="/charter" element={<Charter />} />
           <Route path="/history" element={<History />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/queue" element={<Queue />} />
+          <Route path="/hq/arma" element={<ProtectedRoute require="arma-roster"><ArmaHQ /></ProtectedRoute>} />
+          <Route path="/queue" element={<ProtectedRoute require="arma-roster"><Queue /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
           <Route path="/admin/player/:uid" element={<ProtectedRoute require="admin"><AdminPlayerDetail /></ProtectedRoute>} />
-		  <Route path="/admin/changelog" element={<ProtectedRoute require="admin"><AdminChangeLog /></ProtectedRoute>} />
-		  <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
+          <Route path="/admin/player/:uid/edit" element={<ProtectedRoute require="admin"><AdminEditPlayer /></ProtectedRoute>} />
+          <Route path="/admin/changelog" element={<ProtectedRoute require="admin"><AdminChangeLog /></ProtectedRoute>} />
+          <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
-          <div className="container">© Мультиигровое сообщество ENEMY. 2026. Разработчик сайта - [En-Y]Boba, aka kumadeji.</div>
+          <div className="container">© Мультиигровое сообщество ENEMY. 2026. Разработка сайта: [En-Y]Boba, aka kumadeji.</div>
         </footer>
       </AuthProvider>
     </BrowserRouter>

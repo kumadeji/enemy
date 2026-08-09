@@ -1,7 +1,7 @@
 export default function Media() {
   return (
     <main className="container">
-      <h1>Медиаресурсы клана</h1>
+      <h1>Видео клана</h1>
       <div className="card"><p className="text-justify">Обязательно бахнем, но потом. А пока что заходите на Discord-сервер за информацией.</p></div>
     </main>
   );

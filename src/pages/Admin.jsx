@@ -22,71 +22,54 @@ export default function Admin() {
     load();
   }, []);
 
-  // "Новые заявки" — кросс-игровой список: показывает всех, у кого хотя бы
-  // в одной игре состав "Отбор", независимо от выбора игры в фильтре
   const pendingList = useMemo(() => {
     return players
-      .map(p => {
-        const pendingGames = Object.entries(p.gameRoles || {})
-          .filter(([, gr]) => gr.composition === "Отбор")
-          .map(([g]) => g);
-        return { ...p, pendingGames };
-      })
+      .map(p => ({ ...p, pendingGames: Object.entries(p.gameRoles || {}).filter(([, gr]) => gr.composition === "Отбор").map(([g]) => g) }))
       .filter(p => p.pendingGames.length > 0);
   }, [players]);
 
   const filteredPending = useMemo(() => {
     let list = [...pendingList];
-    if (search.trim()) {
-      const q = search.trim().toLowerCase();
-      list = list.filter(p => p.callsign.toLowerCase().includes(q));
-    }
+    if (search.trim()) list = list.filter(p => p.callsign.toLowerCase().includes(search.trim().toLowerCase()));
     list.sort((a, b) => {
       if (sortBy === "name") return a.callsign.localeCompare(b.callsign, "ru");
-      const aDate = a.createdAt?.seconds || 0;
-      const bDate = b.createdAt?.seconds || 0;
+      const aDate = a.createdAt?.seconds || 0, bDate = b.createdAt?.seconds || 0;
       return sortBy === "date-asc" ? aDate - bDate : bDate - aDate;
     });
     return list;
   }, [pendingList, search, sortBy]);
 
-  // "Все бойцы" — список по конкретной выбранной игре, как и раньше
-  const profilesForGame = useMemo(
-    () => players.filter(p => p.gameRoles?.[game]),
-    [players, game]
-  );
+  const profilesForGame = useMemo(() => players.filter(p => p.gameRoles?.[game]), [players, game]);
 
   const filteredAll = useMemo(() => {
     let list = [...profilesForGame];
-    if (search.trim()) {
-      const q = search.trim().toLowerCase();
-      list = list.filter(p => p.callsign.toLowerCase().includes(q));
-    }
+    if (search.trim()) list = list.filter(p => p.callsign.toLowerCase().includes(search.trim().toLowerCase()));
     list.sort((a, b) => {
-      const grA = a.gameRoles[game];
-      const grB = b.gameRoles[game];
+      const grA = a.gameRoles[game], grB = b.gameRoles[game];
       if (sortBy === "name") return a.callsign.localeCompare(b.callsign, "ru");
       if (sortBy === "composition") return COMPOSITION_RANK[grA.composition] - COMPOSITION_RANK[grB.composition];
       if (sortBy === "position") return POSITION_RANK[grA.position] - POSITION_RANK[grB.position];
-      const aDate = a.createdAt?.seconds || 0;
-      const bDate = b.createdAt?.seconds || 0;
+      const aDate = a.createdAt?.seconds || 0, bDate = b.createdAt?.seconds || 0;
       return sortBy === "date-asc" ? aDate - bDate : bDate - aDate;
     });
     return list;
   }, [profilesForGame, search, sortBy, game]);
 
-  function formatDate(ts) {
-    if (!ts?.seconds) return "—";
-    return new Date(ts.seconds * 1000).toLocaleDateString("ru-RU");
-  }
+  function formatDate(ts) { return ts?.seconds ? new Date(ts.seconds * 1000).toLocaleDateString("ru-RU") : "—"; }
 
   return (
     <main className="container">
       <h1>Панель комбата</h1>
-
       <BirthdayReminders profiles={players} />
 
-      <CommunityStats allProfiles={players} game={game} profilesForGame={profilesForGame} />
+      {tab === "pending" ? (
+        <div className="card pending-stats-card">
+          <span className="stat-value">{pendingList.length}</span>
+          <span className="stat-label">заявок на рассмотрении (по всем играм)</span>
+        </div>
+      ) : (
+        <CommunityStats allProfiles={players} game={game} profilesForGame={profilesForGame} />
+      )}
 
       <div className="admin-tabs">
         <button className={`tab-btn ${tab === "pending" ? "active" : ""}`} onClick={() => setTab("pending")}>
@@ -132,14 +115,10 @@ export default function Admin() {
             <tbody>
               {filteredAll.map(p => {
                 const gr = p.gameRoles[game];
-                const compColor = getCompositionColor(gr.composition);
-                const posColor = getPositionColor(gr.position);
+                const compColor = getCompositionColor(gr.composition), posColor = getPositionColor(gr.position);
                 return (
                   <tr key={p.uid} className="clickable-row" onClick={() => navigate(`/admin/player/${p.uid}`)}>
-                    <td>
-                      <Link to={`/admin/player/${p.uid}`}>{p.callsign}</Link>
-                      {gr.isSquadLeader && <span className="badge squad-leader-badge inline-badge">КО</span>}
-                    </td>
+                    <td><Link to={`/admin/player/${p.uid}`}>{p.callsign}</Link>{gr.isSquadLeader && <span className="badge squad-leader-badge inline-badge">КО</span>}</td>
                     <td><span className="badge" style={{ color: compColor, borderColor: compColor }}>{gr.composition}</span></td>
                     <td><span className="badge" style={{ color: posColor, borderColor: posColor }}>{gr.position}</span></td>
                     <td>{formatDate(p.createdAt)}</td>
@@ -150,9 +129,6 @@ export default function Admin() {
           </table>
         )}
       </div>
-
-      {tab === "pending" && filteredPending.length === 0 && <p className="hint">Новых заявок нет.</p>}
-      {tab === "all" && filteredAll.length === 0 && <p className="hint">Никого не найдено.</p>}
     </main>
   );
 }

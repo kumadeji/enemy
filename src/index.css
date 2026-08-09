@@ -421,7 +421,10 @@ label { font-size: 14px; font-weight: 600; display: block; margin-top: 4px; }
 
 /* Чекбоксы: фиксированный размер флажка, чтобы не "плавал" относительно текста */
 .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: 400; margin-bottom: 8px; cursor: pointer; }
-.checkbox-label input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; margin: 0; accent-color: var(--accent); }
+.checkbox-label input[type="checkbox"],
+.checkbox-label input[type="radio"] {
+  width: 18px; height: 18px; flex-shrink: 0; margin: 0; accent-color: var(--accent);
+}
 .checkbox-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; margin-top: 16px; }
 
 /* ==========================================================================
@@ -468,6 +471,8 @@ label { font-size: 14px; font-weight: 600; display: block; margin-top: 4px; }
    БЕЙДЖИ СТАТУСОВ И РОЛЕЙ
    ========================================================================== */
 .badge {
+  display: inline-block;
+  text-align: center;
   font-size: 12px;
   padding: 4px 11px;
   border-radius: 999px;
@@ -644,7 +649,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   border-color: #3a3e44;
 }
 
-/* Переключатель "Командир отряда" в карточке игрока в админке */
+/* Переключатель "Командир отделения" в карточке игрока в админке */
 .toggle-switch-wrapper {
   display: flex;
   align-items: center;
@@ -725,7 +730,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .change-log-list li { margin-bottom: 4px; }
 
 /* ==========================================================================
-   ОЧЕРЕДЬ НА КОМАНДИРА ОТРЯДА (КО)
+   ОЧЕРЕДЬ НА КОМАНДИРА ОТДЕЛЕНИЯ (КО)
    ========================================================================== */
 
 /* Правила очереди — центрированный текст */
@@ -849,29 +854,16 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .award-chip-text { color: var(--text); }
 
 .awards-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-
+.award-scope-tag { font-size: 10px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 999px; padding: 1px 6px; }
 .award-chip-info-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--border);
-  color: var(--text-muted);
-  font-size: 10px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  margin-left: 2px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; background: var(--border);
+  color: var(--text-muted); font-size: 10px; font-weight: 700; border: none; cursor: pointer; padding: 0;
 }
 .award-chip-info-btn:hover { background: var(--accent); color: #14110a; }
-
 .award-modal-content { max-width: 420px; }
 .award-modal-title { margin-top: 0; }
 .award-modal-description { color: var(--text-muted); line-height: 1.6; }
-
 
 /* Строка награды в админ-панели: сама награда + отступ + кнопка "Убрать" */
 .award-row {
@@ -1069,9 +1061,8 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 }
 .profile-table-value { font-size: 14px; }
 
-/* КНОПКА РЕДАКТИРОВАНИЯ В ПРОФИЛЕ */
+/* ЕДИНАЯ КНОПКА "РЕДАКТИРОВАТЬ АНКЕТУ" */
 .profile-edit-btn { margin-top: 16px; }
-
 
 /* ==========================================================================
    СТАТИСТИКА КЛАНА
@@ -1189,4 +1180,66 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
     margin: 0 -22px;
     padding: 4px 22px;
   }
+}
+
+/* ==========================================================================
+   СИНЕЕ УВЕДОМЛЕНИЕ "ЗАЯВКА НА РАССМОТРЕНИИ"
+   ========================================================================== */
+.pending-notice {
+  background: rgba(91, 143, 214, 0.1);
+  border: 1px solid #5b8fd6;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 14px 0;
+}
+.pending-notice-title { color: #5b8fd6; font-weight: 700; margin-bottom: 6px; }
+
+/* ==========================================================================
+   ПРИВАТНОСТЬ
+   ========================================================================== */
+
+.privacy-toggle-field { display: inline-flex; align-items: center; gap: 8px; }
+.eye-toggle-btn {
+  position: relative;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  cursor: pointer; font-size: 12px;
+}
+.eye-toggle-btn.is-private::after {
+  content: ""; position: absolute; width: 140%; height: 1.5px;
+  background: currentColor; top: 50%; left: -20%; transform: rotate(-45deg);
+}
+
+/* ==========================================================================
+   БЛОКИ ПРОФИЛЯ "АНКЕТА" / "ПО ИГРЕ"
+   ========================================================================== */
+
+.profile-block-title {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+/* СПИСОК КОНТАКТОВ В ОДНУ СТРОКУ С ПЕРЕНОСОМ */
+.contacts-list { display: inline-flex; flex-wrap: wrap; gap: 10px; }
+
+/* НАВИГАЦИЯ: РАЗДЕЛИТЕЛЬ СЕКЦИЙ + ОТДЕЛЬНЫЙ СТИЛЬ КНОПКИ "ШТАБ" */
+.nav-divider {
+  width: 1px; height: 20px; background: var(--border); margin: 0 6px;
+}
+.nav-hq-btn {
+  border: 1px solid var(--accent) !important;
+  color: var(--accent) !important;
+}
+.nav-hq-btn:hover { background: rgba(214, 158, 46, 0.12); }
+
+/* ПРОСТАЯ КАРТОЧКА СТАТИСТИКИ ЗАЯВОК НА РАССМОТРЕНИИ (КРОСС-ИГРОВАЯ) */
+.pending-stats-card {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;
 }
