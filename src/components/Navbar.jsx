@@ -35,7 +35,7 @@ export default function Navbar() {
           )}
 
           <span className="nav-divider" />
-          {isAdmin && <NavLink to="/admin" className={linkClass}>Панель</NavLink>}
+          {isAdmin && <NavLink to="/admin" className={linkClass}>Панель комбата</NavLink>}
           {currentUser ? (
             <>
               <NavLink to="/profile" className={linkClass}>{profile?.callsign || "Личное дело"}</NavLink>
