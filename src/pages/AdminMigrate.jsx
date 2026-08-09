@@ -12,7 +12,7 @@ export default function AdminMigrate() {
 
   // Разовая миграция: переносит старые единые поля koCount/ksCount/playedAsSoldierCount,
   // awards, publicNote и disciplinaryActions в новую структуру, разделённую на
-  // "общее для всего клана" (globalAwards/globalDisciplinaryActions) и
+  // "общее для всего сообщества" (globalAwards/globalDisciplinaryActions) и
   // "привязанное к конкретной игре" (gameStats/gameAwards/gameDisciplinaryActions/gameNotes).
   // Старые данные считаются относящимися к Arma Reforger — именно на неё
   // до этого момента был рассчитан весь функционал сайта.
@@ -98,7 +98,7 @@ export default function AdminMigrate() {
           Разовая операция. Переносит старые единые поля (<code>koCount</code>,
           <code>ksCount</code>, <code>playedAsSoldierCount</code>, <code>awards</code>,
           <code>publicNote</code>, <code>disciplinaryActions</code>) в новую структуру,
-          разделённую на общеклановые данные и данные по конкретным играм. Профили,
+          разделённую на общие для сообщества данные и данные по конкретным играм. Профили,
           у которых поле <code>gameStats</code> уже существует, автоматически пропускаются —
           безопасно запускать повторно.
         </p>

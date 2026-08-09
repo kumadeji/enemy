@@ -9,11 +9,11 @@ import { createAction, isActionActive } from "../utils/discipline";
 import { pluralize } from "../utils/pluralize";
 import { TIMES_FORMS } from "../data/statusForms";
 import ToggleSwitch from "../components/ToggleSwitch";
-import AwardChip from "../components/AwardChip";
 import CopyableField from "../components/CopyableField";
 import DisciplinaryList from "../components/DisciplinaryList";
 import { ProfileTable, ProfileRow } from "../components/ProfileTable";
 import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
+import AdminAwardChip from "../components/AdminAwardChip";
 
 export default function AdminPlayerDetail() {
   const { uid } = useParams();
@@ -207,7 +207,7 @@ export default function AdminPlayerDetail() {
 
       {/* ---------- Анкета ---------- */}
       <div className="card">
-        <div className="profile-block-title">Анкета</div>
+        <div className="profile-block-title">Расширенная (полная) анкета</div>
 
         <DisciplinaryList
           actions={profile.globalDisciplinaryActions || []}
@@ -260,22 +260,19 @@ export default function AdminPlayerDetail() {
             </ProfileRow>
           ))}
         </ProfileTable>
+		
+		<Link to={`/admin/player/${uid}/edit`} className="btn secondary profile-edit-btn">Редактировать чужую анкету</Link>
 
-        <p><b>Общие награды клана:</b></p>
+        <p><b>Общие награды сообщества:</b></p>
         <div className="awards-list">
           {(profile.globalAwards || []).length ? (
             profile.globalAwards.map((a, i) => (
-              <div key={i} className="award-row">
-                <AwardChip icon={a.icon} name={a.name} description={a.description} />
-                <button className="btn secondary" onClick={() => removeGlobalAward(i)}>Изъять</button>
-              </div>
+              <AdminAwardChip key={i} icon={a.icon} name={a.name} description={a.description} onRemove={() => removeGlobalAward(i)} />
             ))
           ) : (
-            <span className="hint">Наград нет.</span>
+            <span className="hint">Пока что нет общих наград.</span>
           )}
         </div>
-
-        <Link to={`/admin/player/${uid}/edit`} className="btn secondary profile-edit-btn">Редактировать анкету</Link>
 
         <div style={{ marginTop: 16 }}>
           <label>Внутренняя заметка <span className="optional-tag">видна только комбату и его заместителям</span></label>
@@ -304,7 +301,7 @@ export default function AdminPlayerDetail() {
           {POSITIONS_BY_COMPOSITION[gameRole.composition].map(pos => <option key={pos} value={pos}>{pos}</option>)}
         </select>
         {canBeSquadLeader(gameRole.composition) && (
-          <ToggleSwitch checked={!!gameRole.isSquadLeader} onChange={e => updateGameRole(activeGame, "isSquadLeader", e.target.checked)} label="Командир отделения" />
+          <ToggleSwitch checked={!!gameRole.isSquadLeader} onChange={e => updateGameRole(activeGame, "isSquadLeader", e.target.checked)} label="Желает играть как командир отделения" />
         )}
 
         <p><b>Боевые заслуги:</b></p>
@@ -326,21 +323,20 @@ export default function AdminPlayerDetail() {
         </div>
 
         <p><b>Награды ({activeGame}):</b></p>
-        {(profile.gameAwards?.[activeGame] || []).length ? (
-          profile.gameAwards[activeGame].map((a, i) => (
-            <div key={i} className="award-row">
-              <AwardChip icon={a.icon} name={a.name} description={a.description} />
-              <button className="btn secondary" onClick={() => removeGameAward(activeGame, i)}>Изъять</button>
-            </div>
-          ))
-        ) : (
-          <span className="hint">Наград нет.</span>
-        )}
+        <div className="awards-list">
+          {(profile.gameAwards?.[activeGame] || []).length ? (
+            profile.gameAwards[activeGame].map((a, i) => (
+              <AdminAwardChip key={i} icon={a.icon} name={a.name} description={a.description} onRemove={() => removeGameAward(activeGame, i)} />
+            ))
+          ) : (
+            <span className="hint">Пока что нет игровых наград.</span>
+          )}
+        </div>
 
         <label style={{ marginTop: 16 }}>Выдать награду</label>
         <select value={awardScope} onChange={e => setAwardScope(e.target.value)}>
           <option value="game">Только для {activeGame}</option>
-          <option value="global">Общая для всего клана</option>
+          <option value="global">Общая для всего сообщества</option>
         </select>
         <input type="text" placeholder="Иконка награды (эмодзи)" value={awardIcon} onChange={e => setAwardIcon(e.target.value)} />
         <input type="text" placeholder="Короткое название" value={awardName} onChange={e => setAwardName(e.target.value)} />
@@ -357,7 +353,7 @@ export default function AdminPlayerDetail() {
         <label>Выдать взыскание</label>
         <select value={actionScope} onChange={e => setActionScope(e.target.value)}>
           <option value="game">Только для {activeGame}</option>
-          <option value="global">Общее для всего клана</option>
+          <option value="global">Общее для всего сообщества</option>
         </select>
         <select value={actionType} onChange={e => setActionType(e.target.value)}>
           <option value="Замечание">Замечание (1 месяц)</option>

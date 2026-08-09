@@ -92,7 +92,7 @@ export default function Profile() {
 
       {/* ---------- Блок 1: Анкета ---------- */}
       <div className="card">
-        <div className="profile-block-title">Анкета</div>
+        <div className="profile-block-title">Публичная анкета</div>
 
         {isOwn && isPending && (
           <div className="pending-notice">
@@ -202,7 +202,7 @@ export default function Profile() {
 
         {isOwn && (
           <button type="button" className="btn secondary profile-edit-btn" onClick={() => navigate("/my-application")}>
-            Редактировать анкету
+            Редактировать свою анкету
           </button>
         )}
       </div>

@@ -1,8 +1,8 @@
 export default function Media() {
   return (
     <main className="container">
-      <h1>История клана</h1>
-      <div className="card"><p className="text-justify">Обязательно бахнем, но потом. А пока что заходите на Discord-сервер за информацией.</p></div>
+      <h1>История сообщества</h1>
+      <div className="card"><p className="text-justify">Пока что информации здесь нет. Вы можете найти её в чате #о-нас в Discord.</p></div>
     </main>
   );
 }

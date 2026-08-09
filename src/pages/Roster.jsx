@@ -68,7 +68,7 @@ export default function Roster() {
 
   return (
     <main className="container">
-      <h1>Состав клана</h1>
+      <h1>Состав сообщества</h1>
 
       <CommunityStats allProfiles={profiles} game={game} profilesForGame={profilesForGame} />
 

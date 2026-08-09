@@ -498,7 +498,7 @@ label { font-size: 14px; font-weight: 600; display: block; margin-top: 4px; }
 }
 
 /* ==========================================================================
-   ТАБЛИЦЫ (состав клана, список участников в админке)
+   ТАБЛИЦЫ (состав сообщества, список участников в админке)
    ========================================================================== */
 table { width: 100%; border-collapse: collapse; }
 th {
@@ -608,7 +608,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 /* Строка из нескольких стат-блоков — используется для личной
    статистики КО/КС в профиле (см. также .profile-stats-row для
    версии с рамкой) и для блока статистики в карточке игрока в админке.
-   Для общей статистики клана используется отдельный набор классов
+   Для общей статистики сообщества используется отдельный набор классов
    .community-stats / .community-stat-block, см. ниже. */
 .stats-row { display: flex; gap: 32px; margin: 12px 0; flex-wrap: wrap; }
 .stat-block { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
@@ -1040,7 +1040,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .profile-edit-btn { margin-top: 16px; }
 
 /* ==========================================================================
-   СТАТИСТИКА КЛАНА
+   СТАТИСТИКА СООБЩЕСТВА
    ========================================================================== */
 .community-stats-card { 
   padding: 18px 22px;
@@ -1270,4 +1270,30 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .hq-primary-btn:hover {
   background: var(--accent-bright) !important;
   color: #14110a !important;
+}
+
+/* Награды в админ-панели: кнопка удаления встроена прямо в чип,
+   чипы текут строкой с переносом (не каждая на отдельной строке) */
+.award-chip-admin {
+  padding-right: 6px;
+}
+.award-chip-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 9px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.award-chip-remove-btn:hover {
+  color: var(--danger);
+  border-color: var(--danger);
 }
