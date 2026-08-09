@@ -113,7 +113,7 @@ export default function Profile() {
           {contacts.vk && <ProfileRow label="ВКонтакте">{contacts.vk}</ProfileRow>}
           {contacts.other && <ProfileRow label="Другой контакт">{contacts.other}</ProfileRow>}
           {invitees.length > 0 && (
-            <ProfileRow label="Кого пригласил в клан">
+            <ProfileRow label="Кого пригласил">
               {invitees.map((inv, i) => (
                 <span key={inv.uid}>
                   {i > 0 && ", "}
