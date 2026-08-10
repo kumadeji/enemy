@@ -279,8 +279,8 @@ export default function AdminPlayerDetail() {
 		
 		<Link to={`/admin/player/${uid}/edit`} className="btn secondary profile-edit-btn">Редактировать чужую анкету</Link>
 
-        {/* ---------- Общие награды клана ---------- */}
-        <p><b>Общие награды клана:</b></p>
+        {/* ---------- Общие награды сообщества ---------- */}
+        <p><b>Общие награды сообщества:</b></p>
         <div className="awards-list">
           {(profile.globalAwards || []).length ? (
             profile.globalAwards.map((a, i) => (
@@ -292,7 +292,7 @@ export default function AdminPlayerDetail() {
         </div>
 
         <div className="admin-subform">
-          <label>Выдать общую награду</label>
+          <label>Выдать общую награду по сообществу</label>
           <input type="text" placeholder="Иконка награды (эмодзи)" value={globalAwardIcon} onChange={e => setGlobalAwardIcon(e.target.value)} />
           <input type="text" placeholder="Короткое название" value={globalAwardName} onChange={e => setGlobalAwardName(e.target.value)} />
           <textarea placeholder="Развёрнутое описание — за что дана награда" value={globalAwardDescription} onChange={e => setGlobalAwardDescription(e.target.value)} />
@@ -300,8 +300,9 @@ export default function AdminPlayerDetail() {
         </div>
 
         {/* ---------- Общие дисциплинарные взыскания ---------- */}
-        <div className="admin-subform">
-          <label>Выдать общее взыскание</label>
+        <p><b>Общие дисциплинарные взыскания:</b></p>
+		<div className="admin-subform">
+          <label>Выдать общее взыскание по сообществу</label>
           <select value={globalActionType} onChange={e => setGlobalActionType(e.target.value)}>
             <option value="Замечание">Замечание (1 месяц)</option>
             <option value="Выговор">Выговор (3 месяца)</option>
@@ -372,7 +373,7 @@ export default function AdminPlayerDetail() {
         </div>
 
         <div className="admin-subform">
-          <label>Выдать награду за {activeGame}</label>
+          <label>Выдать награду по игре {activeGame}</label>
           <input type="text" placeholder="Иконка награды (эмодзи)" value={gameAwardIcon} onChange={e => setGameAwardIcon(e.target.value)} />
           <input type="text" placeholder="Короткое название" value={gameAwardName} onChange={e => setGameAwardName(e.target.value)} />
           <textarea placeholder="Развёрнутое описание — за что дана награда" value={gameAwardDescription} onChange={e => setGameAwardDescription(e.target.value)} />
@@ -388,7 +389,7 @@ export default function AdminPlayerDetail() {
         />
 
         <div className="admin-subform">
-          <label>Выдать взыскание за {activeGame}</label>
+          <label>Выдать взыскание по игре {activeGame}</label>
           <select value={gameActionType} onChange={e => setGameActionType(e.target.value)}>
             <option value="Замечание">Замечание (1 месяц)</option>
             <option value="Выговор">Выговор (3 месяца)</option>
