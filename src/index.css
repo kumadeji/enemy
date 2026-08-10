@@ -1304,3 +1304,43 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   padding-top: 16px;
   border-top: 1px dashed var(--border);
 }
+
+/* ==========================================================================
+   ВИДЖЕТ-КНОПКА DISCORD
+   ========================================================================== */
+.discord-widget,
+.discord-widget:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #5865F2;
+  color: #ffffff !important;
+  border-radius: var(--radius);
+  padding: 12px 22px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.discord-widget:hover {
+  background: #4752C4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(88, 101, 242, 0.4);
+  color: #ffffff !important;
+}
+.discord-widget:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.discord-widget-icon {
+  flex-shrink: 0;
+}
+.discord-widget-text {
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .discord-widget-text {
+    white-space: normal;
+  }
+}

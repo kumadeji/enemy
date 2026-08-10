@@ -1,4 +1,5 @@
 import VkWidget from "../components/VkWidget";
+import DiscordWidget from "../components/DiscordWidget";
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
 		  <br/><br/>
 		  <b>Подавайте заявку и вступайте в наш клан! Мы ждём вас!</b>
         </p>
+		<DiscordWidget />
       </section>
 
       <section className="card">
