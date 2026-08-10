@@ -416,7 +416,7 @@ select {
 
 label { font-size: 14px; font-weight: 600; display: block; margin-top: 4px; }
 .field-hint { color: var(--text-muted); font-size: 12.5px; margin-bottom: 16px; line-height: 1.5; }
-.error { color: var(--danger); font-size: 13px; margin-top: 8px; }
+.error { color: var(--danger); font-size: 13px; margin-top: 8px; margin-top: 16px; }
 .optional-tag { color: var(--text-muted); font-weight: 400; font-size: 11px; margin-left: 6px; }
 
 /* Чекбоксы: фиксированный размер флажка, чтобы не "плавал" относительно текста */

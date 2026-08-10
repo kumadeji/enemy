@@ -28,7 +28,7 @@ export function buildSteamProfileUrl(steamId) {
 
 function validatePhone(value) {
   if (!value.trim()) return null;
-  if (!/^\+\d{7,15}$/.test(value.trim())) return "Телефон не прошёл проверку. Он должен быть в формате +<код страны и номер целиком>, например +79991234567.";
+  if (!/^\+\d{7,15}$/.test(value.trim())) return "Телефон не прошёл проверку: он должен быть в формате +<код страны и номер целиком>, например +79991234567.";
   return null;
 }
 
@@ -41,13 +41,13 @@ function validateHandle(value, fieldName) {
 
 function validateSteamId(value) {
   if (!value.trim()) return null;
-  if (!/^\d+$/.test(value.trim())) return "Steam ID не прошёл проверку. Он должен состоять только из цифр (это не ссылка и не имя профиля). Где его взять — в подсказке выше.";
+  if (!/^\d+$/.test(value.trim())) return "Steam ID не прошёл проверку: он должен состоять только из цифр (это не ссылка и не имя профиля). Где его взять — в подсказке выше.";
   return null;
 }
 
 function validateArmaId(value) {
   if (!value.trim()) return null;
-  if (!value.includes("-")) return "Arma ID не прошёл проверку. Укажите правильный Arma ID. Где его взять — в подсказке выше.";
+  if (!value.includes("-")) return "Arma ID не прошёл проверку: укажите правильный Arma ID. Где его взять — в подсказке выше.";
   return null;
 }
 
@@ -261,7 +261,7 @@ export default function ApplicationForm({
           Steam ID — числовой код вашего профиля (не ник и не логин), обязательный контакт для поддержания связи в клане. Он же пригодится вам для регистрации на игровых проектах, на которых мы играем в клане. Он будет отображаться в вашем профиле на сайте, и вы всегда сможете скопировать его оттуда.
         </div>
         {steamIdError && <div className="error">{steamIdError}</div>}
-        {steamProfileUrl && (
+        {steamProfileUrl && !steamIdError && (
           <div className="field-hint">
             Ссылка на ваш профиль: <a href={steamProfileUrl} target="_blank" rel="noreferrer">{steamProfileUrl}</a>
             {" "}— откройте и убедитесь, что это ваш профиль и он публичный.
