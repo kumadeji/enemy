@@ -15,8 +15,8 @@ export function validateCallsign(value) {
   if (words.length > 2) return "Позывной не должен состоять больше чем из 2 слов.";
   if (trimmed.length < 3 || trimmed.length > 24) return "Длина позывного должна быть от 3 до 24 символов.";
   const allowedPattern = /^[A-Za-z0-9\-_. ]+$/;
-  if (!allowedPattern.test(trimmed)) return "Допустимы только латинские буквы, цифры и символы - _ . Кириллица не допускается.";
-  if (/\(|\)|"|'/.test(trimmed)) return "Не используйте скобки, кавычки или реальные имена через разделители.";
+  if (!allowedPattern.test(trimmed)) return "Допустимы только латинские буквы, цифры и символы '-', '_'. Кириллица не допускается.";
+  if (/\(|\)|"|'/.test(trimmed)) return "Не используйте скобки, кавычки или разделители.";
   return null;
 }
 
@@ -28,7 +28,7 @@ export function buildSteamProfileUrl(steamId) {
 
 function validatePhone(value) {
   if (!value.trim()) return null;
-  if (!/^\+\d{7,15}$/.test(value.trim())) return "Телефон должен быть в формате +<код страны и номер целиком>, например +79991234567.";
+  if (!/^\+\d{7,15}$/.test(value.trim())) return "Телефон не прошёл проверку. Он должен быть в формате +<код страны и номер целиком>, например +79991234567.";
   return null;
 }
 
@@ -36,6 +36,18 @@ function validateHandle(value, fieldName) {
   if (!value.trim()) return null;
   if (/\s/.test(value)) return `${fieldName}: пробелы не допускаются.`;
   if (value.includes("@")) return `${fieldName}: указывайте без символа @.`;
+  return null;
+}
+
+function validateSteamId(value) {
+  if (!value.trim()) return null;
+  if (!/^\d+$/.test(value.trim())) return "Steam ID не прошёл проверку. Он должен состоять только из цифр (это не ссылка и не имя профиля). Где его взять — в подсказке выше.";
+  return null;
+}
+
+function validateArmaId(value) {
+  if (!value.trim()) return null;
+  if (!value.includes("-")) return "Arma ID не прошёл проверку. Укажите правильный Arma ID. Где его взять — в подсказке выше.";
   return null;
 }
 
@@ -63,6 +75,8 @@ export default function ApplicationForm({
   const [phoneError, setPhoneError] = useState("");
   const [telegramError, setTelegramError] = useState("");
   const [vkError, setVkError] = useState("");
+  const [steamIdError, setSteamIdError] = useState("");
+  const [armaIdError, setArmaIdError] = useState("");
   const [formError, setFormError] = useState("");
 
   // По умолчанию — "меня пригласил игрок с сайта", как и просили
@@ -132,12 +146,20 @@ export default function ApplicationForm({
     if (vErr) { setVkError(vErr); setFormError(vErr); return; }
 
     if (form.games.length === 0) { setFormError("Выберите хотя бы одну игру."); return; }
-    if (form.games.includes("Arma Reforger") && !form.armaId.trim()) {
-      setFormError("Укажите Arma ID — это обязательно для направления Arma Reforger.");
-      return;
+    if (form.games.includes("Arma Reforger")) {
+      if (!form.armaId.trim()) {
+        setFormError("Укажите Arma ID — это обязательно для направления Arma Reforger.");
+        return;
+      }
+      const armaErr = validateArmaId(form.armaId);
+      if (armaErr) { setArmaIdError(armaErr); setFormError(armaErr); return; }
     }
+	
     if (!form.discordId.trim()) { setFormError("Укажите Discord ID."); return; }
     if (!form.steamId.trim()) { setFormError("Укажите Steam ID."); return; }
+    const steamErr = validateSteamId(form.steamId);
+    if (steamErr) { setSteamIdError(steamErr); setFormError(steamErr); return; }
+
     if (!form.timezone) { setFormError("Выберите часовой пояс."); return; }
     if (!form.availability.trim()) { setFormError("Укажите доступность для игр."); return; }
     if (!form.whyJoin.trim()) { setFormError("Расскажите, почему хотите вступить."); return; }
@@ -228,10 +250,17 @@ export default function ApplicationForm({
         <label>Steam ID
           <ImageHint image="/hints/steam-id.png" alt="Где взять Steam ID" />
         </label>
-        <input type="text" required value={form.steamId} onChange={e => updateField("steamId", e.target.value)} />
+        <input
+          type="text"
+          required
+          value={form.steamId}
+          onChange={e => { updateField("steamId", e.target.value); setSteamIdError(""); }}
+          onBlur={e => setSteamIdError(validateSteamId(e.target.value) || "")}
+        />
         <div className="field-hint">
           Steam ID — числовой код вашего профиля (не ник и не логин), обязательный контакт для поддержания связи в клане. Он же пригодится вам для регистрации на игровых проектах, на которых мы играем в клане. Он будет отображаться в вашем профиле на сайте, и вы всегда сможете скопировать его оттуда.
         </div>
+        {steamIdError && <div className="error">{steamIdError}</div>}
         {steamProfileUrl && (
           <div className="field-hint">
             Ссылка на ваш профиль: <a href={steamProfileUrl} target="_blank" rel="noreferrer">{steamProfileUrl}</a>
@@ -349,7 +378,14 @@ export default function ApplicationForm({
             <label>Arma ID
               <ImageHint image="/hints/arma-id.png" alt="Где взять Arma ID" />
             </label>
-            <input type="text" required value={form.armaId} onChange={e => updateField("armaId", e.target.value)} />
+            <input
+              type="text"
+              required
+              value={form.armaId}
+              onChange={e => { updateField("armaId", e.target.value); setArmaIdError(""); }}
+              onBlur={e => setArmaIdError(validateArmaId(e.target.value) || "")}
+            />
+            {armaIdError && <div className="error">{armaIdError}</div>}
             <div className="field-hint">
               Arma ID — код вашей профиля в игре (не ник и не логин). Он же пригодится вам для регистрации на игровых проектах, на которых мы играем в клане. По нему выдаётся доступ по белым спискам на серверы проектов, а также баны в случае нарушений правил. Он будет отображаться в вашем профиле на сайте, и вы всегда сможете скопировать его оттуда.
             </div>
