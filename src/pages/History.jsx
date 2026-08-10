@@ -1,3 +1,5 @@
+import DiscordWidget from "../components/DiscordWidget";
+
 export default function Media() {
   return (
     <main className="container">
