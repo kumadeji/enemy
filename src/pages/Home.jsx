@@ -20,12 +20,15 @@ export default function Home() {
 		  <b>Подавайте заявку и вступайте в наш клан! Мы ждём вас!</b>
 		  <br/>
         </p>
-		<h2>Дополнительные ссылки</h2>
-		<DiscordWidget />
       </section>
+	  
+	  <section className="card">
+        <h2>Общение</h2>
+		<DiscordWidget />
+	  </section>
 
       <section className="card">
-        <h2>Новости сообщества</h2>
+        <h2>Новости</h2>
         <p className="hint">Подписывайтесь на нас во ВКонтакте!</p>
         <VkWidget groupId={92251650} />
       </section>
