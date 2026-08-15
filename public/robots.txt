@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://enemygaming.netlify.app/sitemap.xml
+Sitemap: https://mis-enemy.ru/sitemap.xml
