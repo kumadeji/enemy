@@ -189,8 +189,6 @@ export default function Queue() {
         </ol>
       </div>
 
-      <p className="hint"><Link to="/hq/arma/stats">Смотреть полную статистику отыгрышей →</Link></p>
-
       {isAdmin && (
         <div className="card">
           <h2>Управление очередью</h2>
