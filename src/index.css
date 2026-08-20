@@ -1368,3 +1368,174 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   flex-wrap: wrap;
   text-align: center;
 }
+
+/* Контейнер кнопки */
+.nav-notification-btn {
+  position: relative;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Легкая рамка как у кнопок в шапке */
+  border-radius: 6px; /* Скругление углов */
+  color: inherit;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  width: 36px;
+  height: 36px;
+}
+
+.nav-notification-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Бейдж со счетчиком */
+.nav-notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #ef4444; /* Красный цвет */
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #1a1a1a; /* Цвет фона шапки, чтобы отделить от кнопки */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Выпадающая карточка */
+.notification-dropdown-card {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 320px;
+  max-height: 400px;
+  background: #252525; /* Темный фон под тему сайта */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Заголовок dropdown */
+.notification-dropdown-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,0.2);
+}
+
+.dropdown-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.unread-indicator {
+  color: #ef4444;
+  font-size: 12px;
+}
+
+.btn-mark-read {
+  background: transparent;
+  border: none;
+  color: #4ade80; /* Зеленый цвет действия */
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-mark-read:hover {
+  text-decoration: underline;
+}
+
+/* Список уведомлений */
+.notification-list-container {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.empty-state {
+  padding: 30px;
+  text-align: center;
+  color: #888;
+  font-size: 13px;
+}
+
+/* Элемент уведомления */
+.notification-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: background 0.2s;
+  cursor: default;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.notification-item-unread {
+  background: rgba(59, 130, 246, 0.05); /* Легкий синий фон для непрочитанных */
+}
+
+.notification-content {
+  flex: 1;
+  margin-right: 8px;
+}
+
+.notification-message {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #e5e5e5;
+  margin-bottom: 4px;
+}
+
+.notification-date {
+  font-size: 11px;
+  color: #888;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+/* Скроллбар для списка */
+.notification-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+.notification-list-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+}
+.notification-list-container::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+}
