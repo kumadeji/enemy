@@ -1351,3 +1351,20 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
     white-space: normal;
   }
 }
+
+/* ==========================================================================
+   ПОДТВЕРЖДЕНИЕ ПОЧТЫ
+   ========================================================================== */
+.email-verify-banner {
+  background: rgba(91, 143, 214, 0.12);
+  border-bottom: 1px solid #5b8fd6;
+  color: #5b8fd6;
+  font-size: 13px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  text-align: center;
+}

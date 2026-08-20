@@ -28,6 +28,7 @@ import AdminChangeLog from "./pages/AdminChangeLog";
 import AdminMigrate from "./pages/AdminMigrate";
 import ForgotPassword from "./pages/ForgotPassword";
 import AccountSettings from "./pages/AccountSettings";
+import EmailVerificationBanner from "./components/EmailVerificationBanner";
 
 export default function App() {
   return (
