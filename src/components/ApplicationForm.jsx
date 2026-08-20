@@ -322,7 +322,7 @@ export default function ApplicationForm({
         <input type="text" required value={form.callsign} disabled={isLocked("callsign")}
           onChange={e => updateField("callsign", e.target.value)}
           onBlur={e => setCallsignError(validateCallsign(e.target.value) || "")} />
-        {isLocked("callsign") && <div className="field-hint">Смена позывного возможна только через комбата.</div>}
+        {isLocked("callsign") && <div className="field-hint">Смена позывного возможна только через комбата или его заместителя.</div>}
 
         <div className="callsign-rules">
           <p><b>Обратите внимание: позывной обычно указывается раз и навсегда</b>, его смена

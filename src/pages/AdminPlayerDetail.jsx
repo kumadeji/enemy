@@ -376,7 +376,7 @@ export default function AdminPlayerDetail() {
         <p><b>Боевые заслуги:</b></p>
         <div className="profile-stats-row">
           {["playedAsSoldierCount", "koCount", "ksCount"].map(field => {
-            const labels = { playedAsSoldierCount: "отыграл как боец", koCount: "отыграл за КО", ksCount: "отыграл за КС" };
+            const labels = { playedAsSoldierCount: "отыграл за бойца", koCount: "отыграл за КО", ksCount: "отыграл за КС" };
             const val = profile.gameStats?.[activeGame]?.[field] || 0;
             return (
               <div className="profile-stat-card" key={field}>

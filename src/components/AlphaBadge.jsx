@@ -1,7 +1,7 @@
 export default function AlphaBadge() {
   return (
     <div className="alpha-ribbon">
-      АЛЬФА 3
+      АЛЬФА 4
     </div>
   );
 }

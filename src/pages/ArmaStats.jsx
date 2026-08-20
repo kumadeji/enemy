@@ -28,7 +28,7 @@ export default function ArmaStats() {
       <h1>Статистика отыгрышей — Arma Reforger</h1>
 
       <div className="card">
-        <h2>Отыграно как боец</h2>
+        <h2>Отыграно за бойца</h2>
         <StatsBarChart data={buildData("playedAsSoldierCount")} />
       </div>
 

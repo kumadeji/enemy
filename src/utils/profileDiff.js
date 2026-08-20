@@ -18,7 +18,7 @@ export function buildDiffMessages(before, after, games) {
 
     const bs = before.gameStats?.[game] || {};
     const as = after.gameStats?.[game] || {};
-    if ((as.playedAsSoldierCount || 0) > (bs.playedAsSoldierCount || 0)) messages.push(`«${game}»: зачтён отыгрыш как боец.`);
+    if ((as.playedAsSoldierCount || 0) > (bs.playedAsSoldierCount || 0)) messages.push(`«${game}»: зачтён отыгрыш за бойца.`);
     if ((as.koCount || 0) > (bs.koCount || 0)) messages.push(`«${game}»: зачтён отыгрыш за КО.`);
     if ((as.ksCount || 0) > (bs.ksCount || 0)) messages.push(`«${game}»: зачтён отыгрыш за КС.`);
 

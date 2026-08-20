@@ -248,7 +248,7 @@ export default function Profile() {
           <div className="profile-stats-row">
             <div className="profile-stat-card">
               <span className="stat-value">{p.gameStats?.[activeGame]?.playedAsSoldierCount || 0}</span>
-              <span className="stat-label">{pluralize(p.gameStats?.[activeGame]?.playedAsSoldierCount || 0, TIMES_FORMS)} отыграл как боец</span>
+              <span className="stat-label">{pluralize(p.gameStats?.[activeGame]?.playedAsSoldierCount || 0, TIMES_FORMS)} отыграл за бойца</span>
             </div>
             <div className="profile-stat-card">
               <span className="stat-value">{p.gameStats?.[activeGame]?.koCount || 0}</span>
