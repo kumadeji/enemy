@@ -10,11 +10,11 @@ export function buildRosterPublicPayload(profile) {
   const contactsPublic = profile.contactsPublic || {};
   const isPublic = (key) => contactsPublic[key] !== false;
 
-  // Ссылки считаем с запасом: если предвычисленное поле уже есть — используем
-  // его, а если пустое (например, у профилей, зарегистрированных до появления
+  // Ссылки считаем с запасом: если предвычисленное поле уже есть и не пустое — используем
+  // его, а если отсутствует или пустое (например, у профилей, зарегистрированных до появления
   // автоматической генерации ссылок) — вычисляем на лету из сырого ID.
-  const telegramUrl = profile.telegramUrl || buildTelegramUrl(contacts.telegram || "");
-  const vkUrl = profile.vkUrl || buildVkUrl(contacts.vk || "");
+  const telegramUrl = (profile.telegramUrl && profile.telegramUrl.trim()) ? profile.telegramUrl : buildTelegramUrl(contacts.telegram || "");
+  const vkUrl = (profile.vkUrl && profile.vkUrl.trim()) ? profile.vkUrl : buildVkUrl(contacts.vk || "");
 
   return {
     callsign: profile.callsign || "",
