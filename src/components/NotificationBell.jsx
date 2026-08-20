@@ -11,15 +11,28 @@ export default function NotificationBell() {
 
   useEffect(() => {
     if (!currentUser) return;
+    
     const q = query(
       collection(db, "notifications"),
       where("uid", "==", currentUser.uid),
       orderBy("createdAt", "desc"),
       limit(30)
     );
-    const unsubscribe = onSnapshot(q, snap => {
-      setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      },
+      (error) => {
+        console.error("Ошибка подписки на уведомления:", error);
+        if (error.code === "failed-precondition") {
+          console.error("⚠️ ТРЕБУЕТСЯ ИНДЕКС! Посмотрите ссылку выше в сообщении ошибки (или в консоли Firebase).");
+          alert("Для работы уведомлений нужно создать индекс. См. консоль браузера (F12) для ссылки на создание.");
+        }
+      }
+    );
+
     return unsubscribe;
   }, [currentUser]);
 
@@ -36,13 +49,21 @@ export default function NotificationBell() {
   const unreadCount = items.filter(i => !i.read).length;
 
   async function markRead(id) {
-    await updateDoc(doc(db, "notifications", id), { read: true });
+    try {
+      await updateDoc(doc(db, "notifications", id), { read: true });
+    } catch (err) {
+      console.error("Не удалось отметить как прочитанное:", err);
+    }
   }
 
   async function markAllRead() {
-    const batch = writeBatch(db);
-    items.filter(i => !i.read).forEach(i => batch.update(doc(db, "notifications", i.id), { read: true }));
-    await batch.commit();
+    try {
+      const batch = writeBatch(db);
+      items.filter(i => !i.read).forEach(i => batch.update(doc(db, "notifications", i.id), { read: true }));
+      await batch.commit();
+    } catch (err) {
+      console.error("Не удалось отметить все как прочитанные:", err);
+    }
   }
 
   function formatDate(ts) {

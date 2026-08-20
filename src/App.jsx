@@ -29,6 +29,7 @@ import AdminMigrate from "./pages/AdminMigrate";
 import ForgotPassword from "./pages/ForgotPassword";
 import AccountSettings from "./pages/AccountSettings";
 import EmailVerificationBanner from "./components/EmailVerificationBanner";
+import AdminTestNotification from "./pages/AdminTestNotification";
 
 export default function App() {
   return (
@@ -64,6 +65,7 @@ export default function App() {
           <Route path="/admin/player/:uid/edit" element={<ProtectedRoute require="admin"><AdminEditPlayer /></ProtectedRoute>} />
           <Route path="/admin/changelog" element={<ProtectedRoute require="admin"><AdminChangeLog /></ProtectedRoute>} />
           <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
+		  <Route path="/admin/test-notification" element={<AdminTestNotification />} />
         </Routes>
         <footer className="site-footer">
           <div className="container">© Мультиигровое сообщество ENEMY. 2026. Разработка сайта: [En-Y]Boba, aka kumadeji.</div>
