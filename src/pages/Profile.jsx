@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { pluralize } from "../utils/pluralize";
 import { TIMES_FORMS } from "../data/statusForms";
 import { buildRosterPublicPayload } from "../utils/rosterPublic";
+import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
 import StatusBadges from "../components/StatusBadges";
 import AwardChip from "../components/AwardChip";
 import CopyableField from "../components/CopyableField";
@@ -91,6 +92,13 @@ export default function Profile() {
   const contactsPublic = p.contactsPublic || {};
   const isFieldPublic = (key) => contactsPublic[key] !== false;
 
+  // Вычисляем ссылки с fallback: если предвычисленное поле отсутствует или пустое,
+  // строим ссылку из сырого ID на лету (для своего профиля из profiles,
+  // для чужого — из rosterPublic/publicContacts, где уже должно быть посчитано,
+  // но на всякий случай делаем fallback).
+  const telegramUrl = (p.telegramUrl && p.telegramUrl.trim()) ? p.telegramUrl : buildTelegramUrl(contacts.telegram || "");
+  const vkUrl = (p.vkUrl && p.vkUrl.trim()) ? p.vkUrl : buildVkUrl(contacts.vk || "");
+
   const playedGames = p.gamesInterested || [];
   const gameRole = activeGame ? p.gameRoles?.[activeGame] : null;
   const isPending = gameRole?.composition === "Отбор";
@@ -150,10 +158,10 @@ export default function Profile() {
             <ProfileRow label="Ссылка на Telegram">
               {isOwn ? (
                 <PrivacyToggleField isPublic={isFieldPublic("telegram")} onToggle={() => toggleContactField("telegram")}>
-                  <a href={p.telegramUrl} target="_blank" rel="noreferrer">{p.telegramUrl}</a>
+                  <a href={telegramUrl} target="_blank" rel="noreferrer">{telegramUrl}</a>
                 </PrivacyToggleField>
               ) : (
-                <a href={p.telegramUrl} target="_blank" rel="noreferrer">{p.telegramUrl}</a>
+                <a href={telegramUrl} target="_blank" rel="noreferrer">{telegramUrl}</a>
               )}
             </ProfileRow>
           )}
@@ -161,10 +169,10 @@ export default function Profile() {
             <ProfileRow label="Ссылка на ВКонтакте">
               {isOwn ? (
                 <PrivacyToggleField isPublic={isFieldPublic("vk")} onToggle={() => toggleContactField("vk")}>
-                  <a href={p.vkUrl} target="_blank" rel="noreferrer">{p.vkUrl}</a>
+                  <a href={vkUrl} target="_blank" rel="noreferrer">{vkUrl}</a>
                 </PrivacyToggleField>
               ) : (
-                <a href={p.vkUrl} target="_blank" rel="noreferrer">{p.vkUrl}</a>
+                <a href={vkUrl} target="_blank" rel="noreferrer">{vkUrl}</a>
               )}
             </ProfileRow>
           )}
