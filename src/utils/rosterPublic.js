@@ -1,3 +1,5 @@
+import { buildTelegramUrl, buildVkUrl } from "./socialLinks";
+
 // Строит "публичный" срез профиля для коллекции rosterPublic.
 // Этот документ читают ВСЕ посетители сайта без исключения, поэтому сюда
 // попадают только данные, которые действительно можно показывать всем:
@@ -7,6 +9,12 @@ export function buildRosterPublicPayload(profile) {
   const contacts = profile.extraContacts || {};
   const contactsPublic = profile.contactsPublic || {};
   const isPublic = (key) => contactsPublic[key] !== false;
+
+  // Ссылки считаем с запасом: если предвычисленное поле уже есть — используем
+  // его, а если пустое (например, у профилей, зарегистрированных до появления
+  // автоматической генерации ссылок) — вычисляем на лету из сырого ID.
+  const telegramUrl = profile.telegramUrl || buildTelegramUrl(contacts.telegram || "");
+  const vkUrl = profile.vkUrl || buildVkUrl(contacts.vk || "");
 
   return {
     callsign: profile.callsign || "",
@@ -31,7 +39,7 @@ export function buildRosterPublicPayload(profile) {
       vk: isPublic("vk") ? (contacts.vk || "") : "",
       other: isPublic("other") ? (contacts.other || "") : ""
     },
-    telegramUrl: isPublic("telegram") ? (profile.telegramUrl || "") : "",
-    vkUrl: isPublic("vk") ? (profile.vkUrl || "") : ""
+    telegramUrl: isPublic("telegram") ? telegramUrl : "",
+    vkUrl: isPublic("vk") ? vkUrl : ""
   };
 }

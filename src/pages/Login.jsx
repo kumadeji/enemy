@@ -45,7 +45,7 @@ export default function Login() {
         </form>
 
         <p className="auth-alt-action">
-          Ещё нет аккаунта? <Link to="/apply">Подать заявку на вступление</Link>.
+          Ещё не вступили? <Link to="/apply">Подать заявку на вступление</Link>.
         </p>
 		<p className="auth-alt-action"><Link to="/forgot-password">Забыли пароль?</Link></p>
       </div>

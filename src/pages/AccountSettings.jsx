@@ -13,7 +13,7 @@ function translateAuthError(err) {
     case "auth/too-many-requests":
       return "Слишком много попыток. Попробуйте позже.";
     case "auth/email-already-in-use":
-      return "Эта почта уже используется другим аккаунтом.";
+      return "Эта почта уже используется другим бойцом.";
     case "auth/invalid-email":
       return "Некорректный формат почты.";
     case "auth/weak-password":
@@ -110,7 +110,7 @@ export default function AccountSettings() {
 
   return (
     <main className="container">
-      <h1>Настройки аккаунта</h1>
+      <h1>Изменение данных для авторизации</h1>
 
       <div className="card">
         <h2>Электронная почта</h2>
