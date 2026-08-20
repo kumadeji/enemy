@@ -1553,3 +1553,17 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   background: rgba(255,255,255,0.2);
   border-radius: 3px;
 }
+
+/* Отступ кнопок в шапке */
+
+/* Найди класс своих кнопок/ссылок в навбаре, скорее всего .nav-link или similar */
+.nav-link, .nav-notification-btn {
+  margin-left: 8px;  /* Отступ слева */
+  margin-right: 8px; /* Отступ справа */
+}
+
+/* Если кнопки прижаты слишком сильно друг к другу внутри контейнера, 
+   можно добавить gap родителю, если используется flexbox */
+nav ul, .nav-container { 
+  gap: 8px; /* Работает только если у родителя display: flex */
+}
