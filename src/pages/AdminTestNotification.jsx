@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { createNotification } from "../utils/notifications";
+import { db } from "../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function AdminTestNotification() {
   const { currentUser } = useAuth();
@@ -8,36 +9,48 @@ export default function AdminTestNotification() {
 
   async function sendTest() {
     if (!currentUser) return;
-    setStatus("Отправляю...");
+    setStatus("Отправка...");
     try {
-      // Отправляем тестовое уведомление САМОМУ СЕБЕ
-      await createNotification(
-        currentUser.uid,
-        "🔔 ТЕСТ: Если вы видите это сообщение в колокольчике — система уведомлений работает исправно!"
-      );
-      setStatus("✅ Уведомление отправлено! Проверьте колокольчик в шапке сайта.");
-    } catch (err) {
-      console.error("Ошибка отправки:", err);
-      setStatus(`❌ Ошибка: ${err.message}. Проверьте консоль браузера (F12).`);
+      await addDoc(collection(db, "notifications"), {
+        uid: currentUser.uid,
+        message: `🔔 Тестовое уведомление ${new Date().toLocaleTimeString()}. Проверь дизайн!`,
+        read: false,
+        createdAt: serverTimestamp()
+      });
+      setStatus("✅ Уведомление отправлено!");
+      setTimeout(() => setStatus(""), 3000);
+    } catch (e) {
+      setStatus("❌ Ошибка: " + e.message);
     }
   }
 
   return (
-    <main className="container">
-      <h1>Тест уведомлений</h1>
+    <main className="container" style={{ maxWidth: "600px", marginTop: "40px" }}>
       <div className="card">
-        <p>Нажмите кнопку ниже, чтобы отправить себе тестовое уведомление.</p>
-        <p><strong>Важно:</strong> После нажатия откройте выпадающий список уведомлений (колокольчик вверху справа).</p>
-        <button className="btn" onClick={sendTest}>Отправить тестовое уведомление</button>
-        {status && <p style={{ marginTop: "1rem", fontWeight: "bold" }}>{status}</p>}
+        <h2>🔔 Тест уведомлений</h2>
+        <p>Нажми кнопку ниже, чтобы отправить себе тестовое сообщение.</p>
+        <p style={{ fontSize: "13px", color: "#888" }}>
+          Текущий пользователь: <strong>{currentUser?.email}</strong>
+        </p>
         
-        <div style={{ marginTop: "2rem", borderTop: "1px solid #eee", paddingTop: "1rem" }}>
-          <h3>Как проверить индекс?</h3>
-          <ol>
-            <li>Откройте консоль браузера (F12).</li>
-            <li>Кликните по колокольчику уведомлений в шапке.</li>
-            <li>Если в консоли появилась красная ошибка со ссылкой на <code>firebase.google.com</code> — перейдите по ней и создайте индекс.</li>
-            <li>Подождите 1-2 минуты создания индекса, затем обновите страницу и попробуйте снова.</li>
+        <button className="btn" onClick={sendTest} style={{ marginTop: "10px" }}>
+          Отправить тестовое уведомление
+        </button>
+
+        {status && (
+          <p style={{ marginTop: "15px", fontWeight: "bold", color: status.includes("✅") ? "#4ade80" : "#ef4444" }}>
+            {status}
+          </p>
+        )}
+
+        <div style={{ marginTop: "30px", padding: "15px", background: "#222", borderRadius: "8px", fontSize: "13px" }}>
+          <strong>Инструкция:</strong>
+          <ol style={{ paddingLeft: "20px", marginTop: "10px", lineHeight: "1.6" }}>
+            <li>Нажми кнопку отправки.</li>
+            <li>Кликни по колокольчику в шапке сайта (справа).</li>
+            <li>Проверь, появилось ли сообщение с зеленой точкой.</li>
+            <li>Нажми на само сообщение — точка должна исчезнуть.</li>
+            <li>Нажми "Прочитать все" — все точки должны пропасть.</li>
           </ol>
         </div>
       </div>
