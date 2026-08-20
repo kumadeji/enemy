@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
 import { collection, query, where, orderBy, limit, onSnapshot, writeBatch, doc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
-import "./NotificationBell.css"; // Убедись, что файл со стилями существует
 
 export default function NotificationBell() {
   const { currentUser } = useAuth();
