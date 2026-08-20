@@ -17,7 +17,7 @@ export default function NotificationBell() {
       collection(db, "notifications"),
       where("uid", "==", currentUser.uid),
       orderBy("createdAt", "desc"),
-      limit(50) // Увеличил лимит до 50 для истории
+      limit(50)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -25,7 +25,6 @@ export default function NotificationBell() {
       setItems(newItems);
     }, (error) => {
       console.error("Ошибка подписки на уведомления:", error);
-      // Здесь можно добавить обработку ошибки индекса, если она возникнет снова
     });
 
     return unsubscribe;
@@ -58,9 +57,9 @@ export default function NotificationBell() {
       });
       await batch.commit();
       
-      // Мгновенно обновляем локальный стейт, убирая удаленные элементы
+      // Мгновенно обновляем локальный стейт, оставляя только прочитанные
       setItems(prev => prev.filter(i => i.read));
-      setOpen(false); // Опционально: закрыть окно после очистки
+      // Окно НЕ закрываем, пользователь увидит пустой список или старые прочитанные
     } catch (error) {
       console.error("Ошибка при удалении уведомлений:", error);
       alert("Не удалось удалить уведомления. Проверьте консоль.");
@@ -77,7 +76,7 @@ export default function NotificationBell() {
   }
 
   return (
-    <div className="notification-bell-wrapper" ref={wrapperRef}>
+    <div className="notification-bell-wrapper" ref={wrapperRef} style={{ position: 'relative' }}>
       {/* Кнопка-колокольчик */}
       <button 
         type="button" 

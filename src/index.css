@@ -1369,12 +1369,17 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   text-align: center;
 }
 
-/* Контейнер кнопки */
+/* Контейнер кнопки (гарантируем relative) */
+.notification-bell-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
 .nav-notification-btn {
   position: relative;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2); /* Легкая рамка как у кнопок в шапке */
-  border-radius: 6px; /* Скругление углов */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
   color: inherit;
   padding: 6px;
   cursor: pointer;
@@ -1396,7 +1401,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   position: absolute;
   top: -4px;
   right: -4px;
-  background-color: #ef4444; /* Красный цвет */
+  background-color: #ef4444;
   color: white;
   font-size: 10px;
   font-weight: bold;
@@ -1406,18 +1411,19 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #1a1a1a; /* Цвет фона шапки, чтобы отделить от кнопки */
+  border: 2px solid #1a1a1a;
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-/* Выпадающая карточка */
+/* Выпадающая карточка - ИСПРАВЛЕНО ПОЗИЦИОНИРОВАНИЕ */
 .notification-dropdown-card {
   position: absolute;
-  top: 45px;
-  right: 0;
+  top: 100%; /* Сразу под кнопкой */
+  right: 0;  /* Прижато к правому краю кнопки */
+  margin-top: 8px; /* Небольшой отступ */
   width: 320px;
   max-height: 400px;
-  background: #252525; /* Темный фон под тему сайта */
+  background: #252525;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
@@ -1426,6 +1432,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   flex-direction: column;
   overflow: hidden;
   animation: slideDown 0.2s ease-out;
+  transform-origin: top right;
 }
 
 @keyframes slideDown {
@@ -1441,6 +1448,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   justify-content: space-between;
   align-items: center;
   background: rgba(0,0,0,0.2);
+  flex-shrink: 0; /* Чтобы заголовок не сжимался */
 }
 
 .dropdown-title {
@@ -1456,14 +1464,18 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 .btn-mark-read {
   background: transparent;
   border: none;
-  color: #4ade80; /* Зеленый цвет действия */
+  color: #4ade80;
   font-size: 12px;
   cursor: pointer;
   font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 
 .btn-mark-read:hover {
-  text-decoration: underline;
+  background: rgba(74, 222, 128, 0.1);
+  text-decoration: none;
 }
 
 /* Список уведомлений */
@@ -1473,10 +1485,11 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 }
 
 .empty-state {
-  padding: 30px;
+  padding: 40px 20px;
   text-align: center;
   color: #888;
-  font-size: 13px;
+  font-size: 14px;
+  font-style: italic;
 }
 
 /* Элемент уведомления */
@@ -1499,7 +1512,8 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 }
 
 .notification-item-unread {
-  background: rgba(59, 130, 246, 0.05); /* Легкий синий фон для непрочитанных */
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid #3b82f6;
 }
 
 .notification-content {
@@ -1528,7 +1542,7 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   margin-top: 4px;
 }
 
-/* Скроллбар для списка */
+/* Скроллбар */
 .notification-list-container::-webkit-scrollbar {
   width: 6px;
 }
