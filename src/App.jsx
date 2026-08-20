@@ -6,7 +6,7 @@ import AlphaBadge from "./components/AlphaBadge";
 import BackgroundMap from "./components/BackgroundMap";
 import BackgroundMusic from "./components/BackgroundMusic";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import PageTitle from "./components/PageTitle";
 import Home from "./pages/Home";
 import Apply from "./pages/Apply";
 import Login from "./pages/Login";
@@ -21,29 +21,34 @@ import History from "./pages/History";
 import Contact from "./pages/Contact";
 import Queue from "./pages/Queue";
 import ArmaHQ from "./pages/ArmaHQ";
+import ArmaStats from "./pages/ArmaStats";
 import Admin from "./pages/Admin";
 import AdminPlayerDetail from "./pages/AdminPlayerDetail";
 import AdminChangeLog from "./pages/AdminChangeLog";
-
-
 import AdminMigrate from "./pages/AdminMigrate";
+import ForgotPassword from "./pages/ForgotPassword";
+import AccountSettings from "./pages/AccountSettings";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <BackgroundMap />
+        <PageTitle />
+		<BackgroundMap />
 		<BackgroundMusic />
 		<AlphaBadge />
         <Navbar />
         <InfoBanner />
+		<EmailVerificationBanner />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/apply" element={<Apply />} />
+          <Route path="/account" element={<ProtectedRoute require="auth"><AccountSettings /></ProtectedRoute>} />
+		  <Route path="/apply" element={<Apply />} />
           <Route path="/login" element={<Login />} />
           <Route path="/my-application" element={<ProtectedRoute require="auth"><MyApplication /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute require="auth"><Profile /></ProtectedRoute>} />
           <Route path="/profile/:uid" element={<ProtectedRoute require="roster"><Profile /></ProtectedRoute>} />
+		  <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/roster" element={<Roster />} />
           <Route path="/media" element={<Media />} />
           <Route path="/temptable" element={<TempTable />} />
@@ -51,6 +56,7 @@ export default function App() {
           <Route path="/history" element={<History />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/hq/arma" element={<ProtectedRoute require="arma-roster"><ArmaHQ /></ProtectedRoute>} />
+		  <Route path="/hq/arma/stats" element={<ProtectedRoute require="arma-roster"><ArmaStats /></ProtectedRoute>} />
           <Route path="/queue" element={<ProtectedRoute require="arma-roster"><Queue /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute require="admin"><Admin /></ProtectedRoute>} />
           <Route path="/admin/player/:uid" element={<ProtectedRoute require="admin"><AdminPlayerDetail /></ProtectedRoute>} />

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { db, GOOGLE_SHEETS_URL } from "../firebase";
+import { db } from "../firebase";
 import { doc, getDoc, updateDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import ApplicationForm, { buildSteamProfileUrl } from "./ApplicationForm";
 import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
+import { buildRosterPublicPayload } from "../utils/rosterPublic";
 
 const FIELD_LABELS = {
   fullName: "Имя и фамилия", age: "Возраст", birthDate: "Дата рождения",
@@ -28,24 +29,21 @@ function buildChangesList(before, after) {
 export default function EditApplicationPage({ targetUid, isAdminEditing = false }) {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
-  const [application, setApplication] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function load() {
       const pSnap = await getDoc(doc(db, "profiles", targetUid));
-      const aSnap = await getDoc(doc(db, "applications", targetUid));
       if (pSnap.exists()) setProfile(pSnap.data());
-      if (aSnap.exists()) setApplication(aSnap.data());
     }
     if (targetUid) load();
   }, [targetUid]);
 
-  if (!profile || !application) return <main className="container"><p>Загрузка...</p></main>;
+  if (!profile) return <main className="container"><p>Загрузка...</p></main>;
 
   const initialValues = {
-    email: application.email, fullName: application.fullName, age: String(application.age),
+    email: profile.email, fullName: profile.fullName, age: String(profile.age),
     birthDate: profile.birthDate || "",
     steamId: profile.steamId, discordId: profile.discordId, armaId: profile.armaId || "",
     extraPhone: profile.extraContacts?.phone || "",
@@ -54,16 +52,16 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
     extraOther: profile.extraContacts?.other || "",
     callsign: profile.callsign,
     timezone: profile.timezone,
-    availability: application.availability,
-    whyJoin: application.whyJoin,
-    howFound: application.howFound || "",
+    availability: profile.availability,
+    whyJoin: profile.whyJoin,
+    howFound: profile.howFound || "",
     referredByUid: profile.referredByUid || "",
-    charterAgreed: application.charterAgreed,
+    charterAgreed: profile.charterAgreed,
     games: profile.gamesInterested,
     gameDetails: Object.fromEntries(
       profile.gamesInterested.map(g => [g, {
-        hours: String(application.hoursByGame?.[g] || ""),
-        experience: application.experienceByGame?.[g] || ""
+        hours: String(profile.hoursByGame?.[g] || ""),
+        experience: profile.experienceByGame?.[g] || ""
       }])
     )
   };
@@ -87,12 +85,12 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
       const vkUrl = buildVkUrl(values.extraVk);
 
       const beforeFlat = {
-        fullName: application.fullName, age: application.age, birthDate: profile.birthDate,
+        fullName: profile.fullName, age: profile.age, birthDate: profile.birthDate,
         steamId: profile.steamId, discordId: profile.discordId, armaId: profile.armaId,
         extraPhone: profile.extraContacts?.phone, extraTelegram: profile.extraContacts?.telegram,
         extraVk: profile.extraContacts?.vk, extraOther: profile.extraContacts?.other,
-        timezone: profile.timezone, availability: application.availability,
-        whyJoin: application.whyJoin, howFound: application.howFound,
+        timezone: profile.timezone, availability: profile.availability,
+        whyJoin: profile.whyJoin, howFound: profile.howFound,
         gamesInterested: profile.gamesInterested
       };
       const afterFlat = {
@@ -106,15 +104,13 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
       };
       const changes = buildChangesList(beforeFlat, afterFlat);
 
-      await updateDoc(doc(db, "applications", targetUid), {
+      const updatedProfile = {
+        ...profile,
         fullName: values.fullName, age: Number(values.age),
         availability: values.availability, whyJoin: values.whyJoin,
         howFound: values.referralType === "text" ? values.howFound : "",
         referrerCallsign: values.referrerCallsign || "",
-        hoursByGame, experienceByGame
-      });
-
-      await updateDoc(doc(db, "profiles", targetUid), {
+        hoursByGame, experienceByGame,
         discordId: values.discordId, steamId: values.steamId, steamProfileUrl,
         armaId: values.games.includes("Arma Reforger") ? values.armaId : "",
         extraContacts, telegramUrl, vkUrl,
@@ -122,12 +118,10 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
         timezone: values.timezone, birthDate: values.birthDate || "",
         referredByUid: values.referralType === "player" ? values.referredByUid : "",
         referredByText: values.referralType === "text" ? values.howFound : ""
-      });
+      };
 
-      await updateDoc(doc(db, "rosterPublic", targetUid), {
-        gamesInterested: values.games,
-        referredByUid: values.referralType === "player" ? values.referredByUid : ""
-      });
+      await updateDoc(doc(db, "profiles", targetUid), updatedProfile);
+      await updateDoc(doc(db, "rosterPublic", targetUid), buildRosterPublicPayload(updatedProfile));
 
       if (changes.length > 0) {
         await addDoc(collection(db, "changeLog"), {
@@ -135,21 +129,6 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
           changedBy: isAdminEditing ? "admin" : "player",
           changes, createdAt: serverTimestamp()
         });
-      }
-
-      if (GOOGLE_SHEETS_URL) {
-        fetch(GOOGLE_SHEETS_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "update", uid: targetUid,
-            callsign: profile.callsign, email: application.email, fullName: values.fullName, age: values.age,
-            steamProfileUrl, discordId: values.discordId, armaId: values.armaId,
-            extraContacts, gamesInterested: values.games, timezone: values.timezone,
-            availability: values.availability, whyJoin: values.whyJoin,
-            howFound: values.referralType === "player" ? `Приглашён бойцом: ${values.referrerCallsign}` : values.howFound,
-            charterAgreed: values.charterAgreed
-          })
-        }).catch(() => {});
       }
 
       navigate(isAdminEditing ? `/admin/player/${targetUid}` : "/profile");

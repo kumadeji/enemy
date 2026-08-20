@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc, deleteDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
@@ -9,6 +9,9 @@ import { createAction, isActionActive } from "../utils/discipline";
 import { pluralize } from "../utils/pluralize";
 import { TIMES_FORMS } from "../data/statusForms";
 import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
+import { buildRosterPublicPayload } from "../utils/rosterPublic";
+import { buildDiffMessages } from "../utils/profileDiff";
+import { createNotifications } from "../utils/notifications";
 import ToggleSwitch from "../components/ToggleSwitch";
 import AdminAwardChip from "../components/AdminAwardChip";
 import CopyableField from "../components/CopyableField";
@@ -20,11 +23,13 @@ export default function AdminPlayerDetail() {
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
-  const [application, setApplication] = useState(null);
-  const [note, setNote] = useState({ privateNote: "" });
   const [activeGame, setActiveGame] = useState(GAMES[0]);
   const [invitees, setInvitees] = useState([]);
   const [inviter, setInviter] = useState(null);
+
+  // Снимок профиля на момент открытия страницы — используется для
+  // построения диффа и автоматических уведомлений при сохранении
+  const originalProfileRef = useRef(null);
 
   // Форма "выдать общую награду" (раздел "Анкета")
   const [globalAwardIcon, setGlobalAwardIcon] = useState("");
@@ -54,11 +59,10 @@ export default function AdminPlayerDetail() {
       setInviter(null);
       setInvitees([]);
       const pSnap = await getDoc(doc(db, "profiles", uid));
-      const aSnap = await getDoc(doc(db, "applications", uid));
-      const nSnap = await getDoc(doc(db, "adminNotes", uid));
       if (pSnap.exists()) {
         const data = { uid, ...pSnap.data() };
         setProfile(data);
+        originalProfileRef.current = JSON.parse(JSON.stringify(data));
         setActiveGame(data.gamesInterested?.[0] || GAMES[0]);
 
         const q = query(collection(db, "rosterPublic"), where("referredByUid", "==", uid));
@@ -70,13 +74,11 @@ export default function AdminPlayerDetail() {
           if (invSnap.exists()) setInviter({ uid: data.referredByUid, callsign: invSnap.data().callsign });
         }
       }
-      if (aSnap.exists()) setApplication(aSnap.data());
-      if (nSnap.exists()) setNote(nSnap.data());
     }
     load();
   }, [uid]);
 
-  if (!profile || !application) return <main className="container"><p>Загрузка...</p></main>;
+  if (!profile) return <main className="container"><p>Загрузка...</p></main>;
 
   function updateProfileField(field, value) { setProfile(prev => ({ ...prev, [field]: value })); }
 
@@ -186,18 +188,21 @@ export default function AdminPlayerDetail() {
         gameAwards: profile.gameAwards || {},
         gameDisciplinaryActions: profile.gameDisciplinaryActions || {},
         globalAwards: profile.globalAwards || [],
-        globalDisciplinaryActions: profile.globalDisciplinaryActions || []
+        globalDisciplinaryActions: profile.globalDisciplinaryActions || [],
+        adminPrivateNote: profile.adminPrivateNote || ""
       });
 
-      await setDoc(doc(db, "rosterPublic", uid), {
-        callsign: profile.callsign,
-        gameRoles: profile.gameRoles || {},
-        gamesInterested: profile.gamesInterested,
-        gameStats: profile.gameStats || {},
-        referredByUid: profile.referredByUid || ""
-      });
+      await setDoc(doc(db, "rosterPublic", uid), buildRosterPublicPayload(profile));
 
-      await setDoc(doc(db, "adminNotes", uid), { privateNote: note.privateNote || "" });
+      // Формируем уведомления для игрока на основе разницы между
+      // состоянием при открытии страницы и текущим сохранённым состоянием
+      if (originalProfileRef.current) {
+        const diffMessages = buildDiffMessages(originalProfileRef.current, profile, GAMES);
+        if (diffMessages.length > 0) {
+          await createNotifications(uid, diffMessages);
+        }
+        originalProfileRef.current = JSON.parse(JSON.stringify(profile));
+      }
 
       setMessage("Сохранено.");
     } catch (err) {
@@ -208,11 +213,37 @@ export default function AdminPlayerDetail() {
   }
 
   async function handleDelete() {
-    if (!confirm(`Точно удалить бойца ${profile.callsign}?`)) return;
-    await deleteDoc(doc(db, "profiles", uid));
-    await deleteDoc(doc(db, "applications", uid));
-    await deleteDoc(doc(db, "adminNotes", uid));
-    navigate("/admin");
+    if (!confirm(`Точно удалить бойца ${profile.callsign}? Это действие необратимо и удалит все связанные данные.`)) return;
+    setSaving(true);
+    try {
+      const callsignKey = (profile.callsign || "").trim().toLowerCase();
+
+      // Удаляем связанные записи из журнала изменений
+      const changeLogQuery = query(collection(db, "changeLog"), where("uid", "==", uid));
+      const changeLogSnap = await getDocs(changeLogQuery);
+      await Promise.all(changeLogSnap.docs.map(d => deleteDoc(d.ref)));
+
+      // Освобождаем позывной — иначе он навсегда остаётся "занят"
+      if (callsignKey) {
+        await deleteDoc(doc(db, "callsigns", callsignKey));
+      }
+
+      // Убираем из очереди на КО, если боец там был
+      const queueSnap = await getDoc(doc(db, "queue", "state"));
+      if (queueSnap.exists()) {
+        const current = (queueSnap.data().current || []).filter(item => item.uid !== uid);
+        await setDoc(doc(db, "queue", "state"), { current });
+      }
+
+      // Удаляем сам профиль и его публичную копию
+      await deleteDoc(doc(db, "profiles", uid));
+      await deleteDoc(doc(db, "rosterPublic", uid));
+
+      navigate("/admin");
+    } catch (err) {
+      alert("Ошибка при удалении: " + err.message);
+      setSaving(false);
+    }
   }
 
   const gameRole = profile.gameRoles?.[activeGame] || defaultGameRole();
@@ -234,10 +265,10 @@ export default function AdminPlayerDetail() {
         />
 
         <ProfileTable>
-          <ProfileRow label="Электронная почта">{application.email}</ProfileRow>
-          <ProfileRow label="Имя и фамилия">{application.fullName}</ProfileRow>
-          <ProfileRow label="Возраст">{application.age}</ProfileRow>
-          <ProfileRow label="Discord ID">{profile.discordId}</ProfileRow>
+          <ProfileRow label="Электронная почта">{profile.email}</ProfileRow>
+          <ProfileRow label="Имя и фамилия">{profile.fullName}</ProfileRow>
+          <ProfileRow label="Возраст">{profile.age}</ProfileRow>
+          <ProfileRow label="Discord ID"><CopyableField value={profile.discordId} /></ProfileRow>
           <ProfileRow label="Steam ID"><CopyableField value={profile.steamId} /></ProfileRow>
           <ProfileRow label="Ссылка на Steam"><a href={profile.steamProfileUrl} target="_blank" rel="noreferrer">{profile.steamProfileUrl}</a></ProfileRow>
           {profile.armaId && <ProfileRow label="Arma ID"><CopyableField value={profile.armaId} /></ProfileRow>}
@@ -265,19 +296,19 @@ export default function AdminPlayerDetail() {
               {invitees.map((inv, i) => <span key={inv.uid}>{i > 0 && ", "}<Link to={`/admin/player/${inv.uid}`}>{inv.callsign}</Link></span>)}
             </ProfileRow>
           )}
-          <ProfileRow label="Доступность для игр">{application.availability}</ProfileRow>
-          <ProfileRow label="Почему хочет вступить?">{application.whyJoin}</ProfileRow>
+          <ProfileRow label="Доступность для игр">{profile.availability}</ProfileRow>
+          <ProfileRow label="Почему хочет вступить?">{profile.whyJoin}</ProfileRow>
           <ProfileRow label="Откуда узнал?">
-            {profile.referredByUid ? "Приглашён бойцом (см. выше)" : (application.howFound || "—")}
+            {profile.referredByUid ? "Приглашён бойцом (см. выше)" : (profile.howFound || "—")}
           </ProfileRow>
           {profile.gamesInterested.map(g => (
             <ProfileRow key={g} label={`Опыт в ${g}`}>
-              {application.hoursByGame?.[g]} ч. — {application.experienceByGame?.[g]}
+              {profile.hoursByGame?.[g]} ч. — {profile.experienceByGame?.[g]}
             </ProfileRow>
           ))}
         </ProfileTable>
-		
-		<Link to={`/admin/player/${uid}/edit`} className="btn secondary profile-edit-btn">Редактировать чужую анкету</Link>
+
+        <Link to={`/admin/player/${uid}/edit`} className="btn secondary profile-edit-btn">Редактировать чужую анкету</Link>
 
         {/* ---------- Общие награды сообщества ---------- */}
         <p><b>Общие награды сообщества:</b></p>
@@ -301,7 +332,7 @@ export default function AdminPlayerDetail() {
 
         {/* ---------- Общие дисциплинарные взыскания ---------- */}
         <p><b>Общие дисциплинарные взыскания:</b></p>
-		<div className="admin-subform">
+        <div className="admin-subform">
           <label>Выдать общее взыскание по сообществу</label>
           <select value={globalActionType} onChange={e => setGlobalActionType(e.target.value)}>
             <option value="Замечание">Замечание (1 месяц)</option>
@@ -314,7 +345,7 @@ export default function AdminPlayerDetail() {
 
         <div style={{ marginTop: 16 }}>
           <label>Внутренняя заметка <span className="optional-tag">видна только комбату и его заместителям</span></label>
-          <textarea value={note.privateNote || ""} onChange={e => setNote({ privateNote: e.target.value })} />
+          <textarea value={profile.adminPrivateNote || ""} onChange={e => updateProfileField("adminPrivateNote", e.target.value)} />
         </div>
       </div>
 

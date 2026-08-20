@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { auth, db, GOOGLE_SHEETS_URL } from "../firebase";
+import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, runTransaction, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import ApplicationForm from "../components/ApplicationForm";
 import { defaultGameRole } from "../data/gameRoles";
 import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
+import { buildRosterPublicPayload } from "../utils/rosterPublic";
+import { sendEmailVerification } from "firebase/auth";
 
 export default function Apply() {
   const { currentUser, refreshProfile } = useAuth();
@@ -32,6 +34,7 @@ export default function Apply() {
 
       const cred = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const uid = cred.user.uid;
+	  await sendEmailVerification(cred.user).catch(() => {});
 
       const hoursByGame = {};
       const experienceByGame = {};
@@ -51,68 +54,57 @@ export default function Apply() {
       const gameAwards = Object.fromEntries(values.games.map(g => [g, []]));
       const gameDisciplinaryActions = Object.fromEntries(values.games.map(g => [g, []]));
 
+      const profileData = {
+        // Анкетные данные (раньше жили в отдельной коллекции applications)
+        email: values.email,
+        fullName: values.fullName,
+        age: Number(values.age),
+        availability: values.availability,
+        whyJoin: values.whyJoin,
+        howFound: values.referralType === "text" ? values.howFound : "",
+        referrerCallsign: values.referrerCallsign || "",
+        hoursByGame, experienceByGame,
+        charterAgreed: values.charterAgreed,
+
+        // Личные данные и контакты
+        callsign: values.callsign.trim(),
+        discordId: values.discordId,
+        steamId: values.steamId,
+        steamProfileUrl: values.steamProfileUrl,
+        armaId: values.games.includes("Arma Reforger") ? values.armaId : "",
+        extraContacts,
+        telegramUrl: buildTelegramUrl(values.extraTelegram),
+        vkUrl: buildVkUrl(values.extraVk),
+        birthDatePublic: true,
+        contactsPublic: { phone: true, telegram: true, vk: true, other: true },
+        timezone: values.timezone,
+        birthDate: values.birthDate || "",
+
+        // Игровая часть
+        gamesInterested: values.games,
+        gameRoles, gameStats, gameNotes, gameAwards, gameDisciplinaryActions,
+        globalAwards: [],
+        globalDisciplinaryActions: [],
+
+        // Реферальная система
+        referredByUid: values.referralType === "player" ? values.referredByUid : "",
+        referredByText: values.referralType === "text" ? values.howFound : "",
+
+        // Внутренняя заметка администрации (раньше жила в adminNotes)
+        adminPrivateNote: "",
+
+        createdAt: serverTimestamp()
+      };
+
       await runTransaction(db, async (tx) => {
         const existing = await tx.get(callsignRef);
         if (existing.exists()) throw new Error("Этот позывной уже занят, выберите другой.");
         tx.set(callsignRef, { uid });
-
-        tx.set(doc(db, "profiles", uid), {
-          callsign: values.callsign.trim(),
-          discordId: values.discordId,
-          steamId: values.steamId,
-          steamProfileUrl: values.steamProfileUrl,
-          armaId: values.games.includes("Arma Reforger") ? values.armaId : "",
-          extraContacts,
-          telegramUrl: buildTelegramUrl(values.extraTelegram),
-          vkUrl: buildVkUrl(values.extraVk),
-          birthDatePublic: true,
-          contactsPublic: { phone: true, telegram: true, vk: true, other: true },
-          gamesInterested: values.games,
-          gameRoles, gameStats, gameNotes, gameAwards, gameDisciplinaryActions,
-          globalAwards: [],
-          globalDisciplinaryActions: [],
-          timezone: values.timezone,
-          birthDate: values.birthDate || "",
-          referredByUid: values.referralType === "player" ? values.referredByUid : "",
-          referredByText: values.referralType === "text" ? values.howFound : "",
-          createdAt: serverTimestamp()
-        });
-
-        tx.set(doc(db, "rosterPublic", uid), {
-          callsign: values.callsign.trim(),
-          gameRoles, gamesInterested: values.games,
-          gameStats,
-          referredByUid: values.referralType === "player" ? values.referredByUid : ""
-        });
-
-        tx.set(doc(db, "applications", uid), {
-          email: values.email, fullName: values.fullName, age: Number(values.age),
-          availability: values.availability, whyJoin: values.whyJoin,
-          howFound: values.referralType === "text" ? values.howFound : "",
-          referrerCallsign: values.referrerCallsign || "",
-          hoursByGame, experienceByGame,
-          charterAgreed: values.charterAgreed,
-          createdAt: serverTimestamp()
-        });
+        tx.set(doc(db, "profiles", uid), profileData);
+        tx.set(doc(db, "rosterPublic", uid), buildRosterPublicPayload(profileData));
       });
 
       await refreshProfile();
-
-      if (GOOGLE_SHEETS_URL) {
-        fetch(GOOGLE_SHEETS_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "create", uid,
-            callsign: values.callsign, email: values.email, fullName: values.fullName, age: values.age,
-            steamProfileUrl: values.steamProfileUrl, discordId: values.discordId, armaId: values.armaId,
-            extraContacts, gamesInterested: values.games, timezone: values.timezone,
-            availability: values.availability, whyJoin: values.whyJoin,
-            howFound: values.referralType === "player" ? `Приглашён бойцом: ${values.referrerCallsign}` : values.howFound,
-            charterAgreed: values.charterAgreed
-          })
-        }).catch(() => {});
-      }
-
       navigate("/profile");
     } catch (err) {
       setError(err.message || "Ошибка при регистрации.");
@@ -124,8 +116,7 @@ export default function Apply() {
     <main className="container">
       <h1>Заявка на вступление</h1>
       <p className="page-lead">
-        <b>Добро пожаловать в ряды, боец!</b> Полную анкету увидят только командир батальона
-        и его заместители — именно они рассмотрят вашу заявку. Другие не смогут увидеть все личные данные.
+        <b>Добро пожаловать в ряды, боец!</b> Полную анкету видят только командир батальона и его заместители.
       </p>
       <ApplicationForm onSubmit={handleSubmit} submitLabel="Отправить заявку" showAccountFields={true} submitting={submitting} externalError={error} />
     </main>

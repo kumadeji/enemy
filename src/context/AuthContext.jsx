@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import LoadingScreen from "../components/LoadingScreen";
 
 const AuthContext = createContext();
@@ -52,8 +52,32 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // Принудительно обновляем данные пользователя из Firebase Auth —
+      // без этого поле user.emailVerified может оставаться устаревшим
+      // (false), даже если пользователь уже подтвердил почту по ссылке
+      // из письма в другой вкладке/сессии.
+      if (user) {
+        await user.reload().catch(() => {});
+      }
       setCurrentUser(user);
       await loadProfileData(user);
+
+      // Если email в Firebase Auth изменился (например, после подтверждения
+      // смены почты по ссылке из письма), синхронизируем копию в
+      // Firestore-профиле — там email хранится отдельным полем для
+      // удобного отображения в админ-панели
+      if (user) {
+        try {
+          const profileRef = doc(db, "profiles", user.uid);
+          const snap = await getDoc(profileRef);
+          if (snap.exists() && snap.data().email !== user.email) {
+            await updateDoc(profileRef, { email: user.email });
+          }
+        } catch {
+          // не критично — просто пропускаем синхронизацию в этот раз
+        }
+      }
+
       setLoading(false);
     });
     return unsubscribe;

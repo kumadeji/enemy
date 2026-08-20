@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc, setDoc, updateDoc, runTransaction, collection, getDocs } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
-import KoStatsChart from "../components/KoStatsChart";
+import { createNotification } from "../utils/notifications";
 
 // Очередь на КО ведётся строго по направлению Arma Reforger
 const QUEUE_GAME = "Arma Reforger";
@@ -50,13 +50,6 @@ export default function Queue() {
     [squadLeaders, queue]
   );
 
-  const statsData = useMemo(() => {
-  const list = Object.values(profilesMap)
-    .filter(p => (p.gameStats?.["Arma Reforger"]?.koCount || 0) > 0 || isSquadLeaderInQueueGame(p))
-    .map(p => ({ ...p, koCount: p.gameStats?.["Arma Reforger"]?.koCount || 0 }));
-  return list.sort((a, b) => b.koCount - a.koCount);
-}, [profilesMap]);
-
   async function saveQueue(newQueue) {
     await setDoc(doc(db, "queue", "state"), { current: newQueue });
     setQueue(newQueue);
@@ -99,23 +92,34 @@ export default function Queue() {
   }
 
   async function markPlayed(uid) {
-  await runTransaction(db, async (tx) => {
-    const profileRef = doc(db, "profiles", uid);
-    const rosterRef = doc(db, "rosterPublic", uid);
-    const profileSnap = await tx.get(profileRef);
-    const stats = profileSnap.data()?.gameStats?.["Arma Reforger"] || { playedAsSoldierCount: 0, koCount: 0, ksCount: 0 };
-    const updatedStats = { ...stats, koCount: stats.koCount + 1 };
+    await runTransaction(db, async (tx) => {
+      const profileRef = doc(db, "profiles", uid);
+      const rosterRef = doc(db, "rosterPublic", uid);
+      const profileSnap = await tx.get(profileRef);
+      const stats = profileSnap.data()?.gameStats?.["Arma Reforger"] || { playedAsSoldierCount: 0, koCount: 0, ksCount: 0 };
+      const updatedStats = { ...stats, koCount: stats.koCount + 1 };
 
-    tx.update(profileRef, { [`gameStats.Arma Reforger`]: updatedStats });
-    tx.update(rosterRef, { [`gameStats.Arma Reforger`]: updatedStats });
+      tx.update(profileRef, { [`gameStats.Arma Reforger`]: updatedStats });
+      tx.update(rosterRef, { [`gameStats.Arma Reforger`]: updatedStats });
 
-    const queueRef = doc(db, "queue", "state");
-    tx.set(queueRef, { current: [...queue.filter(q => q.uid !== uid), { uid }] });
-  });
-  setProfilesMap(prev => ({ ...prev, [uid]: { ...prev[uid], gameStats: { ...prev[uid].gameStats, "Arma Reforger": { ...(prev[uid].gameStats?.["Arma Reforger"] || {}), koCount: (prev[uid].gameStats?.["Arma Reforger"]?.koCount || 0) + 1 } } } }));
-  setQueue(prev => [...prev.filter(q => q.uid !== uid), { uid }]);
-}
+      const queueRef = doc(db, "queue", "state");
+      tx.set(queueRef, { current: [...queue.filter(q => q.uid !== uid), { uid }] });
+    });
 
+    setProfilesMap(prev => ({
+      ...prev,
+      [uid]: {
+        ...prev[uid],
+        gameStats: {
+          ...prev[uid].gameStats,
+          "Arma Reforger": { ...(prev[uid].gameStats?.["Arma Reforger"] || {}), koCount: (prev[uid].gameStats?.["Arma Reforger"]?.koCount || 0) + 1 }
+        }
+      }
+    }));
+    setQueue(prev => [...prev.filter(q => q.uid !== uid), { uid }]);
+
+    createNotification(uid, "Arma Reforger: зачтён отыгрыш за КО.").catch(() => {});
+  }
 
   async function promoteToSquadLeader() {
     if (!selectedToPromote) return;
@@ -128,6 +132,9 @@ export default function Queue() {
     await updateDoc(doc(db, "rosterPublic", selectedToPromote), { gameRoles: updatedGameRoles });
 
     setProfilesMap(prev => ({ ...prev, [selectedToPromote]: { ...prev[selectedToPromote], gameRoles: updatedGameRoles } }));
+
+    createNotification(selectedToPromote, "Arma Reforger: вам присвоена должность «Командир отделения».").catch(() => {});
+
     setSelectedToPromote("");
   }
 
@@ -182,12 +189,7 @@ export default function Queue() {
         </ol>
       </div>
 
-      <div className="card">
-        <h2>Статистика отыгрышей за КО</h2>
-        {statsData.length === 0 && <p className="hint">Пока нет данных статистики.</p>}
-        <KoStatsChart data={statsData} />
-        <p className="stats-since-note">Статистика игр за КО ведётся с 25 июля 2026 года.</p>
-      </div>
+      <p className="hint"><Link to="/hq/arma/stats">Смотреть полную статистику отыгрышей →</Link></p>
 
       {isAdmin && (
         <div className="card">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { db } from "../firebase";
-import { collection, getDocs, doc, updateDoc, setDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
+import { buildRosterPublicPayload } from "../utils/rosterPublic";
 
 export default function AdminMigrate() {
   const [log, setLog] = useState([]);
@@ -10,16 +11,14 @@ export default function AdminMigrate() {
     setLog(prev => [...prev, text]);
   }
 
-  // Разовая миграция: переносит старые единые поля koCount/ksCount/playedAsSoldierCount,
-  // awards, publicNote и disciplinaryActions в новую структуру, разделённую на
-  // "общее для всего сообщества" (globalAwards/globalDisciplinaryActions) и
-  // "привязанное к конкретной игре" (gameStats/gameAwards/gameDisciplinaryActions/gameNotes).
-  // Старые данные считаются относящимися к Arma Reforger — именно на неё
-  // до этого момента был рассчитан весь функционал сайта.
-  async function migrateToScopedSchema() {
+  // Разовая консолидация: переносит applications/{uid} и adminNotes/{uid}
+  // внутрь profiles/{uid}, чистит устаревшие legacy-поля и удаляет старые
+  // документы. После этого коллекции applications/adminNotes становятся
+  // полностью пустыми — их можно будет удалить в консоли Firebase вручную.
+  async function consolidateCollections() {
     setRunning(true);
     setLog([]);
-    addLog("Переносим награды/дисциплину/статистику в новую схему (общее + по играм)...");
+    addLog("Начинаем консолидацию profiles + applications + adminNotes...");
 
     const profilesSnap = await getDocs(collection(db, "profiles"));
 
@@ -27,64 +26,59 @@ export default function AdminMigrate() {
       const uid = docSnap.id;
       const p = docSnap.data();
 
-      if (p.gameStats) {
-        addLog(`${p.callsign} — уже в новой схеме, пропущен.`);
-        continue;
-      }
+      const appSnap = await getDoc(doc(db, "applications", uid));
+      const noteSnap = await getDoc(doc(db, "adminNotes", uid));
+      const app = appSnap.exists() ? appSnap.data() : {};
+      const note = noteSnap.exists() ? noteSnap.data() : {};
 
-      const gameStats = {};
-      const gameAwards = {};
-      const gameDisciplinaryActions = {};
-      const gameNotes = {};
+      const merged = {
+        ...p,
+        email: app.email || p.email || "",
+        fullName: app.fullName || p.fullName || "",
+        age: Number(app.age || p.age || 0),
+        availability: app.availability || p.availability || "",
+        whyJoin: app.whyJoin || p.whyJoin || "",
+        howFound: app.howFound || p.howFound || "",
+        referrerCallsign: app.referrerCallsign || p.referrerCallsign || "",
+        hoursByGame: app.hoursByGame || p.hoursByGame || {},
+        experienceByGame: app.experienceByGame || p.experienceByGame || {},
+        charterAgreed: app.charterAgreed ?? p.charterAgreed ?? false,
+        adminPrivateNote: note.privateNote || p.adminPrivateNote || ""
+      };
 
-      (p.gamesInterested || []).forEach(g => {
-        if (g === "Arma Reforger") {
-          gameStats[g] = {
-            playedAsSoldierCount: Number(p.playedAsSoldierCount || 0),
-            koCount: Number(p.koCount || 0),
-            ksCount: Number(p.ksCount || 0)
-          };
-          gameAwards[g] = (p.awards || []).map(a => ({
-            icon: a.icon,
-            name: a.name || a.desc || "",
-            description: a.description || ""
-          }));
-          gameDisciplinaryActions[g] = (p.disciplinaryActions || []).map(a => ({
-            ...a,
-            scope: "Arma Reforger"
-          }));
-          gameNotes[g] = p.publicNote || "";
-        } else {
-          gameStats[g] = { playedAsSoldierCount: 0, koCount: 0, ksCount: 0 };
-          gameAwards[g] = [];
-          gameDisciplinaryActions[g] = [];
-          gameNotes[g] = "";
-        }
-      });
+      // Удаляем устаревшие legacy-поля, оставшиеся от прошлых версий схемы
+      const legacyCleanup = {
+        discordTag: deleteField(),
+        steamUrl: deleteField(),
+        legacySteamUrl: deleteField(),
+        status: deleteField(),
+        isSquadLeader: deleteField(),
+        koCount: deleteField(),
+        ksCount: deleteField(),
+        playedAsSoldierCount: deleteField(),
+        awards: deleteField(),
+        publicNote: deleteField(),
+        extraContactsPublic: deleteField()
+      };
 
       await updateDoc(doc(db, "profiles", uid), {
-        gameStats,
-        gameAwards,
-        gameDisciplinaryActions,
-        gameNotes,
-        globalAwards: [],
-        globalDisciplinaryActions: [],
-        birthDatePublic: true,
-        extraContactsPublic: true
+        email: merged.email, fullName: merged.fullName, age: merged.age,
+        availability: merged.availability, whyJoin: merged.whyJoin, howFound: merged.howFound,
+        referrerCallsign: merged.referrerCallsign, hoursByGame: merged.hoursByGame,
+        experienceByGame: merged.experienceByGame, charterAgreed: merged.charterAgreed,
+        adminPrivateNote: merged.adminPrivateNote,
+        ...legacyCleanup
       });
 
-      await setDoc(doc(db, "rosterPublic", uid), {
-        callsign: p.callsign,
-        gameRoles: p.gameRoles || {},
-        gamesInterested: p.gamesInterested || [],
-        gameStats,
-        referredByUid: p.referredByUid || ""
-      });
+      await updateDoc(doc(db, "rosterPublic", uid), buildRosterPublicPayload(merged));
 
-      addLog(`Перенесён: ${p.callsign}`);
+      if (appSnap.exists()) await deleteDoc(doc(db, "applications", uid));
+      if (noteSnap.exists()) await deleteDoc(doc(db, "adminNotes", uid));
+
+      addLog(`Объединён и очищен: ${p.callsign}`);
     }
 
-    addLog("Готово: миграция в новую scoped-схему завершена.");
+    addLog("Готово: консолидация завершена. Коллекции applications и adminNotes теперь пусты.");
     setRunning(false);
   }
 
@@ -93,17 +87,15 @@ export default function AdminMigrate() {
       <h1>Миграция данных</h1>
 
       <div className="card">
-        <h2>Перенос наград/дисциплины/статистики в новую схему</h2>
+        <h2>Консолидация коллекций (applications + adminNotes → profiles)</h2>
         <p>
-          Разовая операция. Переносит старые единые поля (<code>koCount</code>,
-          <code>ksCount</code>, <code>playedAsSoldierCount</code>, <code>awards</code>,
-          <code>publicNote</code>, <code>disciplinaryActions</code>) в новую структуру,
-          разделённую на общие для сообщества данные и данные по конкретным играм. Профили,
-          у которых поле <code>gameStats</code> уже существует, автоматически пропускаются —
-          безопасно запускать повторно.
+          Разовая операция. Переносит содержимое <code>applications</code> и <code>adminNotes</code>
+          внутрь <code>profiles</code>, удаляет устаревшие поля прошлых версий схемы и полностью
+          очищает старые коллекции. Безопасно запускать повторно — если данные уже перенесены,
+          операция просто ничего не найдёт для переноса.
         </p>
-        <button className="btn" onClick={migrateToScopedSchema} disabled={running}>
-          {running ? "Выполняется..." : "Перенести в новую схему"}
+        <button className="btn" onClick={consolidateCollections} disabled={running}>
+          {running ? "Выполняется..." : "Запустить консолидацию"}
         </button>
       </div>
 

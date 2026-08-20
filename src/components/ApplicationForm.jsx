@@ -211,8 +211,7 @@ export default function ApplicationForm({
           <label>Пароль</label>
           <input type="password" minLength={6} required value={form.password} onChange={e => updateField("password", e.target.value)} />
           <div className="field-hint">
-            Хранится в зашифрованном виде. <b>Восстановление пароля на сайте не предусмотрено.</b> Не теряйте его —
-            при утере обратитесь к комбату или его заместителям для полного сброса аккаунта.
+            Хранится в зашифрованном виде — его никто не увидит.
           </div>
         </fieldset>
       )}

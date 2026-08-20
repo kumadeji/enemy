@@ -36,10 +36,6 @@ export default function Login() {
 
             <label>Пароль</label>
             <input type="password" required value={password} onChange={e => setPassword(e.target.value)} />
-            <div className="field-hint">
-              <b>Восстановление пароля на сайте не предусмотрено.</b> Если вы забыли пароль —
-              обратитесь к комбату или его заместителям для полного сброса аккаунта.
-            </div>
           </fieldset>
 
           <button type="submit" className="btn btn-large" disabled={submitting}>
@@ -51,6 +47,7 @@ export default function Login() {
         <p className="auth-alt-action">
           Ещё нет аккаунта? <Link to="/apply">Подать заявку на вступление</Link>.
         </p>
+		<p className="auth-alt-action"><Link to="/forgot-password">Забыли пароль?</Link></p>
       </div>
     </main>
   );
