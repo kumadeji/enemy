@@ -4,6 +4,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { hasRosterAccess } from "../data/gameRoles";
 import logo from "./Logo.jpg";
+import NotificationBell from "./NotificationBell"; // <-- Добавлен импорт
 
 export default function Navbar() {
   const { currentUser, profile, isAdmin } = useAuth();
@@ -47,6 +48,7 @@ export default function Navbar() {
           {currentUser ? (
             <>
               <NavLink to="/profile" className={linkClass}>{profile?.callsign || "Личное дело"}</NavLink>
+			  <NotificationBell /> 
               <a href="#" className="nav-link" onClick={e => { e.preventDefault(); handleLogout(); }}>Выйти</a>
             </>
           ) : (
