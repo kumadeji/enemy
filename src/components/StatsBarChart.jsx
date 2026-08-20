@@ -11,7 +11,7 @@ export default function StatsBarChart({ data }) {
           const percent = Math.round((p.value / maxValue) * 100);
           return (
             <tr key={p.uid}>
-              <td className="ko-stats-rank">{medals[index] || `#${index + 1}`}</td>
+              <td className="ko-stats-rank">{medals[index] || `${index + 1}`}</td>
               <td className="ko-stats-name">{p.callsign}</td>
               <td className="ko-stats-track-cell">
                 <div className="ko-stats-track">
