@@ -65,7 +65,7 @@ export default function App() {
           <Route path="/admin/player/:uid/edit" element={<ProtectedRoute require="admin"><AdminEditPlayer /></ProtectedRoute>} />
           <Route path="/admin/changelog" element={<ProtectedRoute require="admin"><AdminChangeLog /></ProtectedRoute>} />
           <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
-		  <Route path="/admin/test-notification" element={<AdminTestNotification />} />
+		  <Route path="/admin/test-notification" element={<ProtectedRoute require="admin"><AdminTestNotification /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
           <div className="container">© Мультиигровое сообщество ENEMY. 2026. Разработка сайта: [En-Y]Boba, aka kumadeji.</div>

@@ -143,7 +143,7 @@ export default function Profile() {
             </ProfileRow>
           )}
 
-          {contacts.phone && (isOwn ? isFieldPublic("phone") || true : true) && (
+          {contacts.phone && (
             <ProfileRow label="Телефон">
               {isOwn ? (
                 <PrivacyToggleField isPublic={isFieldPublic("phone")} onToggle={() => toggleContactField("phone")}>

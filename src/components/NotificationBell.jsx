@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
-import { collection, query, where, orderBy, limit, onSnapshot, writeBatch, doc } from "firebase/firestore";
+import { collection, query, where, orderBy, limit, onSnapshot, writeBatch, doc, updateDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 
 export default function NotificationBell() {
@@ -9,10 +9,9 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
-  // Подписка на уведомления
   useEffect(() => {
     if (!currentUser) return;
-    
+
     const q = query(
       collection(db, "notifications"),
       where("uid", "==", currentUser.uid),
@@ -21,8 +20,7 @@ export default function NotificationBell() {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-      setItems(newItems);
+      setItems(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     }, (error) => {
       console.error("Ошибка подписки на уведомления:", error);
     });
@@ -30,7 +28,6 @@ export default function NotificationBell() {
     return unsubscribe;
   }, [currentUser]);
 
-  // Закрытие по клику вне области
   useEffect(() => {
     function handleClickOutside(e) {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
@@ -45,43 +42,50 @@ export default function NotificationBell() {
 
   const unreadCount = items.filter(i => !i.read).length;
 
-  // Функция удаления всех непрочитанных
-  async function clearAllUnread() {
+  // Помечает ОДНО уведомление прочитанным — разрешено правилами всем
+  // (update, затрагивающий только поле read у своего же документа)
+  async function markRead(id) {
+    try {
+      await updateDoc(doc(db, "notifications", id), { read: true });
+    } catch (err) {
+      console.error("Ошибка при пометке уведомления прочитанным:", err);
+    }
+  }
+
+  // Массовая пометка прочитанными — тоже через update, а не delete,
+  // иначе обычные бойцы получат "Missing or insufficient permissions"
+  // (правила разрешают им удалять чужие... то есть свои документы
+  // только админам, а не самому владельцу)
+  async function markAllRead() {
     const unreadItems = items.filter(i => !i.read);
     if (unreadItems.length === 0) return;
 
     try {
       const batch = writeBatch(db);
       unreadItems.forEach(item => {
-        batch.delete(doc(db, "notifications", item.id));
+        batch.update(doc(db, "notifications", item.id), { read: true });
       });
       await batch.commit();
-      
-      // Мгновенно обновляем локальный стейт, оставляя только прочитанные
-      setItems(prev => prev.filter(i => i.read));
-      // Окно НЕ закрываем, пользователь увидит пустой список или старые прочитанные
     } catch (error) {
-      console.error("Ошибка при удалении уведомлений:", error);
-      alert("Не удалось удалить уведомления. Проверьте консоль.");
+      console.error("Ошибка при пометке уведомлений прочитанными:", error);
+      alert("Не удалось пометить уведомления прочитанными. Проверьте консоль.");
     }
   }
 
-  // Форматирование даты
   function formatDate(ts) {
     if (!ts?.seconds) return "";
     const date = new Date(ts.seconds * 1000);
-    return date.toLocaleString("ru-RU", { 
-      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+    return date.toLocaleString("ru-RU", {
+      day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
     });
   }
 
   return (
-    <div className="notification-bell-wrapper" ref={wrapperRef} style={{ position: 'relative' }}>
-      {/* Кнопка-колокольчик */}
-      <button 
-        type="button" 
-        className="nav-notification-btn" 
-        onClick={() => setOpen(v => !v)} 
+    <div className="notification-bell-wrapper" ref={wrapperRef} style={{ position: "relative" }}>
+      <button
+        type="button"
+        className="nav-notification-btn"
+        onClick={() => setOpen(v => !v)}
         aria-label="Уведомления"
       >
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -95,7 +99,6 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* Выпадающее окно */}
       {open && (
         <div className="notification-dropdown-card">
           <div className="notification-dropdown-header">
@@ -103,17 +106,17 @@ export default function NotificationBell() {
               Уведомления {unreadCount > 0 && <span className="unread-indicator">({unreadCount})</span>}
             </span>
             {unreadCount > 0 && (
-              <button 
-                type="button" 
-                className="btn-mark-read" 
-                onClick={clearAllUnread}
-                title="Удалить все непрочитанные"
+              <button
+                type="button"
+                className="btn-mark-read"
+                onClick={markAllRead}
+                title="Пометить все прочитанными"
               >
                 Прочитать все
               </button>
             )}
           </div>
-          
+
           <div className="notification-list-container">
             {items.length === 0 ? (
               <div className="empty-state">
@@ -124,6 +127,8 @@ export default function NotificationBell() {
                 <div
                   key={item.id}
                   className={`notification-item ${item.read ? "" : "notification-item-unread"}`}
+                  onClick={() => !item.read && markRead(item.id)}
+                  style={{ cursor: item.read ? "default" : "pointer" }}
                 >
                   <div className="notification-content">
                     <div className="notification-message">{item.message}</div>

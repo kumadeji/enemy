@@ -104,8 +104,7 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
       };
       const changes = buildChangesList(beforeFlat, afterFlat);
 
-      const updatedProfile = {
-        ...profile,
+      const updatedFields = {
         fullName: values.fullName, age: Number(values.age),
         availability: values.availability, whyJoin: values.whyJoin,
         howFound: values.referralType === "text" ? values.howFound : "",
@@ -119,9 +118,9 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
         referredByUid: values.referralType === "player" ? values.referredByUid : "",
         referredByText: values.referralType === "text" ? values.howFound : ""
       };
-
-      await updateDoc(doc(db, "profiles", targetUid), updatedProfile);
-      await updateDoc(doc(db, "rosterPublic", targetUid), buildRosterPublicPayload(updatedProfile));
+      
+      await updateDoc(doc(db, "profiles", targetUid), updatedFields);
+      await updateDoc(doc(db, "rosterPublic", targetUid), buildRosterPublicPayload({ ...profile, ...updatedFields }));
 
       if (changes.length > 0) {
         await addDoc(collection(db, "changeLog"), {
