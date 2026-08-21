@@ -18,20 +18,28 @@ export function buildDiffMessages(before, after, games) {
       messages.push(`${game}: с вас снята должность «Командир отделения».`);
     }
 
-    // --- Статистика (Отыгрыши) с умной группировкой ---
+    // --- Статистика (Отыгрыши) с умной группировкой и подсчетом количества ---
     const bs = before.gameStats?.[game] || {};
     const as = after.gameStats?.[game] || {};
     
     const statsChanges = [];
     
-    if ((as.playedAsSoldierCount || 0) > (bs.playedAsSoldierCount || 0)) {
-      statsChanges.push("за бойца");
+    // Вычисляем дельту для бойца
+    const soldierDiff = (as.playedAsSoldierCount || 0) - (bs.playedAsSoldierCount || 0);
+    if (soldierDiff > 0) {
+      statsChanges.push(`за бойца (+${soldierDiff})`);
     }
-    if ((as.koCount || 0) > (bs.koCount || 0)) {
-      statsChanges.push("за командира отделения");
+
+    // Вычисляем дельту для КО
+    const koDiff = (as.koCount || 0) - (bs.koCount || 0);
+    if (koDiff > 0) {
+      statsChanges.push(`за командира отделения (+${koDiff})`);
     }
-    if ((as.ksCount || 0) > (bs.ksCount || 0)) {
-      statsChanges.push("за командира стороны");
+
+    // Вычисляем дельту для КС
+    const ksDiff = (as.ksCount || 0) - (bs.ksCount || 0);
+    if (ksDiff > 0) {
+      statsChanges.push(`за командира стороны (+${ksDiff})`);
     }
 
     if (statsChanges.length > 0) {
@@ -40,7 +48,7 @@ export function buildDiffMessages(before, after, games) {
         messages.push(`${game}: зачтён отыгрыш ${statsChanges[0]}.`);
       } else {
         // Если изменений несколько
-        messages.push(`${game}: зачтены отыгрыши (${statsChanges.length}): ${statsChanges.join(", ")}.`);
+        messages.push(`${game}: зачтены отыгрыши: ${statsChanges.join(", ")}.`);
       }
     }
 
