@@ -35,10 +35,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (targetUid && p && !sentViewGoalsRef.current.has(targetUid)) {
-      sendYandexGoal(isOwn ? 'view_own_profile' : 'view_other_profile', {
-        profileUid: targetUid,
-        callsign: p.callsign
-      });
+      sendYandexGoal(isOwn ? 'view_own_profile' : 'view_other_profile');
       sentViewGoalsRef.current.add(targetUid);
     }
   }, [targetUid, p, isOwn]);

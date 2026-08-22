@@ -201,10 +201,8 @@ export default function ApplicationForm({
     });
 
     sendYandexGoal('application_submit_new', {
+      gamesCount: form.games.length,
       games: form.games.join(', '),
-      discordId: form.discordId,
-      steamId: form.steamId,
-      callsign: form.callsign.trim(),
       timezone: form.timezone,
       referralType: referralType
     });

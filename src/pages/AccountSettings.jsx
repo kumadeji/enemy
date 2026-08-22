@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   reauthenticateWithCredential, EmailAuthProvider,
@@ -43,16 +43,6 @@ export default function AccountSettings() {
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
-
-  // ✅ ИСПРАВЛЕНО: Автоматически отправляем цель 'email_verified_success' один раз за сессию,
-  // когда Firebase сообщает, что email подтверждён. Используем sessionStorage,
-  // чтобы не слать цель при каждом рендере страницы.
-  useEffect(() => {
-    if (currentUser?.emailVerified && !sessionStorage.getItem('ym_email_verified_sent')) {
-      sendYandexGoal('email_verified_success');
-      sessionStorage.setItem('ym_email_verified_sent', 'true');
-    }
-  }, [currentUser]);
 
   async function handleChangeEmail(e) {
     e.preventDefault();
@@ -113,7 +103,7 @@ export default function AccountSettings() {
       setNewPassword("");
       setNewPasswordRepeat("");
       // Отправляем событие успешной смены пароля
-      sendYandexGoal('change_password_success');
+      sendYandexGoal("change_password_success");
     } catch (err) {
       setPasswordError(translateAuthError(err));
     } finally {

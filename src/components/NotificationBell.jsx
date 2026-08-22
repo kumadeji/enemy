@@ -65,8 +65,6 @@ export default function NotificationBell() {
   async function markRead(id) {
     try {
       await updateDoc(doc(db, "notifications", id), { read: true });
-      // Отправляем событие прочтения уведомления
-      sendYandexGoal('mark_notification_read', { action: 'single' });
     } catch (err) {
       console.error("Ошибка при пометке уведомления прочитанным:", err);
     }
@@ -86,8 +84,6 @@ export default function NotificationBell() {
         batch.update(doc(db, "notifications", item.id), { read: true });
       });
       await batch.commit();
-      // Отправляем событие массовой пометки уведомлений прочитанными
-      sendYandexGoal('mark_notification_read', { action: 'all', count: unreadItems.length });
     } catch (error) {
       console.error("Ошибка при пометке уведомлений прочитанными:", error);
       alert("Не удалось пометить уведомления прочитанными. Проверьте консоль.");

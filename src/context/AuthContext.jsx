@@ -3,6 +3,7 @@ import { auth, db } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import LoadingScreen from "../components/LoadingScreen";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 const AuthContext = createContext();
 
@@ -52,6 +53,12 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // Запоминаем состояние ДО reload — нужно, чтобы отследить именно
+      // момент перехода "не подтверждён → подтверждён", а не текущее
+      // состояние (иначе цель засчитывалась бы при каждом заходе уже
+      // давно верифицированного пользователя).
+      const wasVerifiedBefore = user?.emailVerified;
+
       // Принудительно обновляем данные пользователя из Firebase Auth —
       // без этого поле user.emailVerified может оставаться устаревшим
       // (false), даже если пользователь уже подтвердил почту по ссылке
@@ -59,6 +66,13 @@ export function AuthProvider({ children }) {
       if (user) {
         await user.reload().catch(() => {});
       }
+
+      // Реальное событие подтверждения email — засчитываем цель только
+      // при факте перехода false → true, а не при каждом рендере.
+      if (user && !wasVerifiedBefore && user.emailVerified) {
+        sendYandexGoal("email_verified_success");
+      }
+
       setCurrentUser(user);
       await loadProfileData(user);
 
