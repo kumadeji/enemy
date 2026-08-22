@@ -9,6 +9,9 @@ export default function NotificationBell() {
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
+  // ✅ Добавляем ref, чтобы не отправлять цель открытия повторно,
+  // пока колокольчик открыт (например, когда приходят новые уведомления).
+  const hasSentOpenRef = useRef(false);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -29,13 +32,19 @@ export default function NotificationBell() {
     return unsubscribe;
   }, [currentUser]);
 
-  // Отправляем событие открытия колокольчика уведомлений
+  // ✅ ИСПРАВЛЕНО: отправляем цель при открытии колокольчика ровно один раз,
+  // пока он не будет закрыт. Не зависит от загрузки items.
   useEffect(() => {
-    if (open && items.length > 0) {
+    if (open && !hasSentOpenRef.current) {
       const unreadCount = items.filter(i => !i.read).length;
       sendYandexGoal('open_notifications', { totalNotifications: items.length, unreadCount });
+      hasSentOpenRef.current = true;
     }
-  }, [open]);
+    if (!open) {
+      // Сбрасываем флаг при закрытии, чтобы при следующем открытии цель снова отправилась.
+      hasSentOpenRef.current = false;
+    }
+  }, [open, items]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -57,7 +66,7 @@ export default function NotificationBell() {
     try {
       await updateDoc(doc(db, "notifications", id), { read: true });
       // Отправляем событие прочтения уведомления
-      sendYandexGoal('mark_notification_read');
+      sendYandexGoal('mark_notification_read', { action: 'single' });
     } catch (err) {
       console.error("Ошибка при пометке уведомления прочитанным:", err);
     }
@@ -78,7 +87,7 @@ export default function NotificationBell() {
       });
       await batch.commit();
       // Отправляем событие массовой пометки уведомлений прочитанными
-      sendYandexGoal('mark_all_notifications_read', { count: unreadItems.length });
+      sendYandexGoal('mark_notification_read', { action: 'all', count: unreadItems.length });
     } catch (error) {
       console.error("Ошибка при пометке уведомлений прочитанными:", error);
       alert("Не удалось пометить уведомления прочитанными. Проверьте консоль.");

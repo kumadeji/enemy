@@ -190,22 +190,23 @@ export default function ApplicationForm({
       ? rosterList.find(p => p.uid === form.referredByUid)?.callsign || ""
       : "";
 
-    // Отправляем событие в Яндекс Метрику перед отправкой формы
-    sendYandexGoal('application_submit', {
-      games: form.games.join(', '),
-      discordId: form.discordId,
-      steamId: form.steamId,
-      callsign: form.callsign.trim(),
-      timezone: form.timezone,
-      referralType: referralType
-    });
-
+    // ✅ ИСПРАВЛЕНО: Сначала сохраняем, потом отправляем цель в Метрику.
+    // Если onSubmit упадет с ошибкой — цель не отправится (это правильно, форма не отправлена).
     await onSubmit({
       ...form,
       steamProfileUrl, telegramUrl, vkUrl,
       referralType, referrerCallsign,
       referredByUid: referralType === "player" ? form.referredByUid : "",
       howFound: referralType === "text" ? form.howFound : ""
+    });
+
+    sendYandexGoal('application_submit_new', {
+      games: form.games.join(', '),
+      discordId: form.discordId,
+      steamId: form.steamId,
+      callsign: form.callsign.trim(),
+      timezone: form.timezone,
+      referralType: referralType
     });
   }
 

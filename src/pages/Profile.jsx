@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
@@ -28,15 +28,20 @@ export default function Profile() {
   const targetUid = uid || currentUser?.uid;
   const isOwn = targetUid === currentUser?.uid;
 
-  // Отправляем событие просмотра профиля
+  // ✅ ИСПРАВЛЕНО: используем useRef + Set, чтобы гарантировать, что цель просмотра
+  // отправляется ровно один раз за сессию для каждого уникального uid.
+  // Это решает проблему двойной отправки при изменении приватности (когда `p` обновляется).
+  const sentViewGoalsRef = useRef(new Set());
+
   useEffect(() => {
-    if (targetUid && p) {
+    if (targetUid && p && !sentViewGoalsRef.current.has(targetUid)) {
       sendYandexGoal(isOwn ? 'view_own_profile' : 'view_other_profile', {
         profileUid: targetUid,
         callsign: p.callsign
       });
+      sentViewGoalsRef.current.add(targetUid);
     }
-  }, [targetUid, isOwn, p]);
+  }, [targetUid, p, isOwn]);
 
   useEffect(() => {
     async function load() {
@@ -222,7 +227,7 @@ export default function Profile() {
 
         {isOwn && (
           <>
-            <button type="button" className="btn secondary profile-edit-btn" onClick={() => { sendYandexGoal('click_edit_profile'); navigate("/my-application"); }}>
+            <button type="button" className="btn secondary profile-edit-btn" onClick={() => { sendYandexGoal('click_edit_application'); navigate("/my-application"); }}>
               Редактировать свою анкету
             </button>
             <button type="button" className="btn secondary profile-edit-btn" onClick={() => { sendYandexGoal('click_account_settings'); navigate("/account"); }}>

@@ -36,7 +36,9 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
   useEffect(() => {
     async function load() {
       const pSnap = await getDoc(doc(db, "profiles", targetUid));
-      if (pSnap.exists()) setProfile(pSnap.data());
+      if (pSnap.exists()) {
+        setProfile(pSnap.data());
+      }
     }
     if (targetUid) load();
   }, [targetUid]);
@@ -131,8 +133,8 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
         });
       }
 
-      // Отправляем событие успешного редактирования анкеты
-      sendYandexGoal('edit_application_success', {
+      // Отправляем событие успешного сохранения анкеты (ИСПРАВЛЕНО ИМЯ)
+      sendYandexGoal('application_save_edit', {
         changesCount: changes.length,
         changedFields: changes.map(c => c.field).join(', ')
       });

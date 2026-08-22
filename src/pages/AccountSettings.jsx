@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   reauthenticateWithCredential, EmailAuthProvider,
@@ -44,6 +44,16 @@ export default function AccountSettings() {
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
+  // ✅ ИСПРАВЛЕНО: Автоматически отправляем цель 'email_verified_success' один раз за сессию,
+  // когда Firebase сообщает, что email подтверждён. Используем sessionStorage,
+  // чтобы не слать цель при каждом рендере страницы.
+  useEffect(() => {
+    if (currentUser?.emailVerified && !sessionStorage.getItem('ym_email_verified_sent')) {
+      sendYandexGoal('email_verified_success');
+      sessionStorage.setItem('ym_email_verified_sent', 'true');
+    }
+  }, [currentUser]);
+
   async function handleChangeEmail(e) {
     e.preventDefault();
     setEmailError("");
@@ -68,17 +78,11 @@ export default function AccountSettings() {
       );
       setEmailPassword("");
       setNewEmail("");
-      // Событие отправки письма для подтверждения email будет отправлено после успешного завершения
     } catch (err) {
       setEmailError(translateAuthError(err));
     } finally {
       setEmailSubmitting(false);
     }
-  }
-
-  async function handleEmailVerified() {
-    // Это событие вызывается, когда пользователь подтвердил email
-    sendYandexGoal('email_verified_success');
   }
 
   async function handleChangePassword(e) {
@@ -115,16 +119,6 @@ export default function AccountSettings() {
     } finally {
       setPasswordSubmitting(false);
     }
-  }
-
-  // Обработчик отправки письма для подтверждения email
-  async function handleResendVerificationEmail() {
-    sendYandexGoal('send_verification_email');
-  }
-
-  // Обработчик запроса на восстановление пароля
-  async function handleForgotPasswordRequest() {
-    sendYandexGoal('forgot_password_request');
   }
 
   return (
