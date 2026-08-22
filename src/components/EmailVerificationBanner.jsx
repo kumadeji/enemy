@@ -1,6 +1,7 @@
 import { useAuth } from "../context/AuthContext";
 import { sendEmailVerification } from "firebase/auth";
 import { useState } from "react";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 export default function EmailVerificationBanner() {
   const { currentUser, profile } = useAuth();
@@ -17,6 +18,8 @@ export default function EmailVerificationBanner() {
   async function handleResend() {
     await sendEmailVerification(currentUser);
     setSent(true);
+    // Отправляем событие повторной отправки письма для подтверждения email
+    sendYandexGoal('send_verification_email');
   }
 
   return (

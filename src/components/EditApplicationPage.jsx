@@ -5,6 +5,7 @@ import { doc, getDoc, updateDoc, addDoc, collection, serverTimestamp } from "fir
 import ApplicationForm, { buildSteamProfileUrl } from "./ApplicationForm";
 import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
 import { buildRosterPublicPayload } from "../utils/rosterPublic";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 const FIELD_LABELS = {
   fullName: "Имя и фамилия", age: "Возраст", birthDate: "Дата рождения",
@@ -129,6 +130,12 @@ export default function EditApplicationPage({ targetUid, isAdminEditing = false 
           changes, createdAt: serverTimestamp()
         });
       }
+
+      // Отправляем событие успешного редактирования анкеты
+      sendYandexGoal('edit_application_success', {
+        changesCount: changes.length,
+        changedFields: changes.map(c => c.field).join(', ')
+      });
 
       navigate(isAdminEditing ? `/admin/player/${targetUid}` : "/profile");
     } catch (err) {

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
 import { collection, query, where, orderBy, limit, onSnapshot, writeBatch, doc, updateDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 export default function NotificationBell() {
   const { currentUser } = useAuth();
@@ -28,6 +29,14 @@ export default function NotificationBell() {
     return unsubscribe;
   }, [currentUser]);
 
+  // Отправляем событие открытия колокольчика уведомлений
+  useEffect(() => {
+    if (open && items.length > 0) {
+      const unreadCount = items.filter(i => !i.read).length;
+      sendYandexGoal('open_notifications', { totalNotifications: items.length, unreadCount });
+    }
+  }, [open]);
+
   useEffect(() => {
     function handleClickOutside(e) {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
@@ -42,11 +51,13 @@ export default function NotificationBell() {
 
   const unreadCount = items.filter(i => !i.read).length;
 
-  // Помечает ОДНО уведомление прочитанным — разрешено правилами всем
+  // Помечает ОДНО уведомление прочитанным — разрешено правилами всем бойцам
   // (update, затрагивающий только поле read у своего же документа)
   async function markRead(id) {
     try {
       await updateDoc(doc(db, "notifications", id), { read: true });
+      // Отправляем событие прочтения уведомления
+      sendYandexGoal('mark_notification_read');
     } catch (err) {
       console.error("Ошибка при пометке уведомления прочитанным:", err);
     }
@@ -66,6 +77,8 @@ export default function NotificationBell() {
         batch.update(doc(db, "notifications", item.id), { read: true });
       });
       await batch.commit();
+      // Отправляем событие массовой пометки уведомлений прочитанными
+      sendYandexGoal('mark_all_notifications_read', { count: unreadItems.length });
     } catch (error) {
       console.error("Ошибка при пометке уведомлений прочитанными:", error);
       alert("Не удалось пометить уведомления прочитанными. Проверьте консоль.");

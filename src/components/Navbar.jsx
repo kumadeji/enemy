@@ -4,7 +4,8 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { hasRosterAccess } from "../data/gameRoles";
 import logo from "./Logo.jpg";
-import NotificationBell from "./NotificationBell"; // <-- Добавлен импорт
+import NotificationBell from "./NotificationBell";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 export default function Navbar() {
   const { currentUser, profile, isAdmin } = useAuth();
@@ -54,7 +55,13 @@ export default function Navbar() {
           ) : (
             <>
               <NavLink to="/login" className={linkClass}>Войти</NavLink>
-              <NavLink to="/apply" className="nav-link nav-cta">Подать заявку</NavLink>
+              <NavLink 
+                to="/apply" 
+                className="nav-link nav-cta"
+                onClick={() => sendYandexGoal('click_apply_button')}
+              >
+                Подать заявку
+              </NavLink>
             </>
           )}
         </nav>

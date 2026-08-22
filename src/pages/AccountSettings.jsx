@@ -4,6 +4,7 @@ import {
   reauthenticateWithCredential, EmailAuthProvider,
   verifyBeforeUpdateEmail, updatePassword
 } from "firebase/auth";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 function translateAuthError(err) {
   switch (err.code) {
@@ -67,11 +68,17 @@ export default function AccountSettings() {
       );
       setEmailPassword("");
       setNewEmail("");
+      // Событие отправки письма для подтверждения email будет отправлено после успешного завершения
     } catch (err) {
       setEmailError(translateAuthError(err));
     } finally {
       setEmailSubmitting(false);
     }
+  }
+
+  async function handleEmailVerified() {
+    // Это событие вызывается, когда пользователь подтвердил email
+    sendYandexGoal('email_verified_success');
   }
 
   async function handleChangePassword(e) {
@@ -101,11 +108,23 @@ export default function AccountSettings() {
       setCurrentPassword("");
       setNewPassword("");
       setNewPasswordRepeat("");
+      // Отправляем событие успешной смены пароля
+      sendYandexGoal('change_password_success');
     } catch (err) {
       setPasswordError(translateAuthError(err));
     } finally {
       setPasswordSubmitting(false);
     }
+  }
+
+  // Обработчик отправки письма для подтверждения email
+  async function handleResendVerificationEmail() {
+    sendYandexGoal('send_verification_email');
+  }
+
+  // Обработчик запроса на восстановление пароля
+  async function handleForgotPasswordRequest() {
+    sendYandexGoal('forgot_password_request');
   }
 
   return (

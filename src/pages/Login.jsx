@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,6 +17,8 @@ export default function Login() {
     setSubmitting(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // Отправляем событие успешного входа в Яндекс Метрику
+      sendYandexGoal('login_success');
       navigate("/profile");
     } catch {
       setError("Неверная электронная почта или пароль.");

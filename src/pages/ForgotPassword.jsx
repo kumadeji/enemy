@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { auth } from "../firebase";
 import { sendPasswordResetEmail } from "firebase/auth";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,8 @@ export default function ForgotPassword() {
     try {
       await sendPasswordResetEmail(auth, email);
       setSent(true);
+      // Отправляем событие запроса на восстановление пароля
+      sendYandexGoal('forgot_password_request');
     } catch {
       setError("Не удалось отправить письмо. Проверьте правильность почты.");
     }

@@ -6,6 +6,7 @@ import { formatBirthDateInput, validateBirthDate } from "../utils/birthDate";
 import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 export const ALL_GAMES = ["Arma Reforger", "Squad"];
 
@@ -188,6 +189,16 @@ export default function ApplicationForm({
     const referrerCallsign = referralType === "player"
       ? rosterList.find(p => p.uid === form.referredByUid)?.callsign || ""
       : "";
+
+    // Отправляем событие в Яндекс Метрику перед отправкой формы
+    sendYandexGoal('application_submit', {
+      games: form.games.join(', '),
+      discordId: form.discordId,
+      steamId: form.steamId,
+      callsign: form.callsign.trim(),
+      timezone: form.timezone,
+      referralType: referralType
+    });
 
     await onSubmit({
       ...form,

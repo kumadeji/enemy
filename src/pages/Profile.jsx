@@ -13,6 +13,7 @@ import CopyableField from "../components/CopyableField";
 import DisciplinaryList from "../components/DisciplinaryList";
 import PrivacyToggleField from "../components/PrivacyToggleField";
 import { ProfileTable, ProfileRow } from "../components/ProfileTable";
+import { sendYandexGoal } from "../utils/yandexMetrica";
 
 export default function Profile() {
   const { uid } = useParams();
@@ -26,6 +27,16 @@ export default function Profile() {
 
   const targetUid = uid || currentUser?.uid;
   const isOwn = targetUid === currentUser?.uid;
+
+  // Отправляем событие просмотра профиля
+  useEffect(() => {
+    if (targetUid && p) {
+      sendYandexGoal(isOwn ? 'view_own_profile' : 'view_other_profile', {
+        profileUid: targetUid,
+        callsign: p.callsign
+      });
+    }
+  }, [targetUid, isOwn, p]);
 
   useEffect(() => {
     async function load() {
@@ -71,6 +82,8 @@ export default function Profile() {
     await updateDoc(doc(db, "profiles", targetUid), { birthDatePublic: updated.birthDatePublic });
     await syncRosterPublicAfterToggle(updated);
     setP(updated);
+    // Отправляем событие в Яндекс Метрику
+    sendYandexGoal('toggle_privacy', { field: 'birthDate', isPublic: updated.birthDatePublic });
   }
 
   async function toggleContactField(key) {
@@ -80,6 +93,8 @@ export default function Profile() {
     await updateDoc(doc(db, "profiles", targetUid), { contactsPublic: newContactsPublic });
     await syncRosterPublicAfterToggle(updated);
     setP(updated);
+    // Отправляем событие в Яндекс Метрику
+    sendYandexGoal('toggle_privacy', { field: key, isPublic: newContactsPublic[key] !== false });
   }
 
   if (notFound) return <main className="container"><p>Личное дело не найдено.</p></main>;
@@ -207,10 +222,10 @@ export default function Profile() {
 
         {isOwn && (
           <>
-            <button type="button" className="btn secondary profile-edit-btn" onClick={() => navigate("/my-application")}>
+            <button type="button" className="btn secondary profile-edit-btn" onClick={() => { sendYandexGoal('click_edit_profile'); navigate("/my-application"); }}>
               Редактировать свою анкету
             </button>
-            <button type="button" className="btn secondary profile-edit-btn" onClick={() => navigate("/account")}>
+            <button type="button" className="btn secondary profile-edit-btn" onClick={() => { sendYandexGoal('click_account_settings'); navigate("/account"); }}>
               Изменить данные для авторизации
             </button>
           </>
