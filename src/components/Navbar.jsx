@@ -29,13 +29,10 @@ export default function Navbar() {
           <NavLink to="/" end className={linkClass}>Главная</NavLink>
           <NavLink to="/roster" className={linkClass}>Состав</NavLink>
 		  
-		  {/* Закомментированные кнопки */}
-          {/* 
 		  <NavLink to="/media" className={linkClass}>Видео</NavLink>
           <NavLink to="/charter" className={linkClass}>Устав и манифест</NavLink>
           <NavLink to="/history" className={linkClass}>История</NavLink>
           <NavLink to="/contact" className={linkClass}>Контакты</NavLink>
-		  */}
 
           {canSeeArmaHQ && (
             <>
