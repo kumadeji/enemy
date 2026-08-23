@@ -31,7 +31,6 @@ export default function Navbar() {
 		  
 		  <NavLink to="/media" className={linkClass}>Видео</NavLink>
           <NavLink to="/charter" className={linkClass}>Устав и манифест</NavLink>
-          <NavLink to="/history" className={linkClass}>История</NavLink>
           <NavLink to="/contact" className={linkClass}>Контакты</NavLink>
 
           {canSeeArmaHQ && (
