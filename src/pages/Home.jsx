@@ -1,5 +1,6 @@
 import VkWidget from "../components/VkWidget";
 import DiscordWidget from "../components/DiscordWidget";
+import YouTubeEmbed from "../components/YouTubeEmbed";
 
 export default function Home() {
   return (
