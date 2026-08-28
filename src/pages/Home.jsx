@@ -26,7 +26,7 @@ export default function Home() {
 		<p className="hint">Как вступить в клан и начать играть с нами:</p>
 		<iframe width="560" height="315" src="https://www.youtube.com/embed/bUZEPOiWbsE?si=g-4h_rtEM816YtFz" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 		<br/>
-		<p className="hint">Ещё больше видео от наших соклановцев — в секции <Link to="/media">«Видео»</Link>!</p>
+		<p className="hint">Ещё больше видео от наших соклановцев — в секции «Видео»!</p>
 	  </section>
 	  
 	  <section className="card">
