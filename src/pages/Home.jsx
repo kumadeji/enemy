@@ -24,7 +24,7 @@ export default function Home() {
 		<p className="hint"><b>Трейлер нашего клана в Arma Reforger:</b></p>
 		<YouTubeEmbed videoId="L372YQEQsWU" title="Трейлер клана ENEMY" />
 		<p className="hint"><b>Как вступить в клан и начать играть с нами:</b></p>
-		<YouTubeEmbed videoId="bUZEPOiWbsE" title="Как вступить в клан ENEMY" />
+		<YouTubeEmbed videoId="11yUiU-9N24" title="Как вступить в клан ENEMY" />
 		<p className="hint">Ещё больше видео от наших соклановцев — в секции <b>«Видео»</b>!</p>
 	  </section>
 	  
