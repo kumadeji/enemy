@@ -1703,6 +1703,9 @@ html {
   color: var(--accent);
   margin-top: 0;
 }
+.charter-section li {
+  margin-bottom: 8px;
+}
 .charter-section h3 {
   font-family: var(--font-heading);
   font-size: 16px;
@@ -1710,12 +1713,28 @@ html {
   margin-bottom: 8px;
   color: var(--text);
 }
+
+/* Единая шкала отступов: 30px — первый уровень (маркированный и нумерованный
+   одинаково), ещё +16px — второй уровень вложенности (итого 46px от края) */
 .charter-section ul,
 .charter-section ol {
-  padding-left: 22px;
+  padding-left: 30px;
 }
+.charter-section ul ul,
+.charter-section ul ol,
+.charter-section ol ul,
+.charter-section ol ol {
+  padding-left: 16px;
+  margin-top: 6px;
+}
+
 .charter-section li {
   margin-bottom: 8px;
+}
+
+.charter-spoiler ul {
+  margin: 0;
+  padding-left: 30px;
 }
 
 /* Спойлеры для списков должностей внутри составов */
