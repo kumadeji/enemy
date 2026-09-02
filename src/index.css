@@ -1703,9 +1703,6 @@ html {
   color: var(--accent);
   margin-top: 0;
 }
-.charter-section li {
-  margin-bottom: 8px;
-}
 .charter-section h3 {
   font-family: var(--font-heading);
   font-size: 16px;
@@ -1714,27 +1711,26 @@ html {
   color: var(--text);
 }
 
-/* Единая шкала отступов: 30px — первый уровень (маркированный и нумерованный
-   одинаково), ещё +16px — второй уровень вложенности (итого 46px от края) */
+/* Единая система отступов для всех списков внутри секции:
+   сбрасываем браузерные стили, маркеры и номера рисуем через ::before */
 .charter-section ul,
 .charter-section ol {
-  padding-left: 30px;
-}
-.charter-section ul ul,
-.charter-section ul ol,
-.charter-section ol ul,
-.charter-section ol ol {
-  padding-left: 16px;
-  margin-top: 6px;
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 16px;
 }
 
-.charter-section li {
+/* Обычные ненумерованные списки — маркер-точка */
+.charter-section ul > li {
+  position: relative;
+  padding-left: 30px;
   margin-bottom: 8px;
 }
-
-.charter-spoiler ul {
-  margin: 0;
-  padding-left: 30px;
+.charter-section ul > li::before {
+  content: "•";
+  position: absolute;
+  left: 10px;
+  color: var(--accent);
 }
 
 /* Спойлеры для списков должностей внутри составов */
