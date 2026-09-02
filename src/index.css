@@ -1753,9 +1753,6 @@ html {
 .charter-spoiler[open] summary {
   margin-bottom: 10px;
 }
-.charter-spoiler ul {
-  margin: 0;
-}
 
 /* Заголовки принципов манифеста */
 .charter-principle-title {
