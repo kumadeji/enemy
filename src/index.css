@@ -1738,3 +1738,62 @@ html {
 .charter-principle-title {
   color: var(--accent);
 }
+
+/* ==========================================================================
+   СКВОЗНАЯ МНОГОУРОВНЕВАЯ НУМЕРАЦИЯ (как в исходном Word-документе)
+   ========================================================================== */
+
+/* Группа, внутри которой нумерация верхнего уровня (1, 2, 3...) продолжается
+   сквозным счётом через несколько отдельных <ol>, даже если между ними
+   стоят заголовки <h3> — счётчик сбрасывается только на границе группы. */
+.charter-numbered-group {
+  counter-reset: mainitem;
+}
+.charter-numbered-group .charter-ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 16px;
+}
+.charter-numbered-group .charter-ol > li {
+  counter-increment: mainitem;
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 10px;
+}
+.charter-numbered-group .charter-ol > li::before {
+  content: counter(mainitem) ".";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Подпункты вида "3.1.", "9.4." — комбинация родительского и своего счётчика */
+.charter-sublist {
+  counter-reset: subitem;
+  list-style: none;
+  padding-left: 0;
+  margin: 8px 0 0;
+}
+.charter-sublist > li {
+  counter-increment: subitem;
+  position: relative;
+  padding-left: 46px;
+  margin-bottom: 8px;
+}
+.charter-sublist > li::before {
+  content: counter(mainitem) "." counter(subitem) ".";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* Курсивные примечания мелким шрифтом (пояснения-примеры из документа) */
+.charter-note {
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 2px 0 16px;
+  line-height: 1.5;
+}
