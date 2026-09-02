@@ -1785,6 +1785,28 @@ html {
   position: absolute;
   left: 0;
   font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* Манифест использует ту же нумерацию первого уровня, что и остальной устав —
+   без обёртки .charter-numbered-group (там нет вложенных подпунктов) */
+.charter-ol-standalone {
+  counter-reset: manifestitem;
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 16px;
+}
+.charter-ol-standalone > li {
+  counter-increment: manifestitem;
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 14px;
+}
+.charter-ol-standalone > li::before {
+  content: counter(manifestitem) ".";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
   color: var(--accent);
 }
 
@@ -1830,3 +1852,8 @@ html {
 /* Кликабельная ссылка "(см. ниже)" — обычная ссылка внутри текста */
 .charter-inline-link { color: var(--accent); }
 .charter-inline-link:hover { text-decoration: underline; }
+
+/* Цветные статусы рассмотрения заявки в описании должностей */
+.charter-status-approved { color: #4caf6d; font-weight: 700; }
+.charter-status-pending { color: #dfc94a; font-weight: 700; }
+.charter-status-rejected { color: var(--danger); font-weight: 700; }
