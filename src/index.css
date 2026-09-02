@@ -1683,6 +1683,10 @@ html {
   margin-top: 6px;
   padding-left: 20px;
 }
+.charter-toc ol ol ol {
+  margin-top: 4px;
+  padding-left: 18px;
+}
 .charter-toc a {
   color: var(--text);
 }
@@ -1742,10 +1746,6 @@ html {
 /* ==========================================================================
    СКВОЗНАЯ МНОГОУРОВНЕВАЯ НУМЕРАЦИЯ (как в исходном Word-документе)
    ========================================================================== */
-
-/* Группа, внутри которой нумерация верхнего уровня (1, 2, 3...) продолжается
-   сквозным счётом через несколько отдельных <ol>, даже если между ними
-   стоят заголовки <h3> — счётчик сбрасывается только на границе группы. */
 .charter-numbered-group {
   counter-reset: mainitem;
 }
@@ -1768,7 +1768,6 @@ html {
   color: var(--accent);
 }
 
-/* Подпункты вида "3.1.", "9.4." — комбинация родительского и своего счётчика */
 .charter-sublist {
   counter-reset: subitem;
   list-style: none;
@@ -1786,10 +1785,10 @@ html {
   position: absolute;
   left: 0;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--accent);
 }
 
-/* Курсивные примечания мелким шрифтом (пояснения-примеры из документа) */
+/* Курсивные примечания мелким шрифтом */
 .charter-note {
   font-style: italic;
   font-size: 12.5px;
@@ -1797,3 +1796,37 @@ html {
   margin: 2px 0 16px;
   line-height: 1.5;
 }
+
+/* Заголовки разделов и подразделов — акцентный цвет */
+.charter-section h2,
+.charter-section h3,
+.charter-section h4 {
+  color: var(--accent);
+}
+.charter-section h4 {
+  font-family: var(--font-heading);
+  font-size: 14.5px;
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+
+/* Спойлеры — нейтральный цвет заголовка, БЕЗ акцентного оранжевого */
+.charter-spoiler summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+}
+.charter-spoiler[open] summary {
+  margin-bottom: 10px;
+}
+
+/* Цветные ключевые слова */
+.charter-word-приду { color: #4caf6d; font-weight: 700; }
+.charter-word-ne-приду { color: var(--danger); font-weight: 700; }
+.charter-word-nарушение { color: var(--danger); font-weight: 700; }
+.charter-word-dopustimo { color: #4caf6d; font-weight: 700; }
+.charter-word-zapreshcheno { color: var(--danger); font-weight: 700; }
+
+/* Кликабельная ссылка "(см. ниже)" — обычная ссылка внутри текста */
+.charter-inline-link { color: var(--accent); }
+.charter-inline-link:hover { text-decoration: underline; }
