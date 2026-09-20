@@ -6,3 +6,6 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[context.production.plugins]]
+  package = "./plugins/netlify-plugin-vps-deploy"
