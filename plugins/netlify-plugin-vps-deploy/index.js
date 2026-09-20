@@ -1,7 +1,7 @@
-import fs from "node";
-import os from "node";
-import path from "node";
-import { spawn, execFileSync } from "node";
+import fs from "fs";
+import os from "os";
+import path from "path";
+import { execFileSync, spawn } from "child_process";
 
 function fail(message) {
 throw new Error("[VPS deploy] " + message);
@@ -25,7 +25,7 @@ child.on("close", (code) => {
 }
 
 export const onSuccess = async ({ constants }) => {
-// Деплоим на VPS только production.
+// На VPS отправляем только production.
 if (process.env.CONTEXT !== "production") {
 console.log("[VPS deploy] Skipping: not a production build.");
 return;
@@ -64,10 +64,11 @@ const keyFile = path.join(tempDir, "deploy_key");
 const knownHostsFile = path.join(tempDir, "known_hosts");
 const archiveFile = path.join(tempDir, "site.tar.gz");
 
+let archiveFd = null;
+
 try {
 console.log("[VPS deploy] Preparing deployment archive...");
 
-// Восстанавливаем приватный SSH-ключ из Base64.
 const privateKey = Buffer.from(
   process.env.VPS_DEPLOY_KEY_B64,
   "base64"
@@ -81,7 +82,6 @@ fs.writeFileSync(keyFile, privateKey, {
   mode: 0o600,
 });
 
-// Записываем заранее известный host key VPS.
 fs.writeFileSync(
   knownHostsFile,
   process.env.VPS_KNOWN_HOSTS + "\n",
@@ -90,7 +90,6 @@ fs.writeFileSync(
   }
 );
 
-// Создаём архив dist во временном каталоге.
 execFileSync(
   "tar",
   [
@@ -107,8 +106,7 @@ execFileSync(
 
 console.log("[VPS deploy] Uploading " + publishDir + "...");
 
-// Открываем архив как stdin SSH.
-const archiveFd = fs.openSync(archiveFile, "r");
+archiveFd = fs.openSync(archiveFile, "r");
 
 const ssh = spawn(
   "ssh",
@@ -129,13 +127,15 @@ const ssh = spawn(
     process.env.VPS_USER + "@" + process.env.VPS_HOST,
   ],
   {
-    stdio: [archiveFd, "inherit", "inherit"],
+    stdio: [
+      archiveFd,
+      "inherit",
+      "inherit",
+    ],
   }
 );
 
 await waitForProcess(ssh, "ssh");
-
-fs.closeSync(archiveFd);
 
 console.log("[VPS deploy] Deployment successful.");
 
@@ -148,9 +148,18 @@ error instanceof Error ? error.message : error
 throw error;
 
 } finally {
+if (archiveFd !== null) {
+try {
+fs.closeSync(archiveFd);
+} catch {
+// fd уже мог быть закрыт системой.
+}
+}
+
 fs.rmSync(tempDir, {
-recursive: true,
-force: true,
+  recursive: true,
+  force: true,
 });
+
 }
 };
