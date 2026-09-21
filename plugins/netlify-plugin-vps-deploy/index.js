@@ -24,7 +24,7 @@ child.on("close", (code) => {
 });
 }
 
-export const onSuccess = async ({ constants }) => {
+export const onPostBuild = async ({ constants }) => {
 // На VPS отправляем только production.
 if (process.env.CONTEXT !== "production") {
 console.log("[VPS deploy] Skipping: not a production build.");
