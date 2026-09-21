@@ -7,5 +7,17 @@
   to = "/index.html"
   status = 200
 
+[[plugins]]
+package = "netlify-plugin-submit-sitemap"
+
+[plugins.inputs]
+baseUrl = "https://mis-enemy.ru"
+sitemapPath = "/sitemap.xml"
+ignorePeriod = 0
+providers = [
+  "google",
+  "yandex"
+]
+
 [[context.production.plugins]]
   package = "./plugins/netlify-plugin-vps-deploy"
