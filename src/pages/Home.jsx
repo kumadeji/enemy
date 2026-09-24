@@ -17,6 +17,11 @@ export default function Home() {
 		  <b>Подавайте заявку и вступайте в наш клан! Мы ждём вас!</b>
 		  <br/>
         </p>
+		<img
+          src="/recruiting-rounded.png"
+          alt="Набор в клан ENEMY"
+          style={{ width: "100%", height: "auto" }}
+        />
       </section>
 	  
 	  <section className="card">
