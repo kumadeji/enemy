@@ -34,8 +34,8 @@ import AdminTestNotification from "./pages/AdminTestNotification";
 export default function App() {
   return (
     <BrowserRouter>
+      <PageTitle />
       <AuthProvider>
-        <PageTitle />
 		<BackgroundMap />
 		<BackgroundMusic />
 		<AlphaBadge />

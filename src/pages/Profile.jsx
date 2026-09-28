@@ -142,6 +142,20 @@ export default function Profile() {
 
         <ProfileTable>
           <ProfileRow label="Игры">{playedGames.join(", ")}</ProfileRow>
+          {isOwn && (
+            <ProfileRow label="Электронная почта">
+              {p.email}{" "}
+              <span
+                className="badge"
+                style={{
+                  color: p.emailVerified ? "#4caf6d" : "var(--danger)",
+                  borderColor: p.emailVerified ? "#4caf6d" : "var(--danger)"
+                }}
+              >
+                {p.emailVerified ? "Подтверждена" : "Не подтверждена"}
+              </span>
+            </ProfileRow>
+          )}
           <ProfileRow label="Discord ID"><CopyableField value={p.discordId} /></ProfileRow>
           <ProfileRow label="Steam ID"><CopyableField value={p.steamId} /></ProfileRow>
           <ProfileRow label="Ссылка на Steam"><a href={p.steamProfileUrl} target="_blank" rel="noreferrer">{p.steamProfileUrl}</a></ProfileRow>

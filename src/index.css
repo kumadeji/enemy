@@ -138,6 +138,7 @@ a:hover {
   color: var(--accent);
   font-size: 13px;
   padding: 10px 0;
+  text-align: center;
 }
 
 /* ==========================================================================

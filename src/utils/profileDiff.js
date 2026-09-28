@@ -1,5 +1,16 @@
+import { pluralize } from "./pluralize";
+
+function summarizeActions(added) {
+  const warnings = added.filter(a => a.type === "Замечание").length;
+  const reprimands = added.filter(a => a.type === "Выговор").length;
+  const parts = [];
+  if (warnings > 0) parts.push(`${warnings} ${pluralize(warnings, ["замечание", "замечания", "замечаний"])}`);
+  if (reprimands > 0) parts.push(`${reprimands} ${pluralize(reprimands, ["выговор", "выговора", "выговоров"])}`);
+  return parts.join(" и ");
+}
+
 // Сравнивает состояние профиля "до" и "после" правок администратора
-// и формирует список человекочитаемых уведомлений об изменениях
+
 export function buildDiffMessages(before, after, games) {
   const messages = [];
 
@@ -62,7 +73,8 @@ export function buildDiffMessages(before, after, games) {
     const bActions = before.gameDisciplinaryActions?.[game] || [];
     const aActions = after.gameDisciplinaryActions?.[game] || [];
     if (aActions.length > bActions.length) {
-      messages.push(`${game}: выдано взыскание — ${aActions[aActions.length - 1].type}.`);
+      const summary = summarizeActions(aActions.slice(bActions.length));
+      if (summary) messages.push(`${game}: выдано взыскание — ${summary}.`);
     }
   }
 
@@ -76,7 +88,8 @@ export function buildDiffMessages(before, after, games) {
   const bGlobalActions = before.globalDisciplinaryActions || [];
   const aGlobalActions = after.globalDisciplinaryActions || [];
   if (aGlobalActions.length > bGlobalActions.length) {
-    messages.push(`Выдано общее взыскание в сообществе — ${aGlobalActions[aGlobalActions.length - 1].type}.`);
+    const summary = summarizeActions(aGlobalActions.slice(bGlobalActions.length));
+    if (summary) messages.push(`Выдано общее взыскание в сообществе — ${summary}.`);
   }
 
   return messages;

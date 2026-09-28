@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { TIMEZONES } from "../data/timezones";
 import ImageHint from "./ImageHint";
-import { formatBirthDateInput, validateBirthDate } from "../utils/birthDate";
+import { formatBirthDateInput, validateBirthDate, computeAgeFromBirthDate } from "../utils/birthDate";
 import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -85,13 +85,20 @@ export default function ApplicationForm({
     initialValues && !initialValues.referredByUid && initialValues.howFound ? "text" : "player"
   );
   const [rosterList, setRosterList] = useState([]);
+  const [rosterLoadFailed, setRosterLoadFailed] = useState(false);
 
   useEffect(() => {
     async function loadRoster() {
-      const snap = await getDocs(collection(db, "rosterPublic"));
-      const list = snap.docs.map(d => ({ uid: d.id, ...d.data() })).filter(p => p.callsign);
-      list.sort((a, b) => a.callsign.localeCompare(b.callsign, "ru"));
-      setRosterList(list);
+      try {
+        const snap = await getDocs(collection(db, "rosterPublic"));
+        const list = snap.docs.map(d => ({ uid: d.id, ...d.data() })).filter(p => p.callsign);
+        list.sort((a, b) => a.callsign.localeCompare(b.callsign, "ru"));
+        setRosterList(list);
+      } catch (err) {
+        console.error("Не удалось загрузить список бойцов:", err);
+        setRosterLoadFailed(true);
+        setReferralType("text");
+      }
     }
     loadRoster();
   }, []);
@@ -136,6 +143,15 @@ export default function ApplicationForm({
 
     const bErr = validateBirthDate(form.birthDate);
     if (bErr) { setBirthDateError(bErr); setFormError(bErr); return; }
+
+    if (form.birthDate.trim()) {
+      const computedAge = computeAgeFromBirthDate(form.birthDate);
+      if (computedAge !== null && Number(form.age) !== computedAge) {
+        updateField("age", String(computedAge));
+        setFormError(`Возраст не соответствовал дате рождения — автоматически исправлено на ${computedAge}. Нажмите "Отправить" ещё раз.`);
+        return;
+      }
+    }
 
     const pErr = validatePhone(form.extraPhone);
     if (pErr) { setPhoneError(pErr); setFormError(pErr); return; }
@@ -237,8 +253,17 @@ export default function ApplicationForm({
         </div>
 
         <label>Возраст</label>
-        <input type="number" min={16} max={99} required value={form.age} onChange={e => updateField("age", e.target.value)} />
-        <div className="field-hint">В клан принимаются лица от 16 лет.</div>
+        <input
+          type="number" min={16} max={99} required
+          value={form.age}
+          readOnly={computeAgeFromBirthDate(form.birthDate) !== null}
+          onChange={e => updateField("age", e.target.value)}
+        />
+        <div className="field-hint">
+          {computeAgeFromBirthDate(form.birthDate) !== null
+            ? "Возраст рассчитан автоматически по дате рождения."
+            : "В клан принимаются лица от 16 лет."}
+        </div>
 
         <label>Дата рождения <span className="optional-tag">необязательно</span></label>
         <input
@@ -246,7 +271,13 @@ export default function ApplicationForm({
           placeholder="ДД.ММ.ГГГГ"
           maxLength={10}
           value={form.birthDate}
-          onChange={e => { updateField("birthDate", formatBirthDateInput(e.target.value)); setBirthDateError(""); }}
+          onChange={e => {
+            const formatted = formatBirthDateInput(e.target.value);
+            updateField("birthDate", formatted);
+            setBirthDateError("");
+            const computedAge = computeAgeFromBirthDate(formatted);
+            if (computedAge !== null) updateField("age", String(computedAge));
+          }}
           onBlur={e => setBirthDateError(validateBirthDate(e.target.value) || "")}
         />
         <div className="field-hint">Нам не нужны ваши личные данные — это только для того, чтобы мы могли вас поздравлять в клане с днём рождения. По желанию, но можно заполнить позже, в любое время.</div>
@@ -421,9 +452,17 @@ export default function ApplicationForm({
         <textarea required value={form.whyJoin} onChange={e => updateField("whyJoin", e.target.value)} />
 
         <label>Откуда узнали о клане?</label>
+        {rosterLoadFailed && (
+          <div className="field-hint" style={{ color: "var(--danger)" }}>
+            Не удалось загрузить список бойцов — возможно, часть сайта блокирует ваш браузер
+            (блокировщик рекламы, антивирус или расширение приватности). Укажите, пожалуйста,
+            кто вас пригласил, в свободной форме ниже.
+          </div>
+        )}
         <div className="referral-type-switch">
           <label className="checkbox-label">
             <input type="radio" name="referralType" checked={referralType === "player"}
+              disabled={rosterLoadFailed}
               onChange={() => { setReferralType("player"); updateField("howFound", ""); }} />
             <span>Меня пригласил боец из клана</span>
           </label>

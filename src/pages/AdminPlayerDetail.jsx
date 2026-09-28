@@ -265,7 +265,18 @@ export default function AdminPlayerDetail() {
         />
 
         <ProfileTable>
-          <ProfileRow label="Электронная почта">{profile.email}</ProfileRow>
+          <ProfileRow label="Электронная почта">
+            {profile.email}{" "}
+            <span
+              className="badge"
+              style={{
+                color: profile.emailVerified ? "#4caf6d" : "var(--danger)",
+                borderColor: profile.emailVerified ? "#4caf6d" : "var(--danger)"
+              }}
+            >
+              {profile.emailVerified ? "Подтверждена" : "Не подтверждена"}
+            </span>
+          </ProfileRow>
           <ProfileRow label="Имя и фамилия">{profile.fullName}</ProfileRow>
           <ProfileRow label="Возраст">{profile.age}</ProfileRow>
           <ProfileRow label="Discord ID"><CopyableField value={profile.discordId} /></ProfileRow>

@@ -84,14 +84,20 @@ export function AuthProvider({ children }) {
         try {
           const profileRef = doc(db, "profiles", user.uid);
           const snap = await getDoc(profileRef);
-          if (snap.exists() && snap.data().email !== user.email) {
-            await updateDoc(profileRef, { email: user.email });
+          if (snap.exists()) {
+            const data = snap.data();
+            const updates = {};
+            if (data.email !== user.email) updates.email = user.email;
+            if (data.emailVerified !== user.emailVerified) updates.emailVerified = user.emailVerified;
+            if (Object.keys(updates).length > 0) {
+              await updateDoc(profileRef, updates);
+              setProfile(prev => (prev ? { ...prev, ...updates } : prev));
+            }
           }
         } catch {
           // не критично — просто пропускаем синхронизацию в этот раз
         }
       }
-
       setLoading(false);
     });
     return unsubscribe;

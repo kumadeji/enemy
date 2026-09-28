@@ -17,3 +17,15 @@ export function validateBirthDate(value) {
   if (yyyy < currentYear - 100 || yyyy > currentYear - 5) return "Проверьте год рождения.";
   return null;
 }
+
+export function computeAgeFromBirthDate(value) {
+  const match = (value || "").trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) return null;
+  const dd = Number(match[1]), mm = Number(match[2]), yyyy = Number(match[3]);
+  const today = new Date();
+  let age = today.getFullYear() - yyyy;
+  const hadBirthdayThisYear =
+    today.getMonth() + 1 > mm || (today.getMonth() + 1 === mm && today.getDate() >= dd);
+  if (!hadBirthdayThisYear) age--;
+  return age;
+}

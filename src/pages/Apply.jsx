@@ -8,7 +8,6 @@ import ApplicationForm from "../components/ApplicationForm";
 import { defaultGameRole } from "../data/gameRoles";
 import { buildTelegramUrl, buildVkUrl } from "../utils/socialLinks";
 import { buildRosterPublicPayload } from "../utils/rosterPublic";
-import { sendEmailVerification } from "firebase/auth";
 
 export default function Apply() {
   const { currentUser, refreshProfile } = useAuth();
@@ -34,7 +33,6 @@ export default function Apply() {
 
       const cred = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const uid = cred.user.uid;
-	  await sendEmailVerification(cred.user).catch(() => {});
 
       const hoursByGame = {};
       const experienceByGame = {};
