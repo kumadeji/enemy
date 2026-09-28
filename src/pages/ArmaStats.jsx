@@ -67,7 +67,7 @@ export default function ArmaStats() {
 
   return (
     <main className="container">
-      <h1>Статистика отыгрышей — Arma Reforger</h1>
+      <h1>Клановая статистика — Arma Reforger</h1>
 
       <div className="card">
         <p className="field-hint">
