@@ -144,15 +144,26 @@ export default function Profile() {
           <ProfileRow label="Игры">{playedGames.join(", ")}</ProfileRow>
           {isOwn && (
             <ProfileRow label="Электронная почта">
-              {p.email}{" "}
-              <span
-                className="badge"
-                style={{
-                  color: p.emailVerified ? "#4caf6d" : "var(--danger)",
-                  borderColor: p.emailVerified ? "#4caf6d" : "var(--danger)"
-                }}
-              >
-                {p.emailVerified ? "Подтверждена" : "Не подтверждена"}
+              <span className="email-status-row">
+                <CopyableField value={p.email} />
+                <span
+                  className={`email-status-badge ${p.emailVerified ? "verified" : "unverified"}`}
+                  title={p.emailVerified ? "Почта подтверждена" : "Почта не подтверждена"}
+                >
+                  {p.emailVerified ? (
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  )}
+                </span>
+                <span className={`email-status-text ${p.emailVerified ? "verified" : "unverified"}`}>
+                  {p.emailVerified ? "Подтверждена" : "Не подтверждена"}
+                </span>
               </span>
             </ProfileRow>
           )}

@@ -266,15 +266,26 @@ export default function AdminPlayerDetail() {
 
         <ProfileTable>
           <ProfileRow label="Электронная почта">
-            {profile.email}{" "}
-            <span
-              className="badge"
-              style={{
-                color: profile.emailVerified ? "#4caf6d" : "var(--danger)",
-                borderColor: profile.emailVerified ? "#4caf6d" : "var(--danger)"
-              }}
-            >
-              {profile.emailVerified ? "Подтверждена" : "Не подтверждена"}
+            <span className="email-status-row">
+              <CopyableField value={profile.email} />
+              <span
+                className={`email-status-badge ${profile.emailVerified ? "verified" : "unverified"}`}
+                title={profile.emailVerified ? "Почта подтверждена" : "Почта не подтверждена"}
+              >
+                {profile.emailVerified ? (
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                )}
+              </span>
+              <span className={`email-status-text ${profile.emailVerified ? "verified" : "unverified"}`}>
+                {profile.emailVerified ? "Подтверждена" : "Не подтверждена"}
+              </span>
             </span>
           </ProfileRow>
           <ProfileRow label="Имя и фамилия">{profile.fullName}</ProfileRow>

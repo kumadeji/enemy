@@ -1893,3 +1893,37 @@ html {
   overflow-wrap: normal;
   word-break: normal;
 }
+
+/* ==========================================================================
+   СТАТУС ПОДТВЕРЖДЕНИЯ ПОЧТЫ (рядом с кнопкой копирования email)
+   ========================================================================== */
+.email-status-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.email-status-badge {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.email-status-badge.verified {
+  color: #4caf6d;
+  border-color: #4caf6d;
+}
+.email-status-badge.unverified {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.email-status-text {
+  font-size: 13px;
+}
+.email-status-text.verified { color: #4caf6d; }
+.email-status-text.unverified { color: var(--danger); }
+
