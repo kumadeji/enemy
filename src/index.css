@@ -807,13 +807,17 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
   transition: width 0.5s ease;
 }
 .ko-stats-value {
-  width: 32px;
+  min-width: 28px;
   text-align: right;
   font-family: var(--font-heading);
   font-weight: 700;
   color: var(--accent);
   font-size: 13px;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
 }
+
 
 /* ==========================================================================
    ПУБЛИЧНАЯ ЗАМЕТКА "КОМБАТ ОБ ЭТОМ БОЙЦЕ" — стиль рукописной записки
