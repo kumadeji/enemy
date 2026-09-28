@@ -1870,3 +1870,13 @@ html {
 .charter-status-approved { color: #4caf6d; font-weight: 700; }
 .charter-status-pending { color: #dfc94a; font-weight: 700; }
 .charter-status-rejected { color: var(--danger); font-weight: 700; }
+
+/* Глобальное правило переноса длинных ссылок (.card p, .field-hint, td)
+   ломает числа в узлах дерева статистики — react-organizational-chart
+   рендерит каждый узел дерева физически внутри <td>. Отменяем перенос
+   именно здесь, не трогая white-space (чтобы длинные текстовые бейджи
+   составов/должностей по-прежнему могли переноситься по словам). */
+.community-stats-card td {
+  overflow-wrap: normal;
+  word-break: normal;
+}
