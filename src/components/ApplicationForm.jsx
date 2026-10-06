@@ -172,7 +172,7 @@ export default function ApplicationForm({
       if (armaErr) { setArmaIdError(armaErr); setFormError(armaErr); return; }
     }
 	
-    if (!form.discordId.trim()) { setFormError("Укажите Discord ID."); return; }
+    if (!form.discordId.trim()) { setFormError("Укажите имя пользователя Discord."); return; }
     if (!form.steamId.trim()) { setFormError("Укажите Steam ID."); return; }
     const steamErr = validateSteamId(form.steamId);
     if (steamErr) { setSteamIdError(steamErr); setFormError(steamErr); return; }
@@ -308,11 +308,11 @@ export default function ApplicationForm({
           </div>
         )}
 
-        <label>Discord ID
-          <ImageHint image="/hints/discord-id.png" alt="Где взять Discord ID" />
+        <label>Имя пользователя Discord
+          <ImageHint image="/hints/discord-id.png" alt="Где взять имя пользователя Discord" />
         </label>
         <input type="text" required value={form.discordId} onChange={e => updateField("discordId", e.target.value)} />
-        <div className="field-hint">Discord ID — имя пользователя (не ник), обязательный контакт для поддержания связи в клане. Почти вся коммуникация в клане идёт через Discord.</div>
+        <div className="field-hint">Имя пользователя Discord — ваш логин (не ник или ID), по которому вас можно найти, обязательный контакт для поддержания связи в клане. Почти вся коммуникация в клане идёт через Discord.</div>
 
         <label>Дополнительные контакты <span className="optional-tag">необязательно</span></label>
         <div className="field-hint">

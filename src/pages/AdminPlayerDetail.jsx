@@ -290,7 +290,7 @@ export default function AdminPlayerDetail() {
           </ProfileRow>
           <ProfileRow label="Имя и фамилия">{profile.fullName}</ProfileRow>
           <ProfileRow label="Возраст">{profile.age}</ProfileRow>
-          <ProfileRow label="Discord ID"><CopyableField value={profile.discordId} /></ProfileRow>
+          <ProfileRow label="Имя пользователя Discord"><CopyableField value={profile.discordId} /></ProfileRow>
           <ProfileRow label="Steam ID"><CopyableField value={profile.steamId} /></ProfileRow>
           <ProfileRow label="Ссылка на Steam"><a href={profile.steamProfileUrl} target="_blank" rel="noreferrer">{profile.steamProfileUrl}</a></ProfileRow>
           {profile.armaId && <ProfileRow label="Arma ID"><CopyableField value={profile.armaId} /></ProfileRow>}
