@@ -1,14 +1,17 @@
-// Описание платформ: подпись, фон и значок иконки-монограммы на кнопке
+import { SiTwitch, SiKick, SiRutube, SiVk, SiYoutube, SiInstagram, SiTiktok } from "react-icons/si";
+
+// Описание платформ: подпись, иконка и фон плашки под иконкой
 export const PLATFORMS = {
-  vkvideo:   { label: "VK Видео",  glyph: "VK▶", background: "#0077ff" },
-  twitch:    { label: "Twitch",    glyph: "TW",  background: "#9146ff" },
-  kick:      { label: "Kick",      glyph: "K",   background: "#53fc18", glyphColor: "#0b0e0f" },
-  rutube:    { label: "Rutube",    glyph: "RT",  background: "#1d2a4d" },
-  vk:        { label: "ВКонтакте", glyph: "VK",  background: "#0077ff" },
-  youtube:   { label: "YouTube",   glyph: "YT",  background: "#ff0000" },
-  instagram: { label: "Instagram*", glyph: "IG", background: "linear-gradient(135deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5)" },
-  tiktok:    { label: "TikTok",    glyph: "TT",  background: "#111111" }
+  vkvideo:   { label: "VK Видео",   icon: SiVk,        background: "#0077ff" },
+  twitch:    { label: "Twitch",     icon: SiTwitch,    background: "#9146ff" },
+  kick:      { label: "Kick",       icon: SiKick,      background: "#53fc18", glyphColor: "#0b0e0f" },
+  rutube:    { label: "Rutube",     icon: SiRutube,    background: "#1d2a4d" },
+  vk:        { label: "ВКонтакте",  icon: SiVk,        background: "#0077ff" },
+  youtube:   { label: "YouTube",    icon: SiYoutube,   background: "#ff0000" },
+  instagram: { label: "Instagram*", icon: SiInstagram, background: "linear-gradient(135deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5)" },
+  tiktok:    { label: "TikTok",     icon: SiTiktok,    background: "#111111" }
 };
+
 
 export const MEDIA_AUTHORS = [
   {

@@ -1952,6 +1952,8 @@ html {
 }
 
 .author-card-head {
+  position: relative;
+  z-index: 1; /* аватарка и текст всегда поверх цветной шапки */
   display: flex;
   align-items: flex-end;
   gap: 18px;
@@ -1994,12 +1996,6 @@ html {
   line-height: 1.15;
   color: var(--text);
 }
-.author-role {
-  color: var(--text-muted);
-  font-size: 12.5px;
-  margin-top: 2px;
-}
-
 /* Сетка кнопок-каналов */
 .author-links {
   display: grid;
@@ -2059,4 +2055,21 @@ html {
 .author-link-btn:hover .author-link-arrow {
   color: var(--author-color);
   transform: translate(2px, -2px);
+}
+
+/* Названия Discord-каналов на странице "Видео" */
+.discord-channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+.discord-channel-chip {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
 }

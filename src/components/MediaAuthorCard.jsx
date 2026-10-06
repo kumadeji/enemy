@@ -22,7 +22,6 @@ export default function MediaAuthorCard({ author }) {
         <div className="author-info">
           <div className="author-tag">[En-Y]</div>
           <h2 className="author-name">{author.name}</h2>
-          <div className="author-role">Автор контента сообщества</div>
         </div>
       </div>
 
@@ -30,6 +29,7 @@ export default function MediaAuthorCard({ author }) {
         {author.links.map(link => {
           const p = PLATFORMS[link.platform];
           if (!p) return null;
+          const Icon = p.icon;
           return (
             <a
               key={link.url}
@@ -42,7 +42,7 @@ export default function MediaAuthorCard({ author }) {
                 className="author-link-icon"
                 style={{ background: p.background, color: p.glyphColor || "#fff" }}
               >
-                {p.glyph}
+                <Icon size={18} />
               </span>
               <span className="author-link-label">{p.label}</span>
               <span className="author-link-arrow">↗</span>

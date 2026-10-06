@@ -14,16 +14,20 @@ export default function Media() {
         <MediaAuthorCard key={author.id} author={author} />
       ))}
 
+      <div className="card">
+        <h2>Больше контента</h2>
+        <p className="hint">Контент и анонсы трансляций от бойцов собираются в Discord-каналах:</p>
+        <div className="discord-channels">
+          <span className="discord-channel-chip">#контент-сообщества</span>
+          <span className="discord-channel-chip">#стримы-соклановцев</span>
+        </div>
+        <DiscordWidget />
+      </div>
+
       <p className="field-hint">
         * Instagram принадлежит компании Meta, которая признана экстремистской организацией
         и запрещена на территории РФ.
       </p>
-
-      <div className="card">
-        <h2>Больше контента</h2>
-        <p className="hint">Весь контент от бойцов также собирается в чате <b>#ваш-контент</b> в Discord.</p>
-        <DiscordWidget />
-      </div>
     </main>
   );
 }
