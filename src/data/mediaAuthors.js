@@ -1,34 +1,15 @@
-import { createElement } from "react";
 import { SiTwitch, SiKick, SiVk, SiYoutube, SiInstagram, SiTiktok } from "react-icons/si";
-
-// В наборе Simple Icons нет Rutube, поэтому для него своя простая иконка-монограмма.
-// Пишем через createElement, т.к. JSX в .js-файлах Vite по умолчанию не разбирает.
-function RutubeIcon({ size = 18 }) {
-  return createElement(
-    "span",
-    {
-      style: {
-        fontFamily: "var(--font-heading)",
-        fontWeight: 800,
-        fontSize: Math.round(size * 0.75),
-        lineHeight: 1,
-        letterSpacing: "0.3px"
-      }
-    },
-    "R"
-  );
-}
 
 // Описание платформ: подпись, иконка и фон плашки под иконкой
 export const PLATFORMS = {
-  vkvideo:   { label: "VK Видео",   icon: SiVk,        background: "#0077ff" },
-  twitch:    { label: "Twitch",     icon: SiTwitch,    background: "#9146ff" },
-  kick:      { label: "Kick",       icon: SiKick,      background: "#53fc18", glyphColor: "#0b0e0f" },
-  rutube:    { label: "Rutube",     icon: RutubeIcon,  background: "#1d2a4d" },
-  vk:        { label: "ВКонтакте",  icon: SiVk,        background: "#0077ff" },
-  youtube:   { label: "YouTube",    icon: SiYoutube,   background: "#ff0000" },
-  instagram: { label: "Instagram*", icon: SiInstagram, background: "linear-gradient(135deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5)" },
-  tiktok:    { label: "TikTok",     icon: SiTiktok,    background: "#111111" }
+  vkvideo:   { label: "VK Видео Live", iconSrc: "/platform-icons/vkvideo.svg", fullBleed: true, background: "transparent" },
+  vk:        { label: "VK",            icon: SiVk,        background: "#0077ff" },
+  twitch:    { label: "Twitch",        icon: SiTwitch,    background: "#9146ff" },
+  kick:      { label: "Kick",          icon: SiKick,      background: "#53fc18", glyphColor: "#0b0e0f" },
+  rutube:    { label: "Rutube",        iconSrc: "/platform-icons/rutube.svg", fullBleed: true, background: "transparent" },
+  youtube:   { label: "YouTube",       icon: SiYoutube,   background: "#ff0000" },
+  instagram: { label: "Instagram*",    icon: SiInstagram, background: "linear-gradient(135deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5)" },
+  tiktok:    { label: "TikTok",        icon: SiTiktok,    background: "#111111" }
 };
 
 

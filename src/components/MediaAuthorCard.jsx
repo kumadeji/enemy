@@ -30,6 +30,15 @@ export default function MediaAuthorCard({ author }) {
           const p = PLATFORMS[link.platform];
           if (!p) return null;
           const Icon = p.icon;
+          const iconNode = p.iconSrc
+            ? (
+              <img
+                src={p.iconSrc}
+                alt=""
+                className={p.fullBleed ? "author-link-img-full" : "author-link-img-pad"}
+              />
+            )
+            : <Icon size={18} />;
           return (
             <a
               key={link.url}
@@ -42,7 +51,7 @@ export default function MediaAuthorCard({ author }) {
                 className="author-link-icon"
                 style={{ background: p.background, color: p.glyphColor || "#fff" }}
               >
-                <Icon size={18} />
+                {iconNode}
               </span>
               <span className="author-link-label">{p.label}</span>
               <span className="author-link-arrow">↗</span>

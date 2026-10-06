@@ -2073,3 +2073,8 @@ html {
   font-weight: 600;
   color: var(--text);
 }
+
+/* Своя картинка-иконка платформы на кнопке канала */
+.author-link-icon { overflow: hidden; }
+.author-link-img-full { width: 100%; height: 100%; object-fit: cover; display: block; }
+.author-link-img-pad { width: 18px; height: 18px; object-fit: contain; display: block; }
