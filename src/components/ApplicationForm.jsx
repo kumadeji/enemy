@@ -308,11 +308,11 @@ export default function ApplicationForm({
           </div>
         )}
 
-        <label>Имя пользователя Discord
+        <label>Имя в Discord
           <ImageHint image="/hints/discord-id.png" alt="Где взять имя пользователя Discord" />
         </label>
         <input type="text" required value={form.discordId} onChange={e => updateField("discordId", e.target.value)} />
-        <div className="field-hint">Имя пользователя Discord — ваш логин (не ник или ID), по которому вас можно найти, обязательный контакт для поддержания связи в клане. Почти вся коммуникация в клане идёт через Discord.</div>
+        <div className="field-hint">Имя пользователя Discord — ваш логин (не ник и не ID), по которому вас можно найти, обязательный контакт для поддержания связи в клане. Почти вся коммуникация в клане идёт через Discord.</div>
 
         <label>Дополнительные контакты <span className="optional-tag">необязательно</span></label>
         <div className="field-hint">

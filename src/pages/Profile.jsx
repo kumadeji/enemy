@@ -167,7 +167,7 @@ export default function Profile() {
               </span>
             </ProfileRow>
           )}
-          <ProfileRow label="Имя пользователя Discord"><CopyableField value={p.discordId} /></ProfileRow>
+          <ProfileRow label="Имя в Discord"><CopyableField value={p.discordId} /></ProfileRow>
           <ProfileRow label="Steam ID"><CopyableField value={p.steamId} /></ProfileRow>
           <ProfileRow label="Ссылка на Steam"><a href={p.steamProfileUrl} target="_blank" rel="noreferrer">{p.steamProfileUrl}</a></ProfileRow>
           {p.armaId && <ProfileRow label="Arma ID"><CopyableField value={p.armaId} /></ProfileRow>}

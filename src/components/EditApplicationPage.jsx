@@ -9,7 +9,7 @@ import { sendYandexGoal } from "../utils/yandexMetrica";
 
 const FIELD_LABELS = {
   fullName: "Имя и фамилия", age: "Возраст", birthDate: "Дата рождения",
-  steamId: "Steam ID", discordId: "Имя пользователя Discord", armaId: "Arma ID",
+  steamId: "Steam ID", discordId: "Имя в Discord", armaId: "Arma ID",
   extraPhone: "Телефон", extraTelegram: "ID Telegram", extraVk: "ID ВКонтакте", extraOther: "Другой контакт",
   timezone: "Часовой пояс", availability: "Доступность для игр",
   whyJoin: "Почему хочет вступить", howFound: "Откуда узнал о клане", gamesInterested: "Игры"
