@@ -1935,35 +1935,37 @@ html {
   padding: 0;
   overflow: hidden;
   margin-bottom: 20px;
+  border-left: 3px solid var(--author-color); /* цветная полоска слева */
 }
 .author-card:hover {
   border-color: var(--author-color);
   box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
 }
 
-/* Цветная шапка карточки в акцентном цвете автора */
-.author-card-banner {
-  height: 72px;
-  background:
-    linear-gradient(135deg, var(--author-color) 0%, transparent 85%),
-    var(--bg-input);
-  opacity: 0.55;
-  border-bottom: 1px solid var(--border);
-}
-
 .author-card-head {
   position: relative;
-  z-index: 1; /* аватарка и текст всегда поверх цветной шапки */
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 18px;
-  padding: 0 22px;
-  margin-top: -44px; /* аватарка наезжает на шапку */
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
 }
+/* Градиент — фон самой строки с аватаркой и ником, без отдельного блока */
+.author-card-head::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, var(--author-color) 0%, transparent 75%);
+  opacity: 0.22;
+  pointer-events: none;
+}
+/* Содержимое строки рисуется поверх градиента */
+.author-card-head > * { position: relative; }
+
 
 .author-avatar {
-  width: 96px;
-  height: 96px;
+  width: 76px;
+  height: 76px;
   border-radius: 24%;
   object-fit: cover;
   border: 3px solid var(--author-color);
@@ -1977,12 +1979,12 @@ html {
   align-items: center;
   justify-content: center;
   font-family: var(--font-heading);
-  font-size: 40px;
+  font-size: 32px;
   font-weight: 800;
   color: var(--author-color);
 }
 
-.author-info { padding-bottom: 4px; min-width: 0; }
+.author-info { min-width: 0; }
 .author-tag {
   font-family: var(--font-heading);
   font-size: 12px;
@@ -2001,12 +2003,12 @@ html {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  padding: 18px 22px 22px;
+  padding: 16px 22px 20px;
 }
 @media (max-width: 560px) {
   .author-links { grid-template-columns: 1fr; }
   .author-name { font-size: 24px; }
-  .author-avatar { width: 80px; height: 80px; }
+  .author-avatar { width: 64px; height: 64px; }
 }
 
 .author-link-btn,
@@ -2062,7 +2064,7 @@ html {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 10px 0 14px;
+  margin: 10px 0 10px;
 }
 .discord-channel-chip {
   background: var(--bg-input);

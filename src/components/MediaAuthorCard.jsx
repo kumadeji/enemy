@@ -6,7 +6,6 @@ export default function MediaAuthorCard({ author }) {
 
   return (
     <section className="card author-card" style={{ "--author-color": author.color }}>
-      <div className="author-card-banner" />
 
       <div className="author-card-head">
         {avatarFailed ? (

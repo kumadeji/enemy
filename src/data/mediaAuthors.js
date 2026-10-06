@@ -21,10 +21,10 @@ export const MEDIA_AUTHORS = [
     color: "#ff7373",
     links: [
       { platform: "vkvideo",   url: "https://live.vkvideo.ru/serega_burbon" },
+      { platform: "vk",        url: "https://vk.ru/serega_burbon_enemy" },
       { platform: "twitch",    url: "https://twitch.tv/serega_burbon" },
       { platform: "kick",      url: "https://kick.com/serega-burbon" },
       { platform: "rutube",    url: "https://rutube.ru/channel/67951596/" },
-      { platform: "vk",        url: "https://vk.ru/serega_burbon_enemy" },
       { platform: "youtube",   url: "https://www.youtube.com/@serega_burbon_enemy" },
       { platform: "instagram", url: "https://instagram.com/serega_burbon_enemy" },
       { platform: "tiktok",    url: "https://tiktok.com/@serega_burbon_enemy" }

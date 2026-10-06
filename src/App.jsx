@@ -67,7 +67,7 @@ export default function App() {
         </Routes>
         <footer className="site-footer">
           <div className="container">
-		    <p><b>Мультиигровое сообщество ENEMY</b>. 2026. Разработка сайта и бота: [En-Y]Boba, aka kumadeji</p>
+		    <p><b>Мультиигровое сообщество ENEMY</b> (2026). Разработка: [En-Y]Boba, aka kumadeji</p>
 		    <p><i>По вопросам клана: serega_burbon (Discord, ВКонтакте, Telegram). По техническим вопросам: kumadeji (Discord, Telegram)</i></p>
           </div>
         </footer>
