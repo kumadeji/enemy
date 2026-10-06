@@ -17,11 +17,7 @@ export default function Media() {
       <div className="card">
         <h2>Больше контента</h2>
         <p className="hint">Контент и анонсы трансляций от бойцов собираются в Discord-каналах:</p>
-        <div className="discord-channels">
-          <span className="discord-channel-chip">#😁контент-сообщества</span>
-          <span className="discord-channel-chip">#📹стримы-соклановцев</span>
-        </div>
-        <DiscordWidget />
+        <DiscordWidget channels={["#😁контент-сообщества", "#📹стримы-соклановцев"]} />
       </div>
 
       <p className="field-hint">

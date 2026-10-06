@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { SiVk } from "react-icons/si";
 
 const MAX_RETRIES = 3;
 const CHECK_DELAY_MS = 3000;  // сколько ждём после рендера, прежде чем проверить результат
@@ -124,13 +125,17 @@ export default function VkWidget({ groupId }) {
     <div ref={wrapperRef}>
       <div id="vk_groups"></div>
       {broken && (
-        <p className="field-hint">
-          Не удалось загрузить виджет новостей ВКонтакте (иногда это происходит
-          по вине самого ВКонтакте). Загляните в группу напрямую:{" "}
-          <a href={`https://vk.com/club${groupId}`} target="_blank" rel="noreferrer">
-            vk.com/club{groupId}
+        <div className="widget-button-block">
+          <a
+            href={`https://vk.ru/club${groupId}`}
+            target="_blank"
+            rel="noreferrer"
+            className="vk-widget"
+          >
+            <SiVk size={26} className="vk-widget-icon" />
+            <span className="vk-widget-text">Читайте новости в нашей группе ВКонтакте!</span>
           </a>
-        </p>
+        </div>
       )}
     </div>
   );
