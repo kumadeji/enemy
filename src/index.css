@@ -2080,3 +2080,65 @@ html {
 .author-link-icon { overflow: hidden; }
 .author-link-img-full { width: 100%; height: 100%; object-fit: cover; display: block; }
 .author-link-img-pad { width: 18px; height: 18px; object-fit: contain; display: block; }
+
+/* Центрирование кнопки-виджета (Discord / VK) вместе с подписями над ней */
+.widget-button-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
+}
+.widget-button-block .discord-channels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  margin: 0;
+}
+/* Сами кнопки центрируются независимо от контейнера */
+.widget-button-block > a.discord-widget,
+.widget-button-block > a.vk-widget {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+}
+
+/* Кнопка-заглушка ВКонтакте: тот же вид, что у кнопки Discord, но голубая */
+.vk-widget,
+.vk-widget:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #3d8bfd;
+  color: #ffffff !important;
+  border-radius: var(--radius);
+  padding: 12px 22px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.vk-widget:hover {
+  background: #2f78e0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(61, 139, 253, 0.4);
+  color: #ffffff !important;
+  text-decoration: none;
+}
+.vk-widget:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.vk-widget-icon { flex-shrink: 0; }
+.vk-widget-text { white-space: nowrap; }
+
+@media (max-width: 420px) {
+  .vk-widget-text { white-space: normal; }
+}
