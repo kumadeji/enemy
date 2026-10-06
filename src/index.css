@@ -2064,7 +2064,7 @@ html {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 10px 0 10px;
+  margin: 10px 0 18px;
 }
 .discord-channel-chip {
   background: var(--bg-input);
