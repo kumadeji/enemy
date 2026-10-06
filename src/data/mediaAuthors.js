@@ -18,7 +18,7 @@ export const MEDIA_AUTHORS = [
     id: "burbon",
     name: "BURBON",
     avatar: "/avatars/burbon.jpg",
-    color: "#e0824f",
+    color: "#ff7373",
     links: [
       { platform: "vkvideo",   url: "https://live.vkvideo.ru/serega_burbon" },
       { platform: "twitch",    url: "https://twitch.tv/serega_burbon" },
@@ -34,7 +34,7 @@ export const MEDIA_AUTHORS = [
     id: "maker",
     name: "MAKER",
     avatar: "/avatars/maker.jpg",
-    color: "#4bb8c4",
+    color: "#ffb146",
     links: [
       { platform: "youtube", url: "https://youtube.com/@Vlad_Maker/" },
       { platform: "tiktok",  url: "https://tiktok.com/@vlad_maker_armareforger" }
@@ -44,7 +44,7 @@ export const MEDIA_AUTHORS = [
     id: "boba",
     name: "Boba",
     avatar: "/avatars/boba.jpg",
-    color: "#a68bc4",
+    color: "#81b543",
     links: [
       { platform: "twitch",    url: "https://twitch.tv/potatolyosha" },
       { platform: "youtube",   url: "https://youtube.com/@potatolyosha" },
