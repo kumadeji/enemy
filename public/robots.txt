@@ -1,5 +1,10 @@
 User-agent: *
 Allow: /
-Disallow:
+Disallow: /admin
+Disallow: /profile
+Disallow: /my-application
+Disallow: /account
+Disallow: /queue
+Disallow: /hq
 
 Sitemap: https://mis-enemy.ru/sitemap.xml

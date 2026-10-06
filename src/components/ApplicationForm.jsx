@@ -79,6 +79,7 @@ export default function ApplicationForm({
   const [steamIdError, setSteamIdError] = useState("");
   const [armaIdError, setArmaIdError] = useState("");
   const [formError, setFormError] = useState("");
+  const [legalAgreed, setLegalAgreed] = useState(false);
 
   // По умолчанию — "меня пригласил игрок с сайта", как и просили
   const [referralType, setReferralType] = useState(
@@ -191,6 +192,10 @@ export default function ApplicationForm({
     }
 
     if (!form.charterAgreed) { setFormError("Нужно подтвердить, что вы ознакомились с уставом и манифестом."); return; }
+    if (showAccountFields && !legalAgreed) {
+      setFormError("Нужно принять пользовательское соглашение и дать согласие на обработку персональных данных.");
+      return;
+    }
 
     const cErr = validateCallsign(form.callsign);
     if (cErr && !isLocked("callsign")) { setCallsignError(cErr); setFormError(cErr); return; }
@@ -487,8 +492,18 @@ export default function ApplicationForm({
         <legend>Подтверждение</legend>
         <label className="checkbox-label">
           <input type="checkbox" required checked={form.charterAgreed} onChange={e => updateField("charterAgreed", e.target.checked)} />
-          <span>Ознакомился(ась) с <Link to="/charter" target="_blank">уставом и манифестом клана</Link></span>
+          <span>Принимаю <Link to="/charter" target="_blank">устав и манифест клана</Link></span>
         </label>
+        {showAccountFields && (
+          <label className="checkbox-label">
+            <input type="checkbox" required checked={legalAgreed} onChange={e => setLegalAgreed(e.target.checked)} />
+            <span>
+              Принимаю <Link to="/terms" target="_blank">пользовательское соглашение</Link>,
+              ознакомился с <Link to="/privacy" target="_blank">политикой обработки персональных данных</Link> и
+              даю <Link to="/consent" target="_blank">согласие на обработку персональных данных</Link>
+            </span>
+          </label>
+        )}
       </fieldset>
 
       <button type="submit" className="btn btn-large" disabled={submitting}>

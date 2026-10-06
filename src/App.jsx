@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import InfoBanner from "./components/InfoBanner";
@@ -15,7 +15,6 @@ import AdminEditPlayer from "./pages/AdminEditPlayer";
 import Profile from "./pages/Profile";
 import Roster from "./pages/Roster";
 import Media from "./pages/Media";
-import TempTable from "./pages/TempTable";
 import Charter from "./pages/Charter";
 import History from "./pages/History";
 import Queue from "./pages/Queue";
@@ -29,6 +28,9 @@ import ForgotPassword from "./pages/ForgotPassword";
 import AccountSettings from "./pages/AccountSettings";
 import EmailVerificationBanner from "./components/EmailVerificationBanner";
 import AdminTestNotification from "./pages/AdminTestNotification";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Consent from "./pages/Consent";
 
 export default function App() {
   return (
@@ -52,7 +54,6 @@ export default function App() {
 		  <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/roster" element={<Roster />} />
           <Route path="/media" element={<Media />} />
-          <Route path="/temptable" element={<TempTable />} />
 		  <Route path="/charter" element={<Charter />} />
           <Route path="/history" element={<History />} />
           <Route path="/hq/arma" element={<ProtectedRoute require="arma-roster"><ArmaHQ /></ProtectedRoute>} />
@@ -64,11 +65,19 @@ export default function App() {
           <Route path="/admin/changelog" element={<ProtectedRoute require="admin"><AdminChangeLog /></ProtectedRoute>} />
           <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
 		  <Route path="/admin/test-notification" element={<ProtectedRoute require="admin"><AdminTestNotification /></ProtectedRoute>} />
+		  <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/consent" element={<Consent />} />
         </Routes>
         <footer className="site-footer">
           <div className="container">
-		    <p><b>Мультиигровое сообщество ENEMY</b> (2026). Разработка: [En-Y]Boba, aka kumadeji</p>
+		    <p><b>Мультиигровое сообщество ENEMY</b>. Разработка: [En-Y]Boba, aka kumadeji</p>
 		    <p><i>По вопросам клана: serega_burbon (Discord, ВКонтакте, Telegram). По техническим вопросам: kumadeji (Discord, Telegram)</i></p>
+          </div>
+          <div className="footer-links">
+            <Link to="/terms">Пользовательское соглашение</Link>
+            <Link to="/privacy">Политика обработки персональных данных</Link>
+            <Link to="/consent">Согласие на обработку персональных данных</Link>
           </div>
         </footer>
       </AuthProvider>

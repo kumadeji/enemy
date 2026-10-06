@@ -2142,3 +2142,19 @@ html {
 @media (max-width: 420px) {
   .vk-widget-text { white-space: normal; }
 }
+
+/* Ссылки на юридические документы в подвале */
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 12px;
+}
+.footer-links a,
+.footer-links a:visited {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.footer-links a:hover {
+  color: var(--accent);
+}
