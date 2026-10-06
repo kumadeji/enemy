@@ -18,7 +18,6 @@ import Media from "./pages/Media";
 import TempTable from "./pages/TempTable";
 import Charter from "./pages/Charter";
 import History from "./pages/History";
-import Contact from "./pages/Contact";
 import Queue from "./pages/Queue";
 import ArmaHQ from "./pages/ArmaHQ";
 import ArmaStats from "./pages/ArmaStats";
@@ -56,7 +55,6 @@ export default function App() {
           <Route path="/temptable" element={<TempTable />} />
 		  <Route path="/charter" element={<Charter />} />
           <Route path="/history" element={<History />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/hq/arma" element={<ProtectedRoute require="arma-roster"><ArmaHQ /></ProtectedRoute>} />
 		  <Route path="/hq/arma/stats" element={<ProtectedRoute require="arma-roster"><ArmaStats /></ProtectedRoute>} />
           <Route path="/queue" element={<ProtectedRoute require="arma-roster"><Queue /></ProtectedRoute>} />
@@ -68,7 +66,10 @@ export default function App() {
 		  <Route path="/admin/test-notification" element={<ProtectedRoute require="admin"><AdminTestNotification /></ProtectedRoute>} />
         </Routes>
         <footer className="site-footer">
-          <div className="container">© Мультиигровое сообщество ENEMY. 2026. Разработка сайта: [En-Y]Boba, aka kumadeji.</div>
+          <div className="container">
+		    <p><b>Мультиигровое сообщество ENEMY</b>. 2026. Разработка сайта и бота: [En-Y]Boba, aka kumadeji</p>
+		    <p><b>Контакты</b>. По вопросам клана: serega_burbon (Discord, ВКонтакте, Telegram). По техническим вопросам: kumadeji (Discord, Telegram)</p>
+          </div>
         </footer>
       </AuthProvider>
     </BrowserRouter>

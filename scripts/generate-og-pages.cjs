@@ -15,7 +15,6 @@ const ROUTES = [
   { path: "/media", title: "Видео", description: "Видеоконтент мультиигрового сообщества ENEMY: трейлеры, обучающие ролики и материалы от бойцов." },
   { path: "/charter", title: "Устав и манифест", description: "Устав и манифест мультиигрового сообщества ENEMY — правила, структура направления и принципы поведения бойцов." },
   { path: "/history", title: "История", description: "История мультиигрового сообщества ENEMY." },
-  { path: "/contact", title: "Контакты", description: "Контакты администрации мультиигрового сообщества ENEMY." },
 ];
 
 function buildHtmlFor(baseHtml, route) {

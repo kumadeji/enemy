@@ -12,7 +12,6 @@ const TITLE_MAP = [
   { test: p => p.startsWith("/media"), title: "Видео" },
   { test: p => p.startsWith("/charter"), title: "Устав и манифест" },
   { test: p => p.startsWith("/history"), title: "История" },
-  { test: p => p.startsWith("/contact"), title: "Контакты" },
   { test: p => p.startsWith("/hq/arma/stats"), title: "Клановая статистика — Arma Reforger" },
   { test: p => p.startsWith("/hq/arma"), title: "Штаб — Arma Reforger" },
   { test: p => p.startsWith("/queue"), title: "Очередь на КО — Arma Reforger" },

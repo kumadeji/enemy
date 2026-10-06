@@ -1927,3 +1927,136 @@ html {
 .email-status-text.verified { color: #4caf6d; }
 .email-status-text.unverified { color: var(--danger); }
 
+/* ==========================================================================
+   СТРАНИЦА "ВИДЕО": КАРТОЧКИ АВТОРОВ
+   ========================================================================== */
+.author-card {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.author-card:hover {
+  border-color: var(--author-color);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+}
+
+/* Цветная шапка карточки в акцентном цвете автора */
+.author-card-banner {
+  height: 72px;
+  background:
+    linear-gradient(135deg, var(--author-color) 0%, transparent 85%),
+    var(--bg-input);
+  opacity: 0.55;
+  border-bottom: 1px solid var(--border);
+}
+
+.author-card-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  padding: 0 22px;
+  margin-top: -44px; /* аватарка наезжает на шапку */
+}
+
+.author-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 24%;
+  object-fit: cover;
+  border: 3px solid var(--author-color);
+  background: var(--bg-card);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+  display: block;
+}
+.author-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--author-color);
+}
+
+.author-info { padding-bottom: 4px; min-width: 0; }
+.author-tag {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--author-color);
+}
+.author-name {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+  color: var(--text);
+}
+.author-role {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  margin-top: 2px;
+}
+
+/* Сетка кнопок-каналов */
+.author-links {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 18px 22px 22px;
+}
+@media (max-width: 560px) {
+  .author-links { grid-template-columns: 1fr; }
+  .author-name { font-size: 24px; }
+  .author-avatar { width: 80px; height: 80px; }
+}
+
+.author-link-btn,
+.author-link-btn:visited {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 14px 9px 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.author-link-btn:hover {
+  color: var(--text);
+  text-decoration: none;
+  border-color: var(--author-color);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.author-link-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.author-link-label { flex: 1; min-width: 0; }
+.author-link-arrow {
+  color: var(--text-muted);
+  font-size: 15px;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.author-link-btn:hover .author-link-arrow {
+  color: var(--author-color);
+  transform: translate(2px, -2px);
+}
