@@ -51,5 +51,14 @@ export const MEDIA_AUTHORS = [
       { platform: "instagram", url: "https://instagram.com/potatolyosha" },
       { platform: "tiktok",    url: "https://tiktok.com/@potatolyosha" }
     ]
+  },
+  {
+    id: "voin",
+    name: "Voin",
+    avatar: "/avatars/voin.jpg",
+    color: "#82d9ff",
+    links: [
+      { platform: "tiktok",    url: "https://tiktok.com/@glacksame" }
+    ]
   }
 ];

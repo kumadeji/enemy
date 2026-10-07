@@ -22,7 +22,7 @@ export default function Media() {
 
       <p className="field-hint">
         * Instagram принадлежит компании Meta, которая признана экстремистской организацией
-        и запрещена на территории России.
+        и запрещена в России.
       </p>
     </main>
   );
