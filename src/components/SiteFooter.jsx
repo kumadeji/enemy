@@ -17,7 +17,7 @@ export default function SiteFooter() {
           По вопросам клана: serega_burbon (Discord, ВКонтакте, Telegram). По техническим вопросам: kumadeji (Discord, Telegram)
         </div>
         <div className="footer-small">
-          <Link to="/terms">Пользовательское соглашение и Политика обработки персональных данных</Link>
+          <Link to="/terms">Политика обработки персональных данных и Пользовательское соглашение</Link>
           {" · "}
           <Link to="/consent">Согласие на обработку персональных данных</Link>
         </div>

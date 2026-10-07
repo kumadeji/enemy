@@ -192,13 +192,13 @@ export default function ApplicationForm({
       return;
     }
 
-    if (!form.charterAgreed) { setFormError("Нужно подтвердить, что вы ознакомились с уставом и манифестом."); return; }
+    if (!form.charterAgreed) { setFormError("Нужно принять Устав и манифест."); return; }
     if (showAccountFields && !legalAgreed) {
-      setFormError("Нужно принять пользовательское соглашение и политику обработки персональных данных.");
+      setFormError("Нужно принять Политику обработки персональных данных и Пользовательское соглашение.");
       return;
     }
     if (showAccountFields && !consentAgreed) {
-      setFormError("Нужно дать согласие на обработку персональных данных.");
+      setFormError("Нужно дать Согласие на обработку персональных данных.");
       return;
     }
 
@@ -504,7 +504,7 @@ export default function ApplicationForm({
             <label className="checkbox-label">
               <input type="checkbox" required checked={legalAgreed} onChange={e => setLegalAgreed(e.target.checked)} />
               <span>
-                Принимаю <Link to="/terms" target="_blank">Пользовательское соглашение и Политику обработки персональных данных</Link>
+                Принимаю <Link to="/terms" target="_blank">Политику обработки персональных данных и Пользовательское соглашение</Link>
               </span>
             </label>
             <label className="checkbox-label">
