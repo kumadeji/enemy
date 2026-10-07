@@ -71,10 +71,7 @@ export default function App() {
           <div className="container">
 		    <p><b>Мультиигровое сообщество ENEMY</b>. Разработка: [En-Y]Boba, aka kumadeji</p>
 		    <p><i>По вопросам клана: serega_burbon (Discord, ВКонтакте, Telegram). По техническим вопросам: kumadeji (Discord, Telegram)</i></p>
-            <i>
-			  <Link to="/terms">Пользовательское соглашение и Политика обработки ПДн</Link>
-              <Link to="/consent">Согласие на обработку ПДн</Link>
-			</i>
+            <i><Link to="/terms">Пользовательское соглашение и Политика обработки персональных данных</Link>. <Link to="/consent">Согласие на обработку персональных данных</Link></i>
           </div>
         </footer>
       </AuthProvider>
