@@ -58,6 +58,7 @@ export const MEDIA_AUTHORS = [
     avatar: "/avatars/voin.jpg",
     color: "#82d9ff",
     links: [
+      { platform: "youtube",   url: "https://youtube.com/@VoinSH" },
       { platform: "tiktok",    url: "https://tiktok.com/@glacksame" }
     ]
   }
