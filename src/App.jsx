@@ -29,7 +29,6 @@ import AccountSettings from "./pages/AccountSettings";
 import EmailVerificationBanner from "./components/EmailVerificationBanner";
 import AdminTestNotification from "./pages/AdminTestNotification";
 import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
 import Consent from "./pages/Consent";
 
 export default function App() {
@@ -66,18 +65,16 @@ export default function App() {
           <Route path="/admin/migrate" element={<ProtectedRoute require="admin"><AdminMigrate /></ProtectedRoute>} />
 		  <Route path="/admin/test-notification" element={<ProtectedRoute require="admin"><AdminTestNotification /></ProtectedRoute>} />
 		  <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
           <Route path="/consent" element={<Consent />} />
         </Routes>
         <footer className="site-footer">
           <div className="container">
 		    <p><b>Мультиигровое сообщество ENEMY</b>. Разработка: [En-Y]Boba, aka kumadeji</p>
 		    <p><i>По вопросам клана: serega_burbon (Discord, ВКонтакте, Telegram). По техническим вопросам: kumadeji (Discord, Telegram)</i></p>
-          </div>
-          <div className="footer-links">
-            <Link to="/terms">Пользовательское соглашение</Link>
-            <Link to="/privacy">Политика обработки персональных данных</Link>
-            <Link to="/consent">Согласие на обработку персональных данных</Link>
+            <i>
+			  <Link to="/terms">Пользовательское соглашение</Link>
+              <Link to="/consent">Согласие на обработку персональных данных</Link>
+			</i>
           </div>
         </footer>
       </AuthProvider>

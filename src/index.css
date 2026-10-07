@@ -2158,3 +2158,6 @@ html {
 .footer-links a:hover {
   color: var(--accent);
 }
+
+/* Якорные ссылки на подразделы (Пользовательское соглашение) */
+.charter-section h3[id] { scroll-margin-top: 170px; }

@@ -19,6 +19,8 @@ const TITLE_MAP = [
   { test: p => p.startsWith("/admin/migrate"), title: "Миграция данных" },
   { test: p => p.startsWith("/admin/player"), title: "Личное дело — Панель комбата" },
   { test: p => p.startsWith("/admin"), title: "Панель комбата" },
+  { test: p => p.startsWith("/terms"), title: "Пользовательское соглашение и Политика обработки персональных данных" },
+  { test: p => p.startsWith("/consent"), title: "Согласие на обработку персональных данных" },
 ];
 
 export default function PageTitle() {
