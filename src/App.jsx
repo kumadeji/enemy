@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import SiteFooter from "./components/SiteFooter";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import InfoBanner from "./components/InfoBanner";
@@ -67,21 +68,7 @@ export default function App() {
 		  <Route path="/terms" element={<Terms />} />
           <Route path="/consent" element={<Consent />} />
         </Routes>
-        <footer className="site-footer">
-          <div className="container">
-            <div className="footer-main">
-              <b>Мультиигровое сообщество ENEMY</b>. Разработка: [En-Y]Boba, aka kumadeji
-            </div>
-            <div className="footer-small">
-              По вопросам клана: serega_burbon (Discord, ВКонтакте, Telegram). По техническим вопросам: kumadeji (Discord, Telegram)
-            </div>
-            <div className="footer-small">
-              <Link to="/terms">Пользовательское соглашение и Политика обработки персональных данных</Link>
-              {" · "}
-              <Link to="/consent">Согласие на обработку персональных данных</Link>
-            </div>
-          </div>
-        </footer>
+        <SiteFooter />
       </AuthProvider>
     </BrowserRouter>
   );

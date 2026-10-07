@@ -2172,3 +2172,8 @@ html {
 
 /* Якорные ссылки на подразделы (Пользовательское соглашение) */
 .charter-section h3[id] { scroll-margin-top: 170px; }
+
+/* Подвал по центру экрана (только на страницах входа и восстановления пароля) */
+.footer-centered .container {
+  text-align: center;
+}
