@@ -69,9 +69,17 @@ export default function App() {
         </Routes>
         <footer className="site-footer">
           <div className="container">
-		    <p><b>Мультиигровое сообщество ENEMY</b>. Разработка: [En-Y]Boba, aka kumadeji</p>
-		    <p><i>По вопросам клана: serega_burbon (Discord, ВКонтакте, Telegram). По техническим вопросам: kumadeji (Discord, Telegram)</i></p>
-            <i><Link to="/terms">Пользовательское соглашение и Политика обработки персональных данных</Link>. <Link to="/consent">Согласие на обработку персональных данных</Link></i>
+            <div className="footer-main">
+              <b>Мультиигровое сообщество ENEMY</b>. Разработка: [En-Y]Boba, aka kumadeji
+            </div>
+            <div className="footer-small">
+              По вопросам клана: serega_burbon (Discord, ВКонтакте, Telegram). По техническим вопросам: kumadeji (Discord, Telegram)
+            </div>
+            <div className="footer-small">
+              <Link to="/terms">Пользовательское соглашение и Политика обработки персональных данных</Link>
+              {" · "}
+              <Link to="/consent">Согласие на обработку персональных данных</Link>
+            </div>
           </div>
         </footer>
       </AuthProvider>

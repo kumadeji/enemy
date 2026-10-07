@@ -520,7 +520,33 @@ tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
 /* ==========================================================================
    ФУТЕР
    ========================================================================== */
-.site-footer { margin-top: 60px; border-top: 1px solid var(--border); padding: 20px 0; color: var(--text-muted); font-size: 13px; }
+.site-footer { margin-top: 40px; border-top: 1px solid var(--border); padding: 14px 0 16px; color: var(--text-muted); }
+
+/* Первая строка подвала: крупнее и заметнее */
+.footer-main {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+/* Остальные строки: мелкие, плотные, приглушённые */
+.footer-small {
+  font-size: 11.5px;
+  line-height: 1.4;
+  opacity: 0.75;
+  margin: 0 0 2px;
+}
+.footer-small a,
+.footer-small a:visited {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-decoration-color: rgba(154, 160, 166, 0.4);
+}
+.footer-small a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
 
 /* ==========================================================================
    СООБЩЕНИЯ ОБ ОГРАНИЧЕНИИ ДОСТУПА (ProtectedRoute)
@@ -2141,22 +2167,6 @@ html {
 
 @media (max-width: 420px) {
   .vk-widget-text { white-space: normal; }
-}
-
-/* Ссылки на юридические документы в подвале */
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 20px;
-  margin-bottom: 12px;
-}
-.footer-links a,
-.footer-links a:visited {
-  color: var(--text-muted);
-  font-size: 13px;
-}
-.footer-links a:hover {
-  color: var(--accent);
 }
 
 /* Якорные ссылки на подразделы (Пользовательское соглашение) */
